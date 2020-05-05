@@ -1,0 +1,10 @@
+{
+  "name": "reversi-web",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "lerna": "^3.20.2",
+    "prettier": "^2.0.5",
+    "typescript": "^3.8.3"
+  }
+}
