@@ -3,9 +3,8 @@ import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import {
   express as expressConfig,
-  mongoConfig as mongoConfig,
+  mongo as mongoConfig,
 } from './config/config';
-import http from 'http';
 import cors from 'cors';
 
 const app = express();

@@ -15,11 +15,11 @@ interface MongoConfig {
   password: string;
 }
 
-const mongoConfig: MongoConfig = {
+const mongo: MongoConfig = {
   user: 'admin',
   host: 'cluster0-wrwyj.mongodb.net',
   database: 'fs-project',
   password: secrets.mongoPassword,
 };
 
-export {express, mongoConfig};
+export {express, mongo};
