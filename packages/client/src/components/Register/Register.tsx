@@ -1,15 +1,16 @@
 import * as React from 'react';
 import {useAuth} from '../../context/AuthContext';
 
-const Login: React.FC = () => {
-  const {login, isUserLoggedIn, logout} = useAuth();
+const Register: React.FC = () => {
+  const {register, isUserLoggedIn, logout} = useAuth();
 
   const [username, setUsername] = React.useState<string>('');
+  const [email, setEmail] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
 
-  const loginUser = () => {
-    login({username, password}).catch((err) => {
-      console.log('ERROR: Login Failed, err');
+  const registerUser = () => {
+    register({username, email, password}).catch((err) => {
+      console.log('ERROR: Register Failed', err);
     });
   };
 
@@ -24,7 +25,7 @@ const Login: React.FC = () => {
 
   return (
     <>
-      <h1>Login</h1>
+      <h1>Register</h1>
       <hr />
 
       <h3>Username</h3>
@@ -34,6 +35,16 @@ const Login: React.FC = () => {
         value={username}
         onChange={(e: React.FormEvent<HTMLInputElement>) => {
           setUsername(e.currentTarget.value);
+        }}
+      />
+
+      <h3>Email</h3>
+      <input
+        type="text"
+        name="Email"
+        value={username}
+        onChange={(e: React.FormEvent<HTMLInputElement>) => {
+          setEmail(e.currentTarget.value);
         }}
       />
 
@@ -49,9 +60,9 @@ const Login: React.FC = () => {
 
       <br />
       <br />
-      <button onClick={loginUser}>Submit</button>
+      <button onClick={registerUser}>Submit</button>
     </>
   );
 };
 
-export default Login;
+export default Register;
