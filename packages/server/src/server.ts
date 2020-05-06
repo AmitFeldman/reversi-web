@@ -2,8 +2,8 @@ const express = require('express');
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import {
-  express1 as expressConfig,
-  mongo1 as mongoConfig,
+  express as expressConfig,
+  mongoConfig as mongoConfig,
 } from './config/config';
 import http from 'http';
 import cors from 'cors';
