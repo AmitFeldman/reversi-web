@@ -1,0 +1,43 @@
+const express = require('express');
+import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+import {
+  express1 as expressConfig,
+  mongo1 as mongoConfig,
+} from './config/config';
+import http from 'http';
+import cors from 'cors';
+
+const app = express();
+
+// Enabling CORS
+app.use(cors());
+
+// Body-parser middleware
+app.use(
+  bodyParser.urlencoded({
+    extended: false,
+  })
+);
+app.use(bodyParser.json());
+
+// Routes
+
+// Connect to MongoDB
+const {user, password, host, database} = mongoConfig;
+const mongoURI = `mongodb+srv://${user}:${password}@${host}/${database}?retryWrites=true&w=majority`;
+
+console.log(`connecting to MongoDB through uri ${mongoURI}...`);
+mongoose
+  .connect(mongoURI, {useNewUrlParser: true, useUnifiedTopology: true})
+  .then(() => console.log('successfully connected to MongoDB...'))
+  .catch(err => console.log(err));
+
+// Express config variables
+const {serverPort} = expressConfig;
+
+// Express server listening
+// eslint-disable-next-line no-unused-vars
+const server = app.listen(serverPort, () => {
+  console.log(`server listening on port ${serverPort}...`);
+});
