@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import {express as expressConfig, mongo as mongoConfig} from './config/config';
 import cors from 'cors';
+import users from './routes/api/users';
 import {parseToken} from './middlewares/auth';
 
 const app = express();
@@ -18,7 +19,11 @@ app.use(
 );
 app.use(bodyParser.json());
 
+// Token parsing middleware
+app.use(parseToken);
+
 // Routes
+app.use('/api/users', users);
 
 // Connect to MongoDB
 const {user, password, host, database} = mongoConfig;
