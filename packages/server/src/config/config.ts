@@ -18,7 +18,7 @@ interface MongoConfig {
 const mongo: MongoConfig = {
   user: 'admin',
   host: 'cluster0-wrwyj.mongodb.net',
-  database: 'fs-project',
+  database: 'reversi-web-db',
   password: secrets.mongoPassword,
 };
 

@@ -1,11 +1,9 @@
-const express = require('express');
+import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
-import {
-  express as expressConfig,
-  mongo as mongoConfig,
-} from './config/config';
+import {express as expressConfig, mongo as mongoConfig} from './config/config';
 import cors from 'cors';
+import {parseToken} from './middlewares/auth';
 
 const app = express();
 
