@@ -30,7 +30,7 @@ const Register: React.FC = () => {
 
       <h3>Username</h3>
       <input
-        type="text"
+        type="email"
         name="Username"
         value={username}
         onChange={(e: React.FormEvent<HTMLInputElement>) => {
