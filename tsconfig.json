@@ -15,7 +15,9 @@
     "noEmit": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "reversi-types": ["packages/reversi-types"]
+    }
   },
   "exclude": ["node_modules", "dist"]
 }

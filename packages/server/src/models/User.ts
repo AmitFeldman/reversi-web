@@ -1,13 +1,15 @@
-import {Schema, model, Document} from 'mongoose';
-import {BasicType} from '../types/basic-type';
+import {Schema, model, Model} from 'mongoose';
+import {User} from 'reversi-types';
 
 const UserSchema = new Schema({
   username: {
     type: String,
+    unique: true,
     required: true,
   },
   email: {
     type: String,
+    unique: true,
     required: true,
   },
   password: {
@@ -25,15 +27,6 @@ const UserSchema = new Schema({
   },
 });
 
-export interface User extends BasicType {
-  username: string;
-  password: string;
-  email: string;
-  isAdmin: boolean;
-}
-
-export interface MongoUser extends User, Document {};
-
-const User = model<MongoUser>('users', UserSchema);
+const User = model<User, Model<User>>('users', UserSchema);
 
 export default User;

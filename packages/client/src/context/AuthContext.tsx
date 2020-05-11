@@ -6,7 +6,8 @@ import {
   getLocalUser,
 } from '../utils/auth-client';
 import * as usersApi from '../utils/users-api';
-import {LoginBody, RegisterBody, User} from '../utils/users-api';
+import {LoginBody, RegisterBody} from '../utils/users-api';
+import {User} from 'reversi-types';
 
 type OptionalUser = User | null;
 

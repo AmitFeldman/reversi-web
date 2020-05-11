@@ -1,12 +1,5 @@
 import client from './api-client';
-import {BasicType} from '../types/basic-type';
-
-export interface User extends BasicType {
-  username: string;
-  password: string;
-  email: string;
-  isAdmin: boolean;
-}
+import {User} from 'reversi-types';
 
 export enum UserErrorCode {
   USER_NOT_FOUND = 1,

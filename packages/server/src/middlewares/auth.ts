@@ -1,16 +1,15 @@
 import User from '../models/User';
 import {isIdValid} from '../utils/validation';
-import {Response, NextFunction} from 'express';
-import {UserRequest} from '../types/user-request';
+import {Request, Response, NextFunction} from 'express';
 
 // Take token from request and parse it to the user who sent the request
 // This middleware is applied to all requests
-const parseToken = (req: UserRequest, res: Response, next: NextFunction) => {
+const parseToken = (req: Request, res: Response, next: NextFunction) => {
   const id = req.headers.token;
 
   if (isIdValid(id)) {
     User.findById(id)
-      .then(user => {
+      .then((user) => {
         req.user = user;
       })
       .finally(() => {
@@ -21,7 +20,7 @@ const parseToken = (req: UserRequest, res: Response, next: NextFunction) => {
   }
 };
 
-const isAdmin = (req: UserRequest, res: Response, next: NextFunction) => {
+const isAdmin = (req: Request, res: Response, next: NextFunction) => {
   const {user} = req;
   const isUserAdmin = user && user.isAdmin;
 
@@ -32,7 +31,7 @@ const isAdmin = (req: UserRequest, res: Response, next: NextFunction) => {
   next();
 };
 
-const isLoggedIn = (req: UserRequest, res: Response, next: NextFunction) => {
+const isLoggedIn = (req: Request, res: Response, next: NextFunction) => {
   const {user} = req;
   if (!user) {
     return res.status(401).send({error: {msg: 'User is not logged in'}});

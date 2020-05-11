@@ -42,7 +42,7 @@ const Register: React.FC = () => {
       <input
         type="text"
         name="Email"
-        value={username}
+        value={email}
         onChange={(e: React.FormEvent<HTMLInputElement>) => {
           setEmail(e.currentTarget.value);
         }}

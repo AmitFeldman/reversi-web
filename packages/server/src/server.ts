@@ -20,7 +20,7 @@ app.use(
 app.use(bodyParser.json());
 
 // Token parsing middleware
-app.use(parseToken as any);
+app.use(parseToken);
 
 // Routes
 app.use('/api/users', users);
