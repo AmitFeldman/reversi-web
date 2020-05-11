@@ -1,0 +1,27 @@
+{
+  "name": "reversi-types",
+  "version": "0.0.0",
+  "homepage": "https://github.com/AmitFeldman/reversi-web#readme",
+  "license": "ISC",
+  "main": "lib/reversi-types.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AmitFeldman/reversi-web.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/AmitFeldman/reversi-web/issues"
+  },
+  "dependencies": {
+    "@types/mongoose": "^5.7.16"
+  }
+}
