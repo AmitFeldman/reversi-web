@@ -6,9 +6,16 @@ interface CellProps {
   position: Vector3;
   cellSize: number;
   cellHeight: number;
+  onClick: (id: number) => void;
 }
 
-const Cell: React.FC<CellProps> = ({id, position, cellSize, cellHeight}) => {
+const Cell: React.FC<CellProps> = ({
+  id,
+  position,
+  cellSize,
+  cellHeight,
+  onClick,
+}) => {
   const mesh = React.useRef<Mesh>();
 
   const [hovered, setHover] = React.useState(false);
@@ -16,7 +23,6 @@ const Cell: React.FC<CellProps> = ({id, position, cellSize, cellHeight}) => {
   return (
     <mesh
       ref={mesh}
-      key={id}
       position={position}
       onPointerOver={(e) => {
         setHover(true);
@@ -24,6 +30,10 @@ const Cell: React.FC<CellProps> = ({id, position, cellSize, cellHeight}) => {
       }}
       onPointerOut={(e) => {
         setHover(false);
+        e.stopPropagation();
+      }}
+      onClick={(e) => {
+        onClick(id);
         e.stopPropagation();
       }}>
       <boxBufferGeometry

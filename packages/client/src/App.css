@@ -7,3 +7,25 @@
 .h-window {
   height: 100vh;
 }
+
+.hud {
+  position: absolute;
+  text-align: center;
+  z-index: 100;
+  display:block;
+}
+
+.top-left {
+  top: 5px;
+  left: 5px;
+}
+
+.mid-left {
+  top: 5px;
+  left: 25vw;
+}
+
+.mid-right {
+  top: 5px;
+  right: 25vw;
+}
