@@ -2,6 +2,7 @@ import * as React from 'react';
 import {Canvas} from 'react-three-fiber';
 import Board from '../Board/Board';
 import CameraControls from '../Camera/Camera';
+import * as THREE from 'three';
 
 const ThreeCanvas: React.FC = () => {
   return (
@@ -16,7 +17,7 @@ const ThreeCanvas: React.FC = () => {
       <ambientLight />
       <pointLight position={[10, 10, 10]} />
 
-      <Board position={[0, 0, 0]} />
+      <Board position={new THREE.Vector3(0, 0, 0)} />
     </Canvas>
   );
 };
