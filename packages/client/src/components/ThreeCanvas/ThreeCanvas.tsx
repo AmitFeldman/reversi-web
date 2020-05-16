@@ -14,7 +14,7 @@ const ThreeCanvas: React.FC = () => {
   return (
     <>
       <Canvas
-        style={{height: '100vh', background: 'white'}}
+        style={{height: '100vh', background: 'beige'}}
         className="h-window"
         onCreated={({gl, scene}) => {
           scene.rotation.set(Math.PI / 3, 0, 0);

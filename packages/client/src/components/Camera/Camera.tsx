@@ -38,6 +38,8 @@ const CameraControls: React.FC<CameraControlsProps> = ({controls}) => {
       maxPolarAngle={Math.PI / 1.5}
       minAzimuthAngle={-Math.PI / 4}
       minPolarAngle={Math.PI / 4}
+      enableDamping={true}
+      dampingFactor={0.1}
       enableKeys={false}
     />
   );
