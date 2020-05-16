@@ -5,17 +5,17 @@ import CameraControls from '../Camera/Camera';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {IoMdReverseCamera} from 'react-icons/io';
 import {TiArrowBack} from 'react-icons/ti';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
 
-const ThreeCanvas: React.FC = () => {
+const canvasStyle = {height: '100vh', background: 'beige'};
+
+const Game: React.FC = () => {
   const controls = React.useRef<OrbitControls>();
 
   return (
     <>
       <Canvas
-        style={{height: '100vh', background: 'beige'}}
-        className="h-window"
+        style={canvasStyle}
+        className="h-screen"
         onCreated={({gl, scene}) => {
           scene.rotation.set(Math.PI / 3, 0, 0);
         }}>
@@ -27,28 +27,30 @@ const ThreeCanvas: React.FC = () => {
         <Board />
       </Canvas>
 
-      <div className="hud top-left">
-        <Tooltip title="Leave Game">
-          <IconButton>
+      <div className="absolute top-0 left-0">
+        <div className="p-2">
+          <button className="icon-btn">
             <TiArrowBack />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Reset Camera">
-          <IconButton
-            onClick={() => controls.current && controls.current.reset()}>
+          </button>
+        </div>
+
+        <div className="p-2">
+          <button
+            onClick={() => controls.current && controls.current.reset()}
+            className="icon-btn">
             <IoMdReverseCamera />
-          </IconButton>
-        </Tooltip>
+          </button>
+        </div>
       </div>
 
-      <div className="hud mid-left">
+      <div className="absolute top-0 left-25">
         <h1>Black</h1>
       </div>
 
-      <div className="hud mid-right">
+      <div className="absolute top-0 right-25">
         <h1>White</h1>
       </div>
     </>
   );
 };
-export default ThreeCanvas;
+export default Game;
