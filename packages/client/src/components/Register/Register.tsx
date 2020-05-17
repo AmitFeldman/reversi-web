@@ -1,7 +1,11 @@
 import * as React from 'react';
 import {useAuth} from '../../context/AuthContext';
 
-const Register: React.FC = () => {
+interface RegisterProps {
+  onRegister?: () => void;
+}
+
+const Register: React.FC<RegisterProps> = ({onRegister = () => {}}) => {
   const {register} = useAuth();
 
   const [username, setUsername] = React.useState<string>('');
@@ -9,9 +13,13 @@ const Register: React.FC = () => {
   const [password, setPassword] = React.useState<string>('');
 
   const registerUser = () => {
-    register({username, email, password}).catch((err) => {
-      console.log('ERROR: Register Failed', err);
-    });
+    register({username, email, password})
+      .then(() => {
+        onRegister();
+      })
+      .catch((err) => {
+        console.log('ERROR: Register Failed', err);
+      });
   };
 
   return (

@@ -1,16 +1,24 @@
 import * as React from 'react';
 import {useAuth} from '../../context/AuthContext';
 
-const Login: React.FC = () => {
+interface LoginProps {
+  onLogin?: () => void;
+}
+
+const Login: React.FC<LoginProps> = ({onLogin = () => {}}) => {
   const {login} = useAuth();
 
   const [username, setUsername] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
 
   const loginUser = () => {
-    login({username, password}).catch((err) => {
-      console.log('ERROR: Login Failed, err');
-    });
+    login({username, password})
+      .then(() => {
+        onLogin();
+      })
+      .catch((err) => {
+        console.log('ERROR: Login Failed, err');
+      });
   };
 
   return (
