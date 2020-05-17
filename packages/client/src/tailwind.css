@@ -3,16 +3,24 @@
 /*noinspection CssInvalidAtRule*/
 @tailwind components;
 
-.icon-btn {
-  @apply bg-blue-500 text-white py-2 px-2 rounded-full;
+.modal {
+  transition: opacity 0.25s ease;
 }
 
-.icon-btn:hover {
-  @apply bg-blue-700;
+body.modal-active {
+  overflow-x: hidden;
+  overflow-y: visible !important;
 }
 
-.icon-btn:focus {
-  @apply outline-none;
+.tooltip .tooltip-text {
+  visibility: hidden;
+  text-align: center;
+  padding: 2px 6px;
+  position: relative;
+  z-index: 100;
+}
+.tooltip:hover .tooltip-text {
+  visibility: visible;
 }
 
 /*noinspection CssInvalidAtRule*/

@@ -623,28 +623,25 @@ video {
   }
 }
 
-.icon-btn {
-  --bg-opacity: 1;
-  background-color: #4299e1;
-  background-color: rgba(66, 153, 225, var(--bg-opacity));
-  --text-opacity: 1;
-  color: #fff;
-  color: rgba(255, 255, 255, var(--text-opacity));
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  border-radius: 9999px;
+.modal {
+  transition: opacity 0.25s ease;
 }
 
-.icon-btn:hover {
-  --bg-opacity: 1;
-  background-color: #2b6cb0;
-  background-color: rgba(43, 108, 176, var(--bg-opacity));
+body.modal-active {
+  overflow-x: hidden;
+  overflow-y: visible !important;
 }
 
-.icon-btn:focus {
-  outline: 0;
+.tooltip .tooltip-text {
+  visibility: hidden;
+  text-align: center;
+  padding: 2px 6px;
+  position: relative;
+  z-index: 100;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
 }
 
 /*noinspection CssInvalidAtRule*/

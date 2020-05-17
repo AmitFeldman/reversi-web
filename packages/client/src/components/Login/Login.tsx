@@ -2,7 +2,7 @@ import * as React from 'react';
 import {useAuth} from '../../context/AuthContext';
 
 const Login: React.FC = () => {
-  const {login, isUserLoggedIn, logout} = useAuth();
+  const {login} = useAuth();
 
   const [username, setUsername] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
@@ -12,15 +12,6 @@ const Login: React.FC = () => {
       console.log('ERROR: Login Failed, err');
     });
   };
-
-  if (isUserLoggedIn()) {
-    return (
-      <>
-        <h1>User is already logged in!</h1>
-        <button onClick={logout}>Logout</button>
-      </>
-    );
-  }
 
   return (
     <>

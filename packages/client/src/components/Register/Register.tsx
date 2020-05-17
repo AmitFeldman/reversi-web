@@ -2,7 +2,7 @@ import * as React from 'react';
 import {useAuth} from '../../context/AuthContext';
 
 const Register: React.FC = () => {
-  const {register, isUserLoggedIn, logout} = useAuth();
+  const {register} = useAuth();
 
   const [username, setUsername] = React.useState<string>('');
   const [email, setEmail] = React.useState<string>('');
@@ -13,15 +13,6 @@ const Register: React.FC = () => {
       console.log('ERROR: Register Failed', err);
     });
   };
-
-  if (isUserLoggedIn()) {
-    return (
-      <>
-        <h1>User is already logged in!</h1>
-        <button onClick={logout}>Logout</button>
-      </>
-    );
-  }
 
   return (
     <>
