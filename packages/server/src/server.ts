@@ -2,9 +2,13 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import {express as expressConfig, mongo as mongoConfig} from './config/config';
+import socketIO from 'socket.io';
 import cors from 'cors';
 import users from './routes/api/users';
 import {parseToken} from './middlewares/auth';
+import http from "http";
+import {initSocketIO} from './utils/socket-service';
+
 
 const app = express();
 
@@ -36,10 +40,19 @@ mongoose
   .catch(err => console.log(err));
 
 // Express config variables
-const {serverPort} = expressConfig;
+const {serverPort, socketPort} = expressConfig;
 
 // Express server listening
 // eslint-disable-next-line no-unused-vars
 const server = app.listen(serverPort, () => {
   console.log(`server listening on port ${serverPort}...`);
 });
+
+const socketServer = new http.Server(app);
+const io = socketIO(socketServer);
+
+// Socket server listening
+socketServer.listen(socketPort);
+console.log(`socket listening on port ${socketPort}...`);
+
+initSocketIO(io);

@@ -1,8 +1,14 @@
 import * as React from 'react';
 import {useAuth} from '../../context/AuthContext';
+import {emitEvent} from '../../utils/socket-client';
 
 const Login: React.FC = () => {
   const {login, isUserLoggedIn, logout} = useAuth();
+
+  setInterval(() => {
+    emitEvent("maaaa", "heyyyy");
+    emitEvent('joinRoom', 'asdasd');
+  }, 1000);
 
   const [username, setUsername] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
