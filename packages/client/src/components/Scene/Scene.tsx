@@ -1,23 +1,22 @@
 import * as React from 'react';
 import {Canvas} from 'react-three-fiber';
-import Board from '../Board/Board';
 
-const canvasStyle = {height: '100vh', background: 'beige'};
+// Only way the canvas accepts styles
+const canvasStyle = {height: '100vh', background: 'blue'};
 
-const Game: React.FC = ({children}) => {
+const Scene: React.FC = ({children}) => {
   return (
     <Canvas
       style={canvasStyle}
-      className="h-screen"
+      className="h-screen z-0"
       onCreated={({gl, scene}) => {
         scene.rotation.set(Math.PI / 3, 0, 0);
       }}>
       <ambientLight />
       <pointLight position={[10, 10, 10]} />
 
-      <Board />
       {children}
     </Canvas>
   );
 };
-export default Game;
+export default Scene;

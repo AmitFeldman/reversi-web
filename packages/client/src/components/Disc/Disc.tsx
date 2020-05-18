@@ -7,14 +7,16 @@ const RADIAL_SEGMENTS = 32;
 const BLACK = 'black';
 const WHITE = 'white';
 
+export type DiscType = 'black' | 'white';
+
 interface DiskProps {
   position: Vector3;
+  type: DiscType;
 }
 
-// radiusTop, radiusBottom, height, radialSegments
-const Disc: React.FC<DiskProps> = ({position}) => {
+const Disc: React.FC<DiskProps> = ({position, type}) => {
   return (
-    <>
+    <group>
       <mesh
         position={
           new Vector3(position.x, position.y + DISC_HEIGHT, position.z)
@@ -23,7 +25,10 @@ const Disc: React.FC<DiskProps> = ({position}) => {
           attach="geometry"
           args={[DISC_RADIUS, DISC_RADIUS, DISC_HEIGHT, RADIAL_SEGMENTS]}
         />
-        <meshStandardMaterial attach="material" color={BLACK} />
+        <meshStandardMaterial
+          attach="material"
+          color={type === 'white' ? BLACK : WHITE}
+        />
       </mesh>
       <mesh
         position={
@@ -33,9 +38,12 @@ const Disc: React.FC<DiskProps> = ({position}) => {
           attach="geometry"
           args={[DISC_RADIUS, DISC_RADIUS, DISC_HEIGHT, RADIAL_SEGMENTS]}
         />
-        <meshStandardMaterial attach="material" color={WHITE} />
+        <meshStandardMaterial
+          attach="material"
+          color={type === 'white' ? WHITE : BLACK}
+        />
       </mesh>
-    </>
+    </group>
   );
 };
 

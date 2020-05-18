@@ -1,5 +1,7 @@
 import * as React from 'react';
 import {useAuth} from '../../context/AuthContext';
+import LabeledInput from '../LabeledInput/LabeledInput';
+import Button from '../Button/Button';
 
 interface RegisterProps {
   onRegister?: () => void;
@@ -24,42 +26,31 @@ const Register: React.FC<RegisterProps> = ({onRegister = () => {}}) => {
 
   return (
     <>
-      <h1>Register</h1>
-      <hr />
-
-      <h3>Username</h3>
-      <input
-        type="email"
-        name="Username"
+      <LabeledInput
+        label="Username"
         value={username}
-        onChange={(e: React.FormEvent<HTMLInputElement>) => {
+        onValueChange={(e: React.FormEvent<HTMLInputElement>) => {
           setUsername(e.currentTarget.value);
         }}
       />
 
-      <h3>Email</h3>
-      <input
-        type="text"
-        name="Email"
+      <LabeledInput
+        label="Email"
         value={email}
-        onChange={(e: React.FormEvent<HTMLInputElement>) => {
+        onValueChange={(e: React.FormEvent<HTMLInputElement>) => {
           setEmail(e.currentTarget.value);
         }}
       />
 
-      <h3>Password</h3>
-      <input
-        type="text"
-        name="Password"
+      <LabeledInput
+        label="Password"
         value={password}
-        onChange={(e: React.FormEvent<HTMLInputElement>) => {
+        onValueChange={(e: React.FormEvent<HTMLInputElement>) => {
           setPassword(e.currentTarget.value);
         }}
       />
 
-      <br />
-      <br />
-      <button onClick={registerUser}>Submit</button>
+      <Button onClick={registerUser}>Register</Button>
     </>
   );
 };

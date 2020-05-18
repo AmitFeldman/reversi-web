@@ -57,6 +57,7 @@ const Board: React.FC<BoardProps> = ({position = new Vector3(0, 0, 0)}) => {
       {discs.map((id) => (
         <Disc
           key={id}
+          type={'black'}
           position={
             new Vector3(
               position.x + (id % 8) - BOARD_SIZE / 2 + 0.5,

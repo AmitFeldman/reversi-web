@@ -1,23 +1,30 @@
 import React from 'react';
-import Game from './components/Game/Game';
+import Scene from './components/Scene/Scene';
 import IconButton from './components/IconButton/IconButton';
 import {TiArrowBack} from 'react-icons/ti';
 import {IoMdReverseCamera} from 'react-icons/io';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import CameraControls from './components/Camera/Camera';
-import {AppState, useAppData} from './context/AppContext';
+import {AppState} from './context/AppContext';
 import UserControls from './components/UserControls/UserControls';
+import Board from './components/Board/Board';
+import Modal from 'react-modal';
 
 function App() {
   const controls = React.useRef<OrbitControls>();
-  const {setStateInGame} = useAppData();
   const [state, setState] = React.useState<AppState>(AppState.MAIN_MENU);
 
+  // Setup for react-modal
+  React.useEffect(() => {
+    Modal.setAppElement('#reversi-web-app');
+  }, []);
+
   return (
-    <div>
-      <Game>
+    <div id="reversi-web-app">
+      <Scene>
         <CameraControls controls={controls} state={state} />
-      </Game>
+        <Board />
+      </Scene>
 
       <div className="absolute top-0 left-0">
         <IconButton
