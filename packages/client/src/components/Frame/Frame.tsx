@@ -1,15 +1,15 @@
 import * as React from 'react';
 import {Vector3} from 'three';
 import {PointerEvent} from 'react-three-fiber';
+import {
+  BOARD_HEIGHT,
+  BOARD_POSITION,
+  BOARD_SIZE,
+  PositionArray,
+} from '../../constants/game-constants';
 
 const FRAME_HEIGHT_ADDITION = 0.1;
 const FRAME_SIZE = 0.25;
-
-interface FrameProps {
-  boardPosition: Vector3;
-  boardSize: number;
-  boardHeight: number;
-}
 
 const stopPropagationOnEvent = (e: PointerEvent) => {
   e.stopPropagation();
@@ -21,79 +21,65 @@ const BlockEventsProps = {
   onPointerOut: stopPropagationOnEvent,
 };
 
-// boardPosition - position sent to board mesh (not grid)
-// boardSize - Length of one side of board
-// boardHeight - length of height of board
-const Frame: React.FC<FrameProps> = ({
-  boardPosition,
-  boardSize,
-  boardHeight,
-}) => {
-  const frameHeight = boardHeight + FRAME_HEIGHT_ADDITION;
+const Frame: React.FC = () => {
+  const frameHeight = BOARD_HEIGHT + FRAME_HEIGHT_ADDITION;
+  const vector = new Vector3(...BOARD_POSITION);
+
+  const LEFT_FRAME_POSITION: PositionArray = [
+    vector.x - BOARD_SIZE / 2 - FRAME_SIZE / 2,
+    vector.y,
+    vector.z,
+  ];
+
+  const TOP_FRAME_POSITION: PositionArray = [
+    vector.x,
+    vector.y,
+    vector.z - BOARD_SIZE / 2 - FRAME_SIZE / 2,
+  ];
+
+  const BOTTOM_FRAME_POSITION: PositionArray = [
+    vector.x,
+    vector.y,
+    vector.z + BOARD_SIZE / 2 + FRAME_SIZE / 2,
+  ];
+
+  const RIGHT_FRAME_POSITION: PositionArray = [
+    vector.x + BOARD_SIZE / 2 + FRAME_SIZE / 2,
+    vector.y,
+    vector.z,
+  ];
 
   return (
     <>
       {/*LEFT*/}
-      <mesh
-        {...BlockEventsProps}
-        position={
-          new Vector3(
-            boardPosition.x - boardSize / 2 - FRAME_SIZE / 2,
-            boardPosition.y,
-            boardPosition.z
-          )
-        }>
+      <mesh {...BlockEventsProps} position={LEFT_FRAME_POSITION}>
         <boxBufferGeometry
           attach="geometry"
-          args={[FRAME_SIZE, frameHeight, boardSize + FRAME_SIZE * 2]}
+          args={[FRAME_SIZE, frameHeight, BOARD_SIZE + FRAME_SIZE * 2]}
         />
         <meshStandardMaterial attach="material" color="black" />
       </mesh>
       {/*TOP*/}
-      <mesh
-        {...BlockEventsProps}
-        position={
-          new Vector3(
-            boardPosition.x,
-            boardPosition.y,
-            boardPosition.z - boardSize / 2 - FRAME_SIZE / 2
-          )
-        }>
+      <mesh {...BlockEventsProps} position={TOP_FRAME_POSITION}>
         <boxBufferGeometry
           attach="geometry"
-          args={[FRAME_SIZE * 2 + boardSize, frameHeight, FRAME_SIZE]}
+          args={[FRAME_SIZE * 2 + BOARD_SIZE, frameHeight, FRAME_SIZE]}
         />
         <meshStandardMaterial attach="material" color="black" />
       </mesh>
       {/*BOTTOM*/}
-      <mesh
-        {...BlockEventsProps}
-        position={
-          new Vector3(
-            boardPosition.x,
-            boardPosition.y,
-            boardPosition.z + boardSize / 2 + FRAME_SIZE / 2
-          )
-        }>
+      <mesh {...BlockEventsProps} position={BOTTOM_FRAME_POSITION}>
         <boxBufferGeometry
           attach="geometry"
-          args={[FRAME_SIZE * 2 + boardSize, frameHeight, FRAME_SIZE]}
+          args={[FRAME_SIZE * 2 + BOARD_SIZE, frameHeight, FRAME_SIZE]}
         />
         <meshStandardMaterial attach="material" color="black" />
       </mesh>
       {/*RIGHT*/}
-      <mesh
-        {...BlockEventsProps}
-        position={
-          new Vector3(
-            boardPosition.x + boardSize / 2 + FRAME_SIZE / 2,
-            boardPosition.y,
-            boardPosition.z
-          )
-        }>
+      <mesh {...BlockEventsProps} position={RIGHT_FRAME_POSITION}>
         <boxBufferGeometry
           attach="geometry"
-          args={[FRAME_SIZE, frameHeight, boardSize + FRAME_SIZE * 2]}
+          args={[FRAME_SIZE, frameHeight, BOARD_SIZE + FRAME_SIZE * 2]}
         />
         <meshStandardMaterial attach="material" color="black" />
       </mesh>

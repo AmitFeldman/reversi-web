@@ -1,12 +1,19 @@
 import * as React from 'react';
-import {Mesh, Vector3} from 'three';
+import {PositionArray} from '../../constants/game-constants';
+
+export enum CellState {
+  BLACK,
+  WHITE,
+  EMPTY,
+}
 
 interface CellProps {
   id: number;
-  position: Vector3;
+  position: PositionArray;
   cellSize: number;
   cellHeight: number;
   onClick: (id: number) => void;
+  clickable?: boolean;
 }
 
 const Cell: React.FC<CellProps> = ({
@@ -15,14 +22,12 @@ const Cell: React.FC<CellProps> = ({
   cellSize,
   cellHeight,
   onClick,
+  clickable = true,
 }) => {
-  const mesh = React.useRef<Mesh>();
-
   const [hovered, setHover] = React.useState(false);
 
   return (
     <mesh
-      ref={mesh}
       position={position}
       onPointerOver={(e) => {
         setHover(true);
@@ -33,7 +38,7 @@ const Cell: React.FC<CellProps> = ({
         e.stopPropagation();
       }}
       onClick={(e) => {
-        onClick(id);
+        clickable && onClick(id);
         e.stopPropagation();
       }}>
       <boxBufferGeometry
@@ -42,7 +47,7 @@ const Cell: React.FC<CellProps> = ({
       />
       <meshStandardMaterial
         attach="material"
-        color={hovered ? 0x00ff00 : 0x008000}
+        color={clickable && hovered ? 0x00ff00 : 0x008000}
       />
     </mesh>
   );

@@ -14,12 +14,16 @@ interface HeadsUpDisplayProps {
   appState: AppState;
   setAppState: (state: AppState) => void;
   cameraControls: undefined | OrbitControls;
+  scoreBlack: number;
+  scoreWhite: number;
 }
 
 const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
   appState,
   setAppState,
   cameraControls,
+  scoreBlack,
+  scoreWhite,
 }) => {
   const {user, isUserLoggedIn} = useAuth();
 
@@ -53,16 +57,18 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
         <UserControls />
       </div>
 
-      <div className="absolute top-0 left-25 pt-4">
-        <p className="text-black text-xl">
+      <div className="text-black absolute top-0 left-25 pt-4">
+        <p className="text-xl">
           Black Player <FaCircle className="float-left m-2" />
         </p>
+        <p className="text-6xl">{scoreBlack}</p>
       </div>
 
-      <div className="absolute top-0 right-25 pt-4">
-        <p className="text-white text-xl">
+      <div className="text-white absolute top-0 right-25 pt-4">
+        <p className="text-xl">
           White Player <FaCircle className="float-left m-2" />
         </p>
+        <p className="text-6xl">{scoreWhite}</p>
       </div>
     </>
   );
