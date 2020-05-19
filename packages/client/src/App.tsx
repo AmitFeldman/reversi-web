@@ -5,7 +5,7 @@ import CameraControls from './components/Camera/Camera';
 import {AppState} from './context/AppContext';
 import Board from './components/Board/Board';
 import Modal from 'react-modal';
-import UserInterface from './components/UserInterface/UserInterface';
+import HeadsUpDisplay from './components/HeadsUpDisplay/HeadsUpDisplay';
 
 function App() {
   const controls = React.useRef<OrbitControls>();
@@ -23,7 +23,7 @@ function App() {
         <Board />
       </Scene>
 
-      <UserInterface
+      <HeadsUpDisplay
         appState={state}
         setAppState={(state) => setState(state)}
         cameraControls={controls.current}

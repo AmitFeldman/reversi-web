@@ -10,13 +10,13 @@ import {FaCircle} from 'react-icons/fa';
 
 const DEFAULT_USERNAME = 'Guest';
 
-interface UserInterfaceProps {
+interface HeadsUpDisplayProps {
   appState: AppState;
   setAppState: (state: AppState) => void;
   cameraControls: undefined | OrbitControls;
 }
 
-const UserInterface: React.FC<UserInterfaceProps> = ({
+const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
   appState,
   setAppState,
   cameraControls,
@@ -68,4 +68,4 @@ const UserInterface: React.FC<UserInterfaceProps> = ({
   );
 };
 
-export default UserInterface;
+export default HeadsUpDisplay;
