@@ -5,6 +5,7 @@ import {express as expressConfig, mongo as mongoConfig} from './config/config';
 import socketIO from 'socket.io';
 import cors from 'cors';
 import users from './routes/api/users';
+import games from './routes/api/games'
 import {parseToken} from './middlewares/auth';
 import http from "http";
 import {initSocketIO} from './utils/socket-service';
@@ -28,6 +29,7 @@ app.use(parseToken);
 
 // Routes
 app.use('/api/users', users);
+app.use('/api/games', games);
 
 // Connect to MongoDB
 const {user, password, host, database} = mongoConfig;

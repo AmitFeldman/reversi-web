@@ -47,7 +47,7 @@ enum Cell {
 
 
 // SERVER
-interface Game extends Document {
+export interface Game extends Document {
   name: string,
   type: GameType,
   whitePlayer: Player,
