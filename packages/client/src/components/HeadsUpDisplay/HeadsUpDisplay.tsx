@@ -31,7 +31,8 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
     <>
       <div className="absolute right-0 top-0 p-2">
         <p className="text-white">
-          Welcome, {isUserLoggedIn() ? user?.username : DEFAULT_USERNAME}!
+          {appState === AppState.MAIN_MENU ? 'Welcome' : 'Good luck'},{' '}
+          {isUserLoggedIn() ? user?.username : DEFAULT_USERNAME}!
         </p>
       </div>
 
@@ -47,11 +48,11 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
 
       {appState === AppState.MAIN_MENU && (
         <>
-          <div className="z-20 absolute right-0 top-0 pt-8">
+          <div className="absolute right-0 top-0 pt-8">
             <UserControls />
           </div>
 
-          <div className="z-10 absolute top-0 w-full text-center text-white">
+          <div className="absolute top-0 left-0 text-white p-8">
             <p className="text-6xl">Reversi</p>
             <p
               className="text-3xl"
