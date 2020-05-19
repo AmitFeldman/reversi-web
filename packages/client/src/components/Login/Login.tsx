@@ -1,14 +1,15 @@
 import * as React from 'react';
 import {useAuth} from '../../context/AuthContext';
-import {emitEvent} from '../../utils/socket-client';
+import {emitEvent, onSocketEvent} from '../../utils/socket-client';
+import {number} from 'prop-types';
 
 const Login: React.FC = () => {
   const {login, isUserLoggedIn, logout} = useAuth();
 
-  setInterval(() => {
-    emitEvent("maaaa", "heyyyy");
-    emitEvent('joinRoom', 'asdasd');
-  }, 1000);
+  // setInterval(() => {
+  //   emitEvent("maaaa", "heyyyy");
+  //   emitEvent('joinRoom', 'asdasd');
+  // }, 1000);
 
   const [username, setUsername] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
@@ -18,6 +19,17 @@ const Login: React.FC = () => {
       console.log('ERROR: Login Failed, err');
     });
   };
+
+  let count = 0;
+
+  const playerMove = () => {
+    emitEvent("playerMove", JSON.stringify({location: count, value: 1}));
+    count++;
+  };
+
+  onSocketEvent('playerMove', (board: number[]) => {
+    console.log('zain tov');
+  });
 
   if (isUserLoggedIn()) {
     return (
@@ -56,6 +68,7 @@ const Login: React.FC = () => {
       <br />
       <br />
       <button onClick={loginUser}>Submit</button>
+      <button onClick={playerMove}>Player 1 move</button>
     </>
   );
 };

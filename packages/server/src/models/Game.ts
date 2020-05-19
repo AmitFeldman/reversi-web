@@ -32,7 +32,8 @@ const GameSchema = new Schema({
     ref: 'users'
   },
   board: {
-    cell: [Number]
+    cell: [Number],
+    default: new Array(64).fill(0)
   }
 });
 

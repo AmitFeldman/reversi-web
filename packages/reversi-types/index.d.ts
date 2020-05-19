@@ -17,7 +17,7 @@ export interface User extends Document {
 type GameType = 'MATCHMAKING' | 'PRIVATE' | 'CPU';
 type GameStatus = 'WAITING' | 'DURING' | 'FINISHED';
 
-enum Cell {
+export enum Cell {
   EMPTY = 0,
   WHITE = 1,
   BLACK = 2
