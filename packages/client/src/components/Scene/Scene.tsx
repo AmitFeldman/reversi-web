@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Canvas} from 'react-three-fiber';
 
 // Only way the canvas accepts styles
-const canvasStyle = {height: '100vh', background: 'blue'};
+const canvasStyle = {height: '100vh', background: 'rebeccapurple'};
 
 const Scene: React.FC = ({children}) => {
   return (

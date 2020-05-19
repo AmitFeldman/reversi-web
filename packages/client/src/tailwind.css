@@ -2,17 +2,5 @@
 @tailwind base;
 /*noinspection CssInvalidAtRule*/
 @tailwind components;
-
-.tooltip .tooltip-text {
-  visibility: hidden;
-  text-align: center;
-  padding: 2px 6px;
-  position: relative;
-  z-index: 9999;
-}
-.tooltip:hover .tooltip-text {
-  visibility: visible;
-}
-
 /*noinspection CssInvalidAtRule*/
 @tailwind utilities;

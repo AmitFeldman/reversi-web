@@ -7,12 +7,10 @@ import Modal from 'react-modal';
 import Login from '../Login/Login';
 import Register from '../Register/Register';
 
-const DEFAULT_USERNAME = 'Guest';
-
 type ModalContent = 'login' | 'register' | 'none';
 
 const UserControls: React.FC = () => {
-  const {user, isUserLoggedIn, logout} = useAuth();
+  const {isUserLoggedIn, logout} = useAuth();
   const [modalContent, setModalContent] = React.useState<ModalContent>('none');
 
   const closeModal = () => setModalContent('none');
@@ -21,17 +19,15 @@ const UserControls: React.FC = () => {
 
   return (
     <>
-      <h3>Welcome, {loggedIn ? user?.username : DEFAULT_USERNAME}!</h3>
-
       {loggedIn ? (
-        <IconButton onClick={logout}>
+        <IconButton onClick={logout} place="left">
           <AiOutlineLogout />
         </IconButton>
       ) : (
         <>
           <IconButton
             tooltipText="Login"
-            tooltipDir="left"
+            place="left"
             onClick={() => {
               setModalContent('login');
             }}>
@@ -39,7 +35,7 @@ const UserControls: React.FC = () => {
           </IconButton>
           <IconButton
             tooltipText="Register"
-            tooltipDir="left"
+            place="left"
             onClick={() => {
               setModalContent('register');
             }}>

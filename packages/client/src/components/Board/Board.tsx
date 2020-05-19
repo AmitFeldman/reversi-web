@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Cell from '../Cell/Cell';
 import {Vector3} from 'three';
-import Frame from './Frame/Frame';
+import Frame from '../Frame/Frame';
 import Disc from '../Disc/Disc';
 
 const BOARD_SIZE = 8;
