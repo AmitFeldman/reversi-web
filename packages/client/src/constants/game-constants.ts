@@ -1,5 +1,6 @@
 export type PositionArray = [number, number, number];
 
+//TODO: Cleanup
 export const BOARD_SIZE = 8;
 export const BOARD_HEIGHT = 0.1;
 export const GRID_BUFFER = 0.01;
