@@ -9,34 +9,47 @@ import HeadsUpDisplay from './components/HeadsUpDisplay/HeadsUpDisplay';
 import CellLayer from './components/CellsLayer/CellsLayer';
 import DiscLayer from './components/DiscsLayer/DiscLayer';
 import {CellState} from './components/Cell/Cell';
+import {DiscType} from './components/Disc/Disc';
 
 function App() {
   const controls = React.useRef<OrbitControls>();
   const [state, setState] = React.useState<AppState>(AppState.MAIN_MENU);
+  const [turn, setTurn] = React.useState<DiscType>(CellState.WHITE);
   const [board, setBoard] = React.useState<CellState[]>(
     new Array(64).fill(CellState.EMPTY)
   );
 
+  // Reset Camera when going into game
+  React.useEffect(() => {
+    if (state === AppState.IN_GAME) {
+      controls.current && controls.current.reset();
+    }
+  }, [state]);
+
   // Setup for react-modal
   React.useEffect(() => {
-    Modal.setAppElement('#reversi-web-app');
+    Modal.setAppElement('#root');
   }, []);
 
   return (
-    <div id="reversi-web-app">
+    <>
       <Scene>
         <CameraControls controls={controls} state={state} />
         <Board />
 
         <CellLayer
+          disabled={state === AppState.MAIN_MENU}
           cells={board}
-          onCellClick={(index) =>
+          onCellClick={(index) => {
+            setTurn((t) =>
+              t === CellState.WHITE ? CellState.BLACK : CellState.WHITE
+            );
             setBoard((board) => [
               ...board.slice(0, index),
-              Math.random() < 0.5 ? CellState.WHITE : CellState.BLACK,
+              turn,
               ...board.slice(index + 1),
-            ])
-          }
+            ]);
+          }}
         />
         <DiscLayer cells={board} />
       </Scene>
@@ -44,11 +57,12 @@ function App() {
       <HeadsUpDisplay
         scoreBlack={board.filter((state) => state === CellState.BLACK).length}
         scoreWhite={board.filter((state) => state === CellState.WHITE).length}
+        turn={turn}
         appState={state}
         setAppState={(state) => setState(state)}
         cameraControls={controls.current}
       />
-    </div>
+    </>
   );
 }
 

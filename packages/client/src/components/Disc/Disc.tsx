@@ -9,7 +9,7 @@ const RADIAL_SEGMENTS = 32;
 const BLACK = 'black';
 const WHITE = 'white';
 
-type DiscType = CellState.BLACK | CellState.WHITE;
+export type DiscType = CellState.BLACK | CellState.WHITE;
 
 interface DiskProps {
   position: PositionArray;

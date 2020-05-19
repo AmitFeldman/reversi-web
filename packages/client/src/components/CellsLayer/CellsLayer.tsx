@@ -11,11 +11,13 @@ import {
 interface CellLayerProps {
   cells: CellState[];
   onCellClick?: (index: number) => void;
+  disabled?: boolean;
 }
 
 const CellLayer: React.FC<CellLayerProps> = ({
   cells,
   onCellClick = () => {},
+  disabled = false,
 }) => {
   const vector = new Vector3(...BOARD_POSITION);
 
@@ -26,7 +28,7 @@ const CellLayer: React.FC<CellLayerProps> = ({
           id={index}
           key={index}
           onClick={() => onCellClick(index)}
-          clickable={cell === CellState.EMPTY}
+          clickable={!disabled && cell === CellState.EMPTY}
           position={[
             vector.x + (index % 8) - BOARD_SIZE / 2 + CELL_SIZE / 2,
             vector.y,
