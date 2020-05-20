@@ -14,8 +14,8 @@ export interface User extends Document {
 // export const EVENT_GAME_FINISHED = 'game-finished';
 
 
-type GameType = 'MATCHMAKING' | 'PRIVATE' | 'CPU';
-type GameStatus = 'WAITING' | 'DURING' | 'FINISHED';
+type GameType = 'PUBLIC_ROOM' | 'PRIVATE_ROOM' | 'AI_EASY' | 'AI_MEDIUM' | 'AI_HARD' | 'LOCAL';
+// type GameStatus = 'WAITING' | 'DURING' | 'FINISHED';
 
 export enum Cell {
   EMPTY = 0,
@@ -61,8 +61,19 @@ export interface Game extends Document {
 type Player = Pick<User, '_id' | 'username'>;
 type EndGameStates = 'WIN' | 'LOSS' | 'TIE';
 
-type ClientGameStatus = 'WAITING_FOR_OPPONENT' | 'PLAYING' | EndGameStates;
+// export type GameStatus = 'WAITING_FOR_OPPONENT' | 'PLAYING' | EndGameStates;
 
+export type MoveData = {
+  index: number
+}
+
+export enum GameStatus {
+  WAITING = 'WAITING_FOR_OPPONENT',
+  PLAYING = 'PLAYING',
+  WIN = 'WIN',
+  LOSS = 'LOSS',
+  TIE = 'TIE'
+}
 // // Client
 // interface Game extends Documents {
 //   name: string;

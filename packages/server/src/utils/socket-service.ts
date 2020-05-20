@@ -1,5 +1,7 @@
 import EventEmitter from 'eventemitter3';
 import {Server} from 'socket.io';
+import Game from '../services/game-logic';
+import {GameStatus} from 'reversi-types';
 // import {Cell} from 'reversi-types';
 
 let io: Server;
@@ -9,7 +11,7 @@ let io: Server;
 const connectEvent = 'connection';
 const disconnectEvent = 'disconnect';
 
-let board = new Array(64).fill(0);
+// let board = new Array(64).fill(0);
 
 const initSocketIO = (newSocketIO: Server) => {
   io = newSocketIO;
@@ -35,15 +37,20 @@ const initSocketIO = (newSocketIO: Server) => {
 
     // Player vs Player we will use socket.boradcast.emit
 
-    socket.on('playerMove', (turn) => {
-      const {location, value} = JSON.parse(turn);
+    socket.on('createRoom', (roomData) => {
+      const {type} = JSON.parse(roomData);
 
-      console.log(`Move with index ${location} and value ${value}`);
+      new Game({
+        socket,
+        type
+      });
+      //
+      // console.log(`Move with index ${location} and value ${value}`);
+      //
+      // board[location] = value;
+      // board[location + 1] = 2;
 
-      board[location] = value;
-      board[location + 1] = 2;
-
-      io.emit('playerMove', board);
+      // io.emit('playerMove', board);
     });
   });
 
@@ -52,9 +59,13 @@ const initSocketIO = (newSocketIO: Server) => {
   // });
 };
 
+const emitEventToRoom = (id: string, event: string, ...args: any[]) => {
+  io.to(id).emit(event, ...args);
+};
+
 // // Emit an event to all connected sockets, same API as io.emit
 // const emitEvent = (event, ...args) => {
 //   io.emit(event, ...args);
 // };
 
-export {initSocketIO};
+export {initSocketIO, emitEventToRoom};
