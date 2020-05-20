@@ -30,7 +30,7 @@ const GameSchema = new Schema({
     ref: 'users'
   },
   board: {
-    cell: [Number],
+    type: [Number],
   }
 });
 

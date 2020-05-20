@@ -10,7 +10,6 @@ import {parseToken} from './middlewares/auth';
 import http from "http";
 import {initSocketIO} from './utils/socket-service';
 
-
 const app = express();
 
 // Enabling CORS

@@ -1,6 +1,7 @@
 import {Socket} from 'socket.io';
 import MongoGame from '../models/Game';
 import {emitEventToRoom} from '../utils/socket-service';
+// import {Cell, GameStatus, GameType, MoveData} from 'reversi-types';
 
 type GameType =
   | 'PUBLIC_ROOM'
@@ -87,9 +88,10 @@ class Game implements IGame {
       }
 
       game.board[index] = Cell.WHITE;
-
-      emitEventToRoom(this.id, GameStatus.WAITING, game.board);
-      this.AIMove();
+      game.save().then(() => {
+        emitEventToRoom(this.id, GameStatus.WAITING, game.board);
+        this.AIMove();
+      });
     });
   }
 
@@ -101,8 +103,9 @@ class Game implements IGame {
         }
 
         game.board[game.board.indexOf(Cell.EMPTY)] = Cell.BLACK;
-
-        emitEventToRoom(this.id, GameStatus.PLAYING, game.board);
+        game.save().then(() => {
+          emitEventToRoom(this.id, GameStatus.PLAYING, game.board);
+        });
       });
     }, 2000);
   }
