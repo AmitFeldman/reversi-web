@@ -22,8 +22,9 @@ function App() {
 
   React.useEffect(() => {
     onSocketEvent('createRoom', (id: string) => {
-      onSocketEvent(id, (board: number[]) => {
-        setBoard(board);
+      onSocketEvent(id, (data: any) => {
+        const {a: newStatus, b: newBoard} = JSON.parse(data);
+        setBoard(newBoard);
         setTurn((t) =>
           t === CellState.WHITE ? CellState.BLACK : CellState.WHITE
         );
