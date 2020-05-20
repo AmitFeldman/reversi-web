@@ -57,7 +57,7 @@ const initSocketIO = (newSocketIO: Server) => {
 };
 
 const emitEventToRoom = (id: string, event: string, ...args: any[]) => {
-  io.to(id).emit(event, ...args);
+  io.sockets.in(id).emit(event, ...args);
 };
 
 // // Emit an event to all connected sockets, same API as io.emit

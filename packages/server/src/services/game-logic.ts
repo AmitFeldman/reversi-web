@@ -61,7 +61,7 @@ class Game implements IGame {
     newGame
       .save()
       .then((game) => {
-        this.id = game._id;
+        this.id = game._id.toString();
 
         this.initGame();
       })
@@ -75,6 +75,8 @@ class Game implements IGame {
     this.socket.emit('createRoom', this.id);
 
     this.socket.on('playerMove', (moveData: string) => {
+      console.log("PLAYER MOVEEEEEEE");
+      console.log(moveData);
       this.playerMove(JSON.parse(moveData) as MoveData);
     });
   }
@@ -89,7 +91,9 @@ class Game implements IGame {
 
       game.board[index] = Cell.WHITE;
       game.save().then(() => {
-        emitEventToRoom(this.id, GameStatus.WAITING, game.board);
+        console.log("player move");
+        console.log(this.id);
+        emitEventToRoom(this.id, this.id, JSON.stringify({a: GameStatus.WAITING, b: game.board}));
         this.AIMove();
       });
     });
@@ -104,7 +108,8 @@ class Game implements IGame {
 
         game.board[game.board.indexOf(Cell.EMPTY)] = Cell.BLACK;
         game.save().then(() => {
-          emitEventToRoom(this.id, GameStatus.PLAYING, game.board);
+          console.log(this.id);
+          emitEventToRoom(this.id, this.id, JSON.stringify({a: GameStatus.WAITING, b: game.board}));
         });
       });
     }, 2000);
