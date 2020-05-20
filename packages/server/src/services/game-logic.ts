@@ -1,7 +1,32 @@
 import {Socket} from 'socket.io';
-import {Cell, GameStatus, GameType, MoveData} from 'reversi-types';
 import MongoGame from '../models/Game';
 import {emitEventToRoom} from '../utils/socket-service';
+
+type GameType =
+  | 'PUBLIC_ROOM'
+  | 'PRIVATE_ROOM'
+  | 'AI_EASY'
+  | 'AI_MEDIUM'
+  | 'AI_HARD'
+  | 'LOCAL';
+
+enum Cell {
+  EMPTY = 0,
+  WHITE = 1,
+  BLACK = 2,
+}
+
+type MoveData = {
+  index: number;
+};
+
+enum GameStatus {
+  WAITING = 'WAITING_FOR_OPPONENT',
+  PLAYING = 'PLAYING',
+  WIN = 'WIN',
+  LOSS = 'LOSS',
+  TIE = 'TIE',
+}
 
 interface IGame {
   id?: string;
@@ -9,13 +34,13 @@ interface IGame {
   type: GameType;
 }
 
-class Game implements IGame{
+class Game implements IGame {
   id: string;
   socket: Socket;
   type: GameType;
 
   constructor({socket, type}: IGame) {
-    this.id = "";
+    this.id = '';
     this.socket = socket;
     this.type = type;
 
@@ -28,24 +53,29 @@ class Game implements IGame{
     // const userId = mongoose.Types.ObjectId(_id);
 
     const newGame = new MongoGame({
-      type
+      type,
+      board: new Array(64).fill(0),
     });
 
-    newGame.save().then((game) => {
-      this.id = game._id;
+    newGame
+      .save()
+      .then((game) => {
+        this.id = game._id;
 
-      this.initGame();
-    }).catch(err => {
-      console.log(err.message)
-    });
+        this.initGame();
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
   }
 
   initGame() {
     this.socket.join(this.id);
+    this.socket.emit('createRoom', this.id);
 
-    this.socket.on('playerMove', (moveData: MoveData) => {
-      this.playerMove(moveData);
-    })
+    this.socket.on('playerMove', (moveData: string) => {
+      this.playerMove(JSON.parse(moveData) as MoveData);
+    });
   }
 
   playerMove(moveData: MoveData) {

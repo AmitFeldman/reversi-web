@@ -10,6 +10,7 @@ import CellLayer from './components/CellsLayer/CellsLayer';
 import DiscLayer from './components/DiscsLayer/DiscLayer';
 import {CellState} from './components/Cell/Cell';
 import {DiscType} from './components/Disc/Disc';
+import {emitEvent, onSocketEvent} from './utils/socket-client';
 
 function App() {
   const controls = React.useRef<OrbitControls>();
@@ -18,6 +19,19 @@ function App() {
   const [board, setBoard] = React.useState<CellState[]>(
     new Array(64).fill(CellState.EMPTY)
   );
+
+  React.useEffect(() => {
+    onSocketEvent('createRoom', (id: string) => {
+      onSocketEvent(id, (board: number[]) => {
+        setBoard(board);
+        setTurn((t) =>
+          t === CellState.WHITE ? CellState.BLACK : CellState.WHITE
+        );
+      });
+    });
+
+    emitEvent('createRoom', {});
+  }, []);
 
   // Reset Camera when going into game
   React.useEffect(() => {
@@ -41,14 +55,16 @@ function App() {
           disabled={state === AppState.MAIN_MENU}
           cells={board}
           onCellClick={(index) => {
-            setTurn((t) =>
-              t === CellState.WHITE ? CellState.BLACK : CellState.WHITE
-            );
-            setBoard((board) => [
-              ...board.slice(0, index),
-              turn,
-              ...board.slice(index + 1),
-            ]);
+            emitEvent("playerMove", JSON.stringify({index}));
+
+            // setTurn((t) =>
+            //   t === CellState.WHITE ? CellState.BLACK : CellState.WHITE
+            // );
+            // setBoard((board) => [
+            //   ...board.slice(0, index),
+            //   turn,
+            //   ...board.slice(index + 1),
+            // ]);
           }}
         />
         <DiscLayer cells={board} />

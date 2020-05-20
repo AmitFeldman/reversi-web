@@ -5,7 +5,6 @@ import {Game} from 'reversi-types';
 const GameSchema = new Schema({
   name: {
     type: String,
-    required: true
   },
   type: {
     type: String,
@@ -21,7 +20,6 @@ const GameSchema = new Schema({
   },
   status: {
     type: String,
-    required: true
   },
   turn: {
     type: Schema.Types.ObjectId,
@@ -33,7 +31,6 @@ const GameSchema = new Schema({
   },
   board: {
     cell: [Number],
-    default: new Array(64).fill(0)
   }
 });
 

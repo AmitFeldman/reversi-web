@@ -1,8 +1,5 @@
-import EventEmitter from 'eventemitter3';
 import {Server} from 'socket.io';
 import Game from '../services/game-logic';
-import {GameStatus} from 'reversi-types';
-// import {Cell} from 'reversi-types';
 
 let io: Server;
 // class IoEventEmitter extends EventEmitter {}
@@ -21,24 +18,24 @@ const initSocketIO = (newSocketIO: Server) => {
 
     // ioEventEmitter.emit(connectEvent, socket);
 
-    socket.on(disconnectEvent, () => {
-      // ioEventEmitter.emit(disconnectEvent, socket);
-      console.log(`Socket disconnected ${socket.id}`);
-    });
-
-    socket.on('joinRoom', (msg: string) => {
-      console.log(msg);
-    });
-
-    // can be when user is removed from the collection
-    socket.on('leaveRoom', (msg: string) => {
-      console.log(msg);
-    });
+    // socket.on(disconnectEvent, () => {
+    //   // ioEventEmitter.emit(disconnectEvent, socket);
+    //   console.log(`Socket disconnected ${socket.id}`);
+    // });
+    //
+    // socket.on('joinRoom', (msg: string) => {
+    //   console.log(msg);
+    // });
+    //
+    // // can be when user is removed from the collection
+    // socket.on('leaveRoom', (msg: string) => {
+    //   console.log(msg);
+    // });
 
     // Player vs Player we will use socket.boradcast.emit
 
     socket.on('createRoom', (roomData) => {
-      const {type} = JSON.parse(roomData);
+      const type = "AI_EASY";
 
       new Game({
         socket,
