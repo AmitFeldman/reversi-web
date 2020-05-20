@@ -3,6 +3,9 @@
 # Secret
 secrets.ts
 
+# file created by tailwind build
+index.css
+
 # dependencies
 /node_modules
 /.pnp

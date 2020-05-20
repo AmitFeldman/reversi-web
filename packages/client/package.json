@@ -10,17 +10,26 @@
     "@types/node": "^12.12.37",
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.7",
+    "@types/react-icons": "^3.0.0",
+    "@types/react-modal": "^3.10.5",
+    "@types/react-tooltip": "^4.2.4",
     "@types/socket.io-client": "^1.4.33",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-router-dom": "^5.1.2",
+    "react-icons": "^3.10.0",
+    "react-modal": "^3.11.2",
     "react-scripts": "3.4.1",
     "socket.io-client": "^2.3.0",
+    "react-three-fiber": "^4.2.4",
+    "react-tooltip": "^4.2.6",
+    "tailwindcss": "^1.4.6",
+    "three": "^0.116.1",
     "typescript": "^3.7.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "npm run tailwind && react-scripts start",
+    "tailwind": "tailwind build src/tailwind.css -c tailwind.config.js -o src/index.css",
+    "build": "npm run tailwind && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -39,7 +48,5 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {
-    "@types/react-router-dom": "^5.1.5"
-  }
+  "devDependencies": {}
 }
