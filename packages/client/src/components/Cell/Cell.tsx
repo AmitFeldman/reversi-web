@@ -1,6 +1,9 @@
 import * as React from 'react';
 import {PositionArray} from '../../constants/game-constants';
 
+const CELL_COLOR = 0x2e8b57;
+const CELL_HOVER_COLOR = 0x3cb371;
+
 export enum CellState {
   BLACK,
   WHITE,
@@ -47,7 +50,7 @@ const Cell: React.FC<CellProps> = ({
       />
       <meshStandardMaterial
         attach="material"
-        color={clickable && hovered ? 0x00ff00 : 0x008000}
+        color={clickable && hovered ? CELL_HOVER_COLOR : CELL_COLOR}
       />
     </mesh>
   );
