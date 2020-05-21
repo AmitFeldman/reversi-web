@@ -11,11 +11,11 @@ const initGamesManager = () => {
       const type = 'AI_EASY';
       const game = new CpuGame(socket, type);
 
-      games.push(game);
-
-      await game.init();
-
-      game.start();
+      // games.push(game);
+      //
+      // await game.init();
+      //
+      // game.start();
 
       // // Add user to game room by id
       // this.socket.join(this.id);

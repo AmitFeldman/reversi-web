@@ -1,4 +1,5 @@
 import {Document} from 'mongoose';
+import {Board} from 'reversi-types';
 
 // Duplicate of reversi-types package TODO: Fix alias paths
 
@@ -29,6 +30,12 @@ export enum Cell {
   WHITE = 1,
   BLACK = 2,
 }
+
+export type moveResponse = {
+  gameStatus: GameStatus,
+  board: Board
+};
+
 
 // interface Game extends Document {
 //   name: string,

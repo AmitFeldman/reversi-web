@@ -1,16 +1,15 @@
 import {Socket} from 'socket.io';
 import GameModel from '../models/Game';
 import {emitEventInRoom} from '../utils/socket-service';
-import {Cell, GameType, MoveData} from '../types/reversi-types';
+import {Cell, GameType, MoveData, GameStatus, moveResponse} from '../types/reversi-types';
 import {ServerEvents} from '../types/events';
-import {GameStatus, moveResponse} from 'reversi-types';
 
 const INITIAL_BOARD = new Array(64).fill(0);
 INITIAL_BOARD[36] = INITIAL_BOARD[45] = Cell.BLACK;
 INITIAL_BOARD[37] = INITIAL_BOARD[44] = Cell.WHITE;
 
 interface IBaseGame {
-  id?: string;
+  id: string;
   socket: Socket;
   type: GameType;
 }
@@ -38,19 +37,20 @@ class BaseGame implements IBaseGame {
       .then((game) => {
         this.id = game._id.toString();
         // this.init();
+
+        this.socket.join(this.id);
+        this.socket.emit(ServerEvents.CreatedRoom, this.id);
+
+        this.socket.on("READY", () => {
+
+        });
       })
       .catch((err) => {
         console.log(err.message);
       });
 
 
-    // // Add user to game room by id
-    this.socket.join(this.id);
-    this.socket.emit(ServerEvents.CreatedRoom, this.id);
-
-    this.socket.on("READY", () => {
-
-    });
+    // // Add user to game room by i
   }
 
   start() {

@@ -3,7 +3,6 @@ import {Cell, GameStatus, GameType, MoveData} from '../types/reversi-types';
 import GameModel from '../models/Game';
 import BaseGame from './base-game';
 import {emitEventInRoom} from '../utils/socket-service';
-import {moveResponse} from 'reversi-types';
 
 class CpuGame extends BaseGame {
   constructor(socket: Socket, type: GameType) {
@@ -25,7 +24,7 @@ class CpuGame extends BaseGame {
 
         game.board[game.board.indexOf(Cell.EMPTY)] = Cell.BLACK;
 
-        const response: moveResponse = {gameStatus: GameStatus.WAITING, board: game.board};
+        const response = {gameStatus: GameStatus.WAITING, board: game.board};
 
         game.save().then(() => {
           console.log(this.id);

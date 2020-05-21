@@ -17,16 +17,17 @@ const initSocketIO = (app: Express) => {
   socketServer.listen(socketPort);
   console.log(`socket listening on port ${socketPort}...`);
 
-  onConnect((socket) => console.log(`Socket connected: ${socket.id}`));
-  onDisconnect((socket) => console.log(`Socket disconnected: ${socket.id}`));
+  onConnect((socket) => {
+    console.log(`Socket connected: ${socket.id}`);
+
+    socket.on(DISCONNECT_EVENT, (reason) => {
+      console.log(reason);
+    });
+  });
 };
 
 const onConnect = (listener: (socket: Socket) => void) => {
   io.on(CONNECT_EVENT, listener);
-};
-
-const onDisconnect = (listener: (socket: Socket) => void) => {
-  io.on(DISCONNECT_EVENT, listener);
 };
 
 // Emit event only to sockets connected to room
@@ -39,4 +40,4 @@ const emitEvent = (event: string, ...args: any[]) => {
   io.emit(event, ...args);
 };
 
-export {initSocketIO, emitEventInRoom, onDisconnect, onConnect, emitEvent};
+export {initSocketIO, emitEventInRoom, onConnect, emitEvent};
