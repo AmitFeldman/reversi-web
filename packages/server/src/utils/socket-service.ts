@@ -30,7 +30,7 @@ const onDisconnect = (listener: (socket: Socket) => void) => {
 };
 
 // Emit event only to sockets connected to room
-const emitEventIn = (room: string, event: string, ...args: any[]) => {
+const emitEventInRoom = (room: string, event: string, ...args: any[]) => {
   io.sockets.in(room).emit(event, ...args);
 };
 
@@ -39,4 +39,4 @@ const emitEvent = (event: string, ...args: any[]) => {
   io.emit(event, ...args);
 };
 
-export {initSocketIO, emitEventIn, onDisconnect, onConnect, emitEvent};
+export {initSocketIO, emitEventInRoom, onDisconnect, onConnect, emitEvent};

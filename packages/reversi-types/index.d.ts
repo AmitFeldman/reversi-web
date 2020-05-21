@@ -30,6 +30,8 @@ export enum Cell {
   BLACK = 2,
 }
 
+export type Board = Cell[];
+
 // interface Game extends Document {
 //   name: string,
 //   type: GameType,
@@ -61,7 +63,7 @@ export interface Game extends Document {
   status: GameStatus;
   turn: Player['_id'] | undefined;
   winner: Player['_id'] | undefined;
-  board: Cell[];
+  board: Board;
 }
 
 type Player = Pick<User, '_id' | 'username'>;
@@ -71,6 +73,11 @@ type EndGameStates = 'WIN' | 'LOSS' | 'TIE';
 
 export type MoveData = {
   index: number;
+};
+
+export type moveResponse = {
+  gameStatus: GameStatus,
+  board: Board
 };
 
 export enum GameStatus {
