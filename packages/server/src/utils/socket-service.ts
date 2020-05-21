@@ -1,68 +1,42 @@
-import {Server} from 'socket.io';
-import Game from '../services/game-logic';
+import socketIO, {Server, Socket} from 'socket.io';
+import {express as expressConfig} from '../config/config';
+import http from 'http';
+import {Express} from 'express';
+
+const CONNECT_EVENT = 'connection';
+const DISCONNECT_EVENT = 'disconnect';
 
 let io: Server;
-// class IoEventEmitter extends EventEmitter {}
 
-// const ioEventEmitter = new IoEventEmitter();
-const connectEvent = 'connection';
-const disconnectEvent = 'disconnect';
+const initSocketIO = (app: Express) => {
+  const socketServer = new http.Server(app);
+  io = socketIO(socketServer);
 
-// let board = new Array(64).fill(0);
+  // Socket server listening
+  const {socketPort} = expressConfig;
+  socketServer.listen(socketPort);
+  console.log(`socket listening on port ${socketPort}...`);
 
-const initSocketIO = (newSocketIO: Server) => {
-  io = newSocketIO;
-
-  io.on(connectEvent, socket => {
-    console.log(`Socket connected: ${socket.id}`);
-
-    // ioEventEmitter.emit(connectEvent, socket);
-
-    // socket.on(disconnectEvent, () => {
-    //   // ioEventEmitter.emit(disconnectEvent, socket);
-    //   console.log(`Socket disconnected ${socket.id}`);
-    // });
-    //
-    // socket.on('joinRoom', (msg: string) => {
-    //   console.log(msg);
-    // });
-    //
-    // // can be when user is removed from the collection
-    // socket.on('leaveRoom', (msg: string) => {
-    //   console.log(msg);
-    // });
-
-    // Player vs Player we will use socket.boradcast.emit
-
-    socket.on('createRoom', (roomData) => {
-      const type = "AI_EASY";
-
-      new Game({
-        socket,
-        type
-      });
-      //
-      // console.log(`Move with index ${location} and value ${value}`);
-      //
-      // board[location] = value;
-      // board[location + 1] = 2;
-
-      // io.emit('playerMove', board);
-    });
-  });
-
-  // io.on('connection', (socket) => {
-  //   socket.broadcast.emit('hi');
-  // });
+  onConnect((socket) => console.log(`Socket connected: ${socket.id}`));
+  onDisconnect((socket) => console.log(`Socket disconnected: ${socket.id}`));
 };
 
-const emitEventToRoom = (id: string, event: string, ...args: any[]) => {
-  io.sockets.in(id).emit(event, ...args);
+const onConnect = (listener: (socket: Socket) => void) => {
+  io.on(CONNECT_EVENT, listener);
 };
 
-// // Emit an event to all connected sockets, same API as io.emit
-// const emitEvent = (event, ...args) => {
-//   io.emit(event, ...args);
-// };
+const onDisconnect = (listener: (socket: Socket) => void) => {
+  io.on(DISCONNECT_EVENT, listener);
+};
 
-export {initSocketIO, emitEventToRoom};
+// Emit event only to sockets connected to room
+const emitEventIn = (room: string, event: string, ...args: any[]) => {
+  io.sockets.in(room).emit(event, ...args);
+};
+
+// Emit an event to all connected sockets, same API as io.emit
+const emitEvent = (event: string, ...args: any[]) => {
+  io.emit(event, ...args);
+};
+
+export {initSocketIO, emitEventIn, onDisconnect, onConnect, emitEvent};

@@ -2,13 +2,11 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import {express as expressConfig, mongo as mongoConfig} from './config/config';
-import socketIO from 'socket.io';
 import cors from 'cors';
 import users from './routes/api/users';
-import games from './routes/api/games'
 import {parseToken} from './middlewares/auth';
-import http from "http";
 import {initSocketIO} from './utils/socket-service';
+import GamesManager from './services/games-manager';
 
 const app = express();
 
@@ -28,7 +26,6 @@ app.use(parseToken);
 
 // Routes
 app.use('/api/users', users);
-app.use('/api/games', games);
 
 // Connect to MongoDB
 const {user, password, host, database} = mongoConfig;
@@ -38,22 +35,18 @@ console.log(`connecting to MongoDB through uri ${mongoURI}...`);
 mongoose
   .connect(mongoURI, {useNewUrlParser: true, useUnifiedTopology: true})
   .then(() => console.log('successfully connected to MongoDB...'))
-  .catch(err => console.log(err));
+  .catch((err) => console.log(err));
 
 // Express config variables
-const {serverPort, socketPort} = expressConfig;
+const {serverPort} = expressConfig;
 
 // Express server listening
-// eslint-disable-next-line no-unused-vars
 const server = app.listen(serverPort, () => {
   console.log(`server listening on port ${serverPort}...`);
 });
 
-const socketServer = new http.Server(app);
-const io = socketIO(socketServer);
+// Init socket.io
+initSocketIO(app);
 
-// Socket server listening
-socketServer.listen(socketPort);
-console.log(`socket listening on port ${socketPort}...`);
-
-initSocketIO(io);
+// Starting the games manager
+const gm = new GamesManager();
