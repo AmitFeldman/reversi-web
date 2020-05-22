@@ -1,6 +1,6 @@
 import {Socket} from 'socket.io';
 import GameModel from '../models/Game';
-import {emitEventInRoom} from '../utils/socket-service';
+import {emitEventToAllInRoom} from '../utils/socket-service';
 import {Cell, GameType, MoveData, GameStatus, moveResponse} from '../types/reversi-types';
 import {ServerEvents} from '../types/events';
 
@@ -77,7 +77,7 @@ class BaseGame implements IBaseGame {
       game.save().then(() => {
         console.log('player move');
         console.log(this.id);
-        emitEventInRoom(
+        emitEventToAllInRoom(
           this.id,
           this.id,
           JSON.stringify(response)

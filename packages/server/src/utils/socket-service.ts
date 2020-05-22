@@ -31,13 +31,21 @@ const onConnect = (listener: (socket: Socket) => void) => {
 };
 
 // Emit event only to sockets connected to room
-const emitEventInRoom = (room: string, event: string, ...args: any[]) => {
+const emitEventToAllInRoom = (room: string, event: string, ...args: any[]) => {
   io.sockets.in(room).emit(event, ...args);
 };
 
+const emitEventToSender = (socket: Socket, event: string, message: string) => {
+  socket.emit(event, message);
+};
+
+const emitEventToOtherClientsInRoom = (socket: Socket, room: string, event: string, message: string) => {
+  socket.to(room).emit(event, message);
+};
+
 // Emit an event to all connected sockets, same API as io.emit
-const emitEvent = (event: string, ...args: any[]) => {
+const emitEventToAllSockets = (event: string, ...args: any[]) => {
   io.emit(event, ...args);
 };
 
-export {initSocketIO, emitEventInRoom, onConnect, emitEvent};
+export {initSocketIO, emitEventToAllInRoom, onConnect, emitEventToAllSockets, emitEventToSender, emitEventToOtherClientsInRoom};
