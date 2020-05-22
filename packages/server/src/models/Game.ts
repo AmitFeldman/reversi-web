@@ -70,7 +70,7 @@ const INITIAL_BOARD = new Array(64).fill(0);
 INITIAL_BOARD[36] = INITIAL_BOARD[45] = Cell.BLACK;
 INITIAL_BOARD[37] = INITIAL_BOARD[44] = Cell.WHITE;
 
-const GameSchema = new Schema({
+export const GameSchema = new Schema({
   name: {
     type: String,
   },
