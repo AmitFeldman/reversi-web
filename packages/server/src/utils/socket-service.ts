@@ -21,7 +21,7 @@ const initSocketIO = (app: Express) => {
     console.log(`Socket connected: ${socket.id}`);
 
     socket.on(DISCONNECT_EVENT, (reason) => {
-      console.log(reason);
+      console.log(`Socket disconnected: ${socket.id} | Reason: ${reason}`);
     });
   });
 };
