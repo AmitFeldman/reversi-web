@@ -43,4 +43,4 @@ const onGameUpdate = (callback: (change: ChangeEventUpdate<IGame>) => void) => {
   dbEventEmitter.on(GAME_UPDATE_EVENT, callback);
 };
 
-export {initChangesListener};
+export {initChangesListener, onNewGame, onGameUpdate};
