@@ -1,37 +1,46 @@
-import BaseGame from './base-game';
 import {onConnect} from '../utils/socket-service';
-import {CreateRoomArgs, UserEvents} from '../types/events';
-import CpuGame from './cpu-game';
+import {ClientEvents, BaseArgs} from '../types/events';
+import {GameType, IGame} from '../models/Game';
+import BaseGameRoom from './base-game-room';
+import {Document} from 'mongoose';
 
-const games: BaseGame[] = [];
+const games: any[] = [];
+
+interface GameSettings {
+  type: GameType;
+}
+
+interface CreateGameArgs extends BaseArgs {
+  settings: GameSettings;
+}
 
 const initGamesManager = () => {
   onConnect((socket) => {
-    socket.on(UserEvents.CreateRoom, async ({settings}: CreateRoomArgs) => {
-      const type = 'AI_EASY';
-      const game = new CpuGame(socket, type);
+    socket.on(ClientEvents.CreateRoom, async ({settings}: CreateGameArgs) => {
+      const {type} = settings;
 
-      // games.push(game);
-      //
-      // await game.init();
-      //
-      // game.start();
+      const gameRoom = new BaseGameRoom(socket);
+      games.push(gameRoom);
 
-      // // Add user to game room by id
-      // this.socket.join(this.id);
-      // this.socket.emit(ServerEvents.CreatedRoom, this.id);
-      //
-      // this.socket.on("READY", () => {
-      //   StartGame();
-      //
-      //   this.socket.on('playerMove', (moveData: string) => {
-      //     console.log('PLAYER MOVEEEEEEE');
-      //     console.log(moveData);
-      //     this.playerMove(JSON.parse(moveData) as MoveData);
-      //   });
-      // });
+      await gameRoom.init();
+
+      gameRoom.start();
     });
   });
+};
+
+// Mongoose constructors types hard coded receive any document
+const gameBuilder = (type: GameType): any => {
+  return {
+    type: type,
+    whitePlayer: {
+      isCPU: false,
+    },
+    blackPlayer: {
+      isCPU: true,
+      difficulty: 'EASY',
+    },
+  };
 };
 
 export {initGamesManager};

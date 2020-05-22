@@ -1,12 +1,12 @@
 import {Socket} from 'socket.io';
-import GameModel from '../models/Game';
-import {emitEventToAllInRoom} from '../utils/socket-service';
-import {Cell, GameType, MoveData, GameStatus, moveResponse} from '../types/reversi-types';
-import {ServerEvents} from '../types/events';
-
-const INITIAL_BOARD = new Array(64).fill(0);
-INITIAL_BOARD[36] = INITIAL_BOARD[45] = Cell.BLACK;
-INITIAL_BOARD[37] = INITIAL_BOARD[44] = Cell.WHITE;
+import GameModel, {Cell, GameStatus, GameType} from '../models/Game';
+import {
+  moveResponse,
+  ServerEvents,
+  ClientEvents,
+  PlayerMoveArgs,
+} from '../types/events';
+import {emitEventToSocket, joinRoom, on} from '../utils/socket-service';
 
 interface IBaseGame {
   id: string;
@@ -24,67 +24,67 @@ class BaseGame implements IBaseGame {
     this.type = type;
   }
 
+  // All async logic for preparing game (saving to db, connecting all players)
   async init() {
-    // Save new game to DB
-    // TODO: Check if game already exists for pvp games
-    const newGame = new GameModel({
-      type: this.type,
-      board: INITIAL_BOARD,
-    });
-
-    newGame
-      .save()
-      .then((game) => {
-        this.id = game._id.toString();
-        // this.init();
-
-        this.socket.join(this.id);
-        this.socket.emit(ServerEvents.CreatedRoom, this.id);
-
-        this.socket.on("READY", () => {
-
+    return new Promise(async (resolve, reject) => {
+      try {
+        const newGame = new GameModel({
+          type: this.type,
+          whitePlayer: {
+            isCPU: false,
+          },
+          blackPlayer: {
+            isCPU: true,
+            difficulty: "EASY",
+          },
         });
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
 
+        const game = await newGame.save();
+        this.id = game._id.toString();
 
-    // // Add user to game room by i
+        joinRoom(this.socket, this.id);
+        emitEventToSocket(this.socket, ServerEvents.CreatedRoom, this.id);
+
+        on(this.socket, ClientEvents.Ready, resolve);
+      } catch (e) {
+        reject(e);
+      }
+    });
   }
 
   start() {
-    this.socket.on('playerMove', (moveData: string) => {
-      console.log('PLAYER MOVEEEEEEE');
-      console.log(moveData);
-      this.playerMove(JSON.parse(moveData) as MoveData);
+    on<PlayerMoveArgs>(this.socket, ClientEvents.PlayerMove, ({index}) => {
+      this.playerMove(index);
     });
   }
 
-  playerMove(moveData: MoveData) {
-    const {index} = moveData;
-
-    GameModel.findById(this.id).then((game) => {
-      if (!game) {
-        return;
-      }
-
-      // new moveResponse(GameStatus.WAITING, game.board);
-
-      game.board[index] = Cell.WHITE;
-      const response: moveResponse = {gameStatus: GameStatus.WAITING, board: game.board};
-
-      game.save().then(() => {
-        console.log('player move');
-        console.log(this.id);
-        emitEventToAllInRoom(
-          this.id,
-          this.id,
-          JSON.stringify(response)
-        );
-      });
-    });
-  }
+  // playerMove(moveData: MoveData) {
+  //   const {index} = moveData;
+  //
+  //   GameModel.findById(this.id).then((game) => {
+  //     if (!game) {
+  //       return;
+  //     }
+  //
+  //     // new moveResponse(GameStatus.WAITING, game.board);
+  //
+  //     game.board[index] = Cell.WHITE;
+  //     const response: moveResponse = {
+  //       gameStatus: GameStatus.WAITING,
+  //       board: game.board,
+  //     };
+  //
+  //     game.save().then(() => {
+  //       console.log('player move');
+  //       console.log(this.id);
+  //       // emitEventInRoom(
+  //       //   this.id,
+  //       //   this.id,
+  //       //   JSON.stringify(response)
+  //       // );
+  //     });
+  //   });
+  // }
 }
 
 export default BaseGame;

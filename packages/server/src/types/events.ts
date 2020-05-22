@@ -1,24 +1,27 @@
-import {GameType} from './reversi-types';
+import {Board, GameStatus, GameType, IPlayer} from '../models/Game';
 
-enum UserEvents {
+enum ClientEvents {
   CreateRoom = 'CREATE_ROOM',
   Ready = 'READY',
+  PlayerMove = 'PLAYER_MOVE',
 }
 
-interface RoomSettings {
-  type: GameType
+export interface BaseArgs {
+  token: string;
 }
 
-interface CreateRoomArgs {
-  settings: {
-
-  }
+interface PlayerMoveArgs extends BaseArgs {
+  index: number;
 }
 
 enum ServerEvents {
   CreatedRoom = 'CREATED_ROOM',
 }
 
-export {UserEvents, ServerEvents};
-export type { CreateRoomArgs };
+type moveResponse = {
+  gameStatus: GameStatus;
+  board: Board;
+};
 
+export {ClientEvents, ServerEvents};
+export type {moveResponse, PlayerMoveArgs};

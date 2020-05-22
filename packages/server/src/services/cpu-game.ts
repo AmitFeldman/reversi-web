@@ -1,8 +1,8 @@
 import {Socket} from 'socket.io';
-import {Cell, GameStatus, GameType, MoveData} from '../types/reversi-types';
-import GameModel from '../models/Game';
+import GameModel, {Cell, GameStatus, GameType} from '../models/Game';
 import BaseGame from './base-game';
-import {emitEventToAllInRoom} from '../utils/socket-service';
+import {} from '../utils/socket-service';
+import {MoveData} from '../types/events';
 
 class CpuGame extends BaseGame {
   constructor(socket: Socket, type: GameType) {
@@ -28,11 +28,7 @@ class CpuGame extends BaseGame {
 
         game.save().then(() => {
           console.log(this.id);
-          emitEventToAllInRoom(
-            this.id,
-            this.id,
-            JSON.stringify(response)
-          );
+          // emitEventInRoom(this.id, this.id, JSON.stringify(response));
         });
       });
     }, 2000);

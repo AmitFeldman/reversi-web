@@ -7,7 +7,6 @@ import users from './routes/api/users';
 import {parseToken} from './middlewares/auth';
 import {initSocketIO} from './utils/socket-service';
 import {initGamesManager} from './services/games-manager';
-// import GamesManager from './services/games-manager';
 
 const app = express();
 
@@ -50,5 +49,4 @@ const server = app.listen(serverPort, () => {
 initSocketIO(app);
 
 // Starting the games manager
-// const gm = new GamesManager();
 initGamesManager();

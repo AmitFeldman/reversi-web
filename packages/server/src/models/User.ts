@@ -1,5 +1,12 @@
 import {Schema, model, Model} from 'mongoose';
-import {User} from 'reversi-types';
+import {BaseDocument} from '../types/base-document';
+
+export interface User extends BaseDocument {
+  username: string;
+  password: string;
+  email: string;
+  isAdmin: boolean;
+}
 
 const UserSchema = new Schema({
   username: {
@@ -24,6 +31,7 @@ const UserSchema = new Schema({
   date: {
     type: Date,
     default: Date.now,
+    immutable: true,
   },
 });
 
