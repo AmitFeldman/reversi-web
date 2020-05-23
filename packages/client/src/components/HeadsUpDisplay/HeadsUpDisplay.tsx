@@ -5,6 +5,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {AppState} from '../../context/AppContext';
 import {DiscType} from '../Disc/Disc';
 import InGameHud from '../InGameHUD/InGameHUD';
+import {emitEvent} from '../../utils/socket-client';
 
 const DEFAULT_USERNAME = 'Guest';
 
@@ -56,7 +57,10 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
             <p className="text-6xl">Reversi</p>
             <p
               className="text-3xl"
-              onClick={() => setAppState(AppState.IN_GAME)}>
+              onClick={() => {
+                emitEvent('createRoom', {token: user._id, gameType: 'AI_EASY'});
+                setAppState(AppState.IN_GAME);
+              }}>
               Play
             </p>
           </div>

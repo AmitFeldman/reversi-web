@@ -33,7 +33,7 @@ function App() {
       });
     });
 
-    emitEvent('createRoom', {token: user._id, gameType: 'AI_EASY'});
+    // emitEvent('createRoom', {token: user._id, gameType: 'AI_EASY'});
   }, []);
 
   // Reset Camera when going into game
