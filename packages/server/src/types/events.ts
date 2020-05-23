@@ -1,4 +1,5 @@
 import {Board, GameStatus, GameType, IPlayer} from '../models/Game';
+import {User} from '../models/User';
 
 enum ClientEvents {
   CreateRoom = 'CREATE_ROOM',
@@ -8,6 +9,7 @@ enum ClientEvents {
 
 export interface BaseArgs {
   token: string;
+  user: undefined | User;
 }
 
 export interface PlayerMoveArgs extends BaseArgs {

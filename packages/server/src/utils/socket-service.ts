@@ -65,18 +65,20 @@ const joinRoom = (socket: Socket, room: string | string[]) => {
   socket.join(room);
 };
 
-type Middleware = (data: BaseArgs) => boolean;
+export type Middleware<Data extends BaseArgs> = (data: Data, next: Function) => void;
 
 const on = <Data extends BaseArgs>(
   socket: Socket,
-  event: ClientEvents | ServerEvents,
-  callback: (data: Data) => void,
-  ...middleware: Middleware[]
+  event: ClientEvents,
+  ...callbacks: Middleware<Data>[]
 ) => {
   const listener = (data: Data) => {
-    if (middleware.every((m) => m(data))) {
-      callback(data);
-    }
+    const next = () => {
+      callbacks.shift();
+      callbacks[0](data, next);
+    };
+
+    callbacks[0](data, next);
   };
 
   socket.on(event, listener);
