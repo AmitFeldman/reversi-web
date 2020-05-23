@@ -12,23 +12,20 @@ const getUsersToSockets = () => {
 
 const initSocketListeners = () => {
   onConnect((socket) => {
-    onLoggedIn((userId) => {
-      usersToSockets.set(userId, socket);
 
-      onDisconnect(socket, () => {
-        usersToSockets.delete(userId);
+    onDisconnect(socket, () => {
+      usersToSockets.delete(userId);
 
-        // ToDo: Update player status in game room to disconnected (leave room)
-      });
+      // ToDo: Update player status in game room to disconnected (leave room)
+    });
 
 
-      onJoinRoom((roomId: string, userId: string) => {
-        // Todo: Update player status in game room to connected
-      });
+    onJoinRoom((roomId: string, userId: string) => {
+      // Todo: Update player status in game room to connected
+    });
 
-      onLeaveRoom((roomId: string, userId: string) => {
-        // ToDo: Update player status in game room to disconnected
-      });
+    onLeaveRoom((roomId: string, userId: string) => {
+      // ToDo: Update player status in game room to disconnected
     });
   });
 
