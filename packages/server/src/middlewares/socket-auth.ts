@@ -23,8 +23,10 @@ const parseToken: Middleware<BaseArgs> = (data, next) => {
   return false;
 };
 
-const isAdmin: Middleware<BaseArgs> = ({user}, next) => {
+const isLoggedIn: Middleware<BaseArgs> = ({user}, next) => {
   if (user) {
     next();
   }
 };
+
+export {parseToken, isLoggedIn}
