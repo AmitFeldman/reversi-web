@@ -7,6 +7,7 @@ import users from './routes/api/users';
 import {parseToken} from './middlewares/auth';
 import {initSocketIO} from './utils/socket-service';
 import {initGamesManager} from './services/games-manager';
+import {initChangesListener} from './utils/changes-listener';
 
 const app = express();
 
@@ -34,7 +35,12 @@ const mongoURI = `mongodb+srv://${user}:${password}@${host}/${database}?retryWri
 console.log(`connecting to MongoDB through uri ${mongoURI}...`);
 mongoose
   .connect(mongoURI, {useNewUrlParser: true, useUnifiedTopology: true})
-  .then(() => console.log('successfully connected to MongoDB...'))
+  .then(() => {
+    console.log('successfully connected to MongoDB...')
+
+    // Listens to changes in mongoDB
+    initChangesListener();
+  })
   .catch((err) => console.log(err));
 
 // Express config variables
