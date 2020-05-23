@@ -3,6 +3,7 @@ import {express as expressConfig} from '../config/config';
 import http from 'http';
 import {Express} from 'express';
 import {BaseArgs, ClientEvents, ServerEvents} from '../types/events';
+import {parseToken} from '../middlewares/socket-auth';
 
 const CONNECT_EVENT = 'connection';
 const DISCONNECT_EVENT = 'disconnect';
@@ -72,6 +73,8 @@ const on = <Data extends BaseArgs>(
   event: ClientEvents,
   ...callbacks: Middleware<Data>[]
 ) => {
+  callbacks.unshift(parseToken);
+
   const listener = (data: Data) => {
     const next = () => {
       callbacks.shift();
