@@ -12,18 +12,18 @@ export interface BaseArgs {
   user: undefined | User;
 }
 
-interface PlayerMoveArgs extends BaseArgs {
+export interface PlayerMoveArgs extends BaseArgs {
   index: number;
 }
 
 enum ServerEvents {
   CreatedRoom = 'CREATED_ROOM',
+  GameUpdated = 'GAME_UPDATE'
 }
 
-type moveResponse = {
+export type moveResponse = {
   gameStatus: GameStatus;
   board: Board;
 };
 
 export {ClientEvents, ServerEvents};
-export type {moveResponse, PlayerMoveArgs};

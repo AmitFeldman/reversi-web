@@ -2,6 +2,7 @@ import {Socket} from 'socket.io';
 import GameModel from '../models/Game';
 import {emitEventToSocket, joinRoom, on} from '../utils/socket-service';
 import {ClientEvents, ServerEvents} from '../types/events';
+import {onNewGame} from '../utils/changes-listener';
 
 interface IBaseGameRoom {
   id: string;
@@ -24,8 +25,11 @@ class BaseGameRoom implements IBaseGameRoom {
         const game = await newGame.save();
         this.id = game._id.toString();
 
-        joinRoom(this.playerSocket, this.id);
-        emitEventToSocket(this.playerSocket, ServerEvents.CreatedRoom, this.id);
+        // joinRoom(this.playerSocket, this.id);
+        // emitEventToSocket(this.playerSocket, ServerEvents.CreatedRoom, this.id);
+
+        this.addPlayerToRoom();
+        this.emitEventToPlayer(ServerEvents.CreatedRoom, this.id);
 
         on(this.playerSocket, ClientEvents.Ready, resolve);
       } catch (e) {

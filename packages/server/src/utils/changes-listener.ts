@@ -24,8 +24,10 @@ const initChangesListener = () => {
       const type = data.operationType;
 
       if (type === 'insert') {
+        console.log("A game has been inserted");
         dbEventEmitter.emit(NEW_GAME_EVENT, data as ChangeEventCR<IGame>);
       } else if (type === 'update') {
+        console.log("A game has been updated");
         dbEventEmitter.emit(
           GAME_UPDATE_EVENT,
           data as ChangeEventUpdate<IGame>

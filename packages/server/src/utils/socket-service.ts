@@ -2,7 +2,7 @@ import socketIO, {Server, Socket} from 'socket.io';
 import {express as expressConfig} from '../config/config';
 import http from 'http';
 import {Express} from 'express';
-import {BaseArgs, ClientEvents} from '../types/events';
+import {BaseArgs, ClientEvents, ServerEvents} from '../types/events';
 
 const CONNECT_EVENT = 'connection';
 const DISCONNECT_EVENT = 'disconnect';
@@ -31,6 +31,10 @@ const onConnect = (listener: (socket: Socket) => void) => {
   io.on(CONNECT_EVENT, listener);
 
   // TODO: Return off?
+};
+
+const onDisconnect = (socket: Socket, callback: () => void) => {
+  socket.on(DISCONNECT_EVENT, callback);
 };
 
 // Emit event only to sockets connected to room
@@ -89,6 +93,7 @@ export {
   emitEventToAllSockets,
   emitEventToSocket,
   emitEventToOtherClientsInRoom,
+  onDisconnect,
   joinRoom,
   on,
 };

@@ -1,5 +1,6 @@
 import {Document, Model, model, Schema} from 'mongoose';
 import {BaseDocument} from '../types/base-document';
+import {User} from './User';
 
 export enum Cell {
   EMPTY = 0,
@@ -46,6 +47,7 @@ export interface IGame extends BaseDocument {
   turn: IPlayer['_id'] | undefined;
   winner: IPlayer['_id'] | undefined;
   board: Board;
+  createdBy: User["_id"];
 }
 
 const PlayerSchema = new Schema({
@@ -99,6 +101,10 @@ export const GameSchema = new Schema({
     default: Date.now,
     immutable: true,
   },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    required: true
+  }
 });
 
 const GameModel = model<IGame, Model<IGame>>('rooms', GameSchema);
