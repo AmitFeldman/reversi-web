@@ -11,6 +11,7 @@ import DiscLayer from './components/DiscsLayer/DiscLayer';
 import {CellState} from './components/Cell/Cell';
 import {DiscType} from './components/Disc/Disc';
 import {emitEvent, onSocketEvent} from './utils/socket-client';
+import {useAuth} from './context/AuthContext';
 
 function App() {
   const controls = React.useRef<OrbitControls>();
@@ -19,6 +20,7 @@ function App() {
   const [board, setBoard] = React.useState<CellState[]>(
     new Array(64).fill(CellState.EMPTY)
   );
+  const {user} = useAuth();
 
   React.useEffect(() => {
     onSocketEvent('createRoom', (id: string) => {
@@ -31,7 +33,7 @@ function App() {
       });
     });
 
-    emitEvent('createRoom', {});
+    emitEvent('createRoom', {token: user._id, gameType: 'AI_EASY'});
   }, []);
 
   // Reset Camera when going into game
@@ -56,7 +58,7 @@ function App() {
           disabled={state === AppState.MAIN_MENU}
           cells={board}
           onCellClick={(index) => {
-            emitEvent("playerMove", JSON.stringify({index}));
+            emitEvent('playerMove', JSON.stringify({index}));
 
             // setTurn((t) =>
             //   t === CellState.WHITE ? CellState.BLACK : CellState.WHITE
