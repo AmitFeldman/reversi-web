@@ -61,14 +61,23 @@ const joinRoom = (socket: Socket, room: string | string[]) => {
   socket.join(room);
 };
 
+type Middleware = (data: BaseArgs) => boolean;
+
 const on = <Data extends BaseArgs>(
   socket: Socket,
   event: ClientEvents,
-  callback: (data: Data) => void
+  callback: (data: Data) => void,
+  ...middleware: Middleware[]
 ) => {
-  socket.on(event, callback);
+  const listener = (data: Data) => {
+    if (middleware.every((m) => m(data))) {
+      callback(data);
+    }
+  };
 
-  return socket.off(event, callback);
+  socket.on(event, listener);
+
+  return socket.off(event, listener);
 };
 
 export {
