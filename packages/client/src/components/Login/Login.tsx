@@ -1,55 +1,47 @@
 import * as React from 'react';
 import {useAuth} from '../../context/AuthContext';
+import LabeledInput from '../LabeledInput/LabeledInput';
+import Button from '../Button/Button';
 
-const Login: React.FC = () => {
-  const {login, isUserLoggedIn, logout} = useAuth();
+interface LoginProps {
+  onLogin?: () => void;
+}
+
+const Login: React.FC<LoginProps> = ({onLogin = () => {}}) => {
+  const {login} = useAuth();
 
   const [username, setUsername] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
 
   const loginUser = () => {
-    login({username, password}).catch((err) => {
-      console.log('ERROR: Login Failed, err');
-    });
+    login({username, password})
+      .then(() => {
+        onLogin();
+      })
+      .catch((err) => {
+        console.log('ERROR: Login Failed, err');
+      });
   };
-
-  if (isUserLoggedIn()) {
-    return (
-      <>
-        <h1>User is already logged in!</h1>
-        <button onClick={logout}>Logout</button>
-      </>
-    );
-  }
 
   return (
     <>
-      <h1>Login</h1>
-      <hr />
-
-      <h3>Username</h3>
-      <input
-        type="text"
-        name="Username"
+      <LabeledInput
+        label="Username"
         value={username}
-        onChange={(e: React.FormEvent<HTMLInputElement>) => {
+        onValueChange={(e: React.FormEvent<HTMLInputElement>) => {
           setUsername(e.currentTarget.value);
         }}
       />
 
-      <h3>Password</h3>
-      <input
-        type="text"
-        name="Password"
+      <LabeledInput
+        label="Password"
         value={password}
-        onChange={(e: React.FormEvent<HTMLInputElement>) => {
+        onValueChange={(e: React.FormEvent<HTMLInputElement>) => {
           setPassword(e.currentTarget.value);
         }}
       />
 
-      <br />
-      <br />
-      <button onClick={loginUser}>Submit</button>
+      <Button onClick={loginUser}>Login</Button>
     </>
   );
 };
