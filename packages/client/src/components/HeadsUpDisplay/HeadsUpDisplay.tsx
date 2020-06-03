@@ -20,7 +20,7 @@ interface HeadsUpDisplayProps {
 
 enum ClientEvents {
   CreateRoom = 'CREATE_ROOM',
-  Ready = 'READY',
+  JOINED = 'JOINED',
   PlayerMove = 'PLAYER_MOVE',
 }
 
@@ -41,6 +41,7 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
 
   onSocketEvent(ServerEvents.CreatedRoom, (roomId: string) => {
     console.log(roomId);
+    emitEvent(ClientEvents.JOINED, {token: user?._id, roomId})
   });
 
   return (

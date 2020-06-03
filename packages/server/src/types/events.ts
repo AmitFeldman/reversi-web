@@ -3,9 +3,9 @@ import {User} from '../models/User';
 
 enum ClientEvents {
   CreateRoom = 'CREATE_ROOM',
-  Ready = 'READY',
+  JOINED = 'JOINED',
   PlayerMove = 'PLAYER_MOVE',
-  DISCONNECT = 'disconnect'
+  DISCONNECT = 'DISCONNECTED',
 }
 
 export interface BaseArgs {

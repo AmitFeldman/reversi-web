@@ -19,8 +19,6 @@ const parseToken: Middleware<BaseArgs> = (data, next) => {
   } else {
     next();
   }
-
-  next();
 };
 
 const isLoggedIn: Middleware<BaseArgs> = ({user}, next) => {

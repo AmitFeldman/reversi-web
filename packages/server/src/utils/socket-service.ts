@@ -72,7 +72,7 @@ const on = <Data extends BaseArgs>(
   socket: Socket,
   event: ClientEvents,
   ...callbacks: Middleware<Data>[]
-) => {
+): () => void => {
   callbacks.unshift(parseToken);
 
   const listener = (data: Data) => {
@@ -86,7 +86,7 @@ const on = <Data extends BaseArgs>(
 
   socket.on(event, listener);
 
-  // return socket.off(event, listener);
+  return () => socket.off(event, listener);
 };
 
 export {
