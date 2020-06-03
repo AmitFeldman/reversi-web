@@ -9,6 +9,7 @@ const Scene: React.FC = ({children}) => {
     <Canvas
       style={canvasStyle}
       className="h-screen z-0"
+      pixelRatio={window.devicePixelRatio}
       onCreated={({gl, scene}) => {
         scene.rotation.set(Math.PI / 3, 0, 0);
       }}>
