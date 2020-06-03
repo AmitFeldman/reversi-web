@@ -5,7 +5,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {AppState} from '../../context/AppContext';
 import {DiscType} from '../Disc/Disc';
 import InGameHud from '../InGameHUD/InGameHUD';
-import {emitEvent} from '../../utils/socket-client';
+import {emitEvent, onSocketEvent} from '../../utils/socket-client';
 
 const DEFAULT_USERNAME = 'Guest';
 
@@ -18,6 +18,17 @@ interface HeadsUpDisplayProps {
   turn: DiscType;
 }
 
+enum ClientEvents {
+  CreateRoom = 'CREATE_ROOM',
+  Ready = 'READY',
+  PlayerMove = 'PLAYER_MOVE',
+}
+
+enum ServerEvents {
+  CreatedRoom = 'CREATED_ROOM',
+  GameUpdated = 'GAME_UPDATE'
+}
+
 const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
   appState,
   setAppState,
@@ -27,6 +38,10 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
   turn,
 }) => {
   const {user, isUserLoggedIn} = useAuth();
+
+  onSocketEvent(ServerEvents.CreatedRoom, (roomId: string) => {
+    console.log(roomId);
+  });
 
   return (
     <>
@@ -58,7 +73,7 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
             <p
               className="text-3xl"
               onClick={() => {
-                emitEvent('createRoom', {token: user._id, gameType: 'AI_EASY'});
+                emitEvent(ClientEvents.CreateRoom, {token: user?._id, gameType: 'AI_EASY'});
                 setAppState(AppState.IN_GAME);
               }}>
               Play

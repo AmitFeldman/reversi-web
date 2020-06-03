@@ -6,8 +6,8 @@ import cors from 'cors';
 import users from './routes/api/users';
 import {parseToken} from './middlewares/auth';
 import {initSocketIO} from './utils/socket-service';
-import {initGamesManager} from './services/games-manager';
 import {initChangesListener} from './utils/changes-listener';
+import {initDbListeners, initSocketListeners} from './services/socket-manager';
 
 const app = express();
 
@@ -36,7 +36,7 @@ console.log(`connecting to MongoDB through uri ${mongoURI}...`);
 mongoose
   .connect(mongoURI, {useNewUrlParser: true, useUnifiedTopology: true})
   .then(() => {
-    console.log('successfully connected to MongoDB...')
+    console.log('successfully connected to MongoDB...');
 
     // Listens to changes in mongoDB
     initChangesListener();
@@ -53,6 +53,5 @@ const server = app.listen(serverPort, () => {
 
 // Init socket.io
 initSocketIO(app);
-
-// Starting the games manager
-initGamesManager();
+initSocketListeners();
+initDbListeners();

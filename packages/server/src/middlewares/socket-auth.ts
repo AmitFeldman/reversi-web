@@ -20,7 +20,7 @@ const parseToken: Middleware<BaseArgs> = (data, next) => {
     next();
   }
 
-  return false;
+  next();
 };
 
 const isLoggedIn: Middleware<BaseArgs> = ({user}, next) => {

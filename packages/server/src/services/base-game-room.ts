@@ -2,7 +2,6 @@ import {Socket} from 'socket.io';
 import GameModel from '../models/Game';
 import {emitEventToSocket, joinRoom, on} from '../utils/socket-service';
 import {ClientEvents, ServerEvents} from '../types/events';
-import {onNewGame} from '../utils/changes-listener';
 
 interface IBaseGameRoom {
   id: string;

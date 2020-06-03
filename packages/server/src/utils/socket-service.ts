@@ -2,7 +2,7 @@ import socketIO, {Server, Socket} from 'socket.io';
 import {express as expressConfig} from '../config/config';
 import http from 'http';
 import {Express} from 'express';
-import {BaseArgs, ClientEvents, ServerEvents} from '../types/events';
+import {BaseArgs, ClientEvents} from '../types/events';
 import {parseToken} from '../middlewares/socket-auth';
 
 const CONNECT_EVENT = 'connection';
@@ -86,7 +86,7 @@ const on = <Data extends BaseArgs>(
 
   socket.on(event, listener);
 
-  return socket.off(event, listener);
+  // return socket.off(event, listener);
 };
 
 export {

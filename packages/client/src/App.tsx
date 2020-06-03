@@ -13,6 +13,17 @@ import {DiscType} from './components/Disc/Disc';
 import {emitEvent, onSocketEvent} from './utils/socket-client';
 import {useAuth} from './context/AuthContext';
 
+enum ClientEvents {
+  CreateRoom = 'CREATE_ROOM',
+  Ready = 'READY',
+  PlayerMove = 'PLAYER_MOVE',
+}
+
+enum ServerEvents {
+  CreatedRoom = 'CREATED_ROOM',
+  GameUpdated = 'GAME_UPDATE'
+}
+
 function App() {
   const controls = React.useRef<OrbitControls>();
   const [state, setState] = React.useState<AppState>(AppState.MAIN_MENU);
@@ -23,7 +34,7 @@ function App() {
   const {user} = useAuth();
 
   React.useEffect(() => {
-    onSocketEvent('createRoom', (id: string) => {
+    onSocketEvent(ClientEvents.CreateRoom, (id: string) => {
       onSocketEvent(id, (data: any) => {
         const {a: newStatus, b: newBoard} = JSON.parse(data);
         setBoard(newBoard);
