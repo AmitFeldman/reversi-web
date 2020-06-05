@@ -77,7 +77,9 @@ const on = <Data extends BaseArgs>(
 
   const listener = (data: Data) => {
     const next = () => {
-      callbacks.shift();
+      if (callbacks.length > 1) {
+        callbacks.shift();
+      }
       callbacks[0](data, next);
     };
 

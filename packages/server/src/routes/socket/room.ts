@@ -1,23 +1,53 @@
 import {Socket} from 'socket.io';
 import {Middleware, on} from '../../utils/socket-service';
 import {BaseArgs, ClientEvents} from '../../types/events';
-import {GameType} from '../../models/Game';
+import GameModel, {GameType} from '../../models/Game';
 import {isLoggedIn} from '../../middlewares/socket-auth';
 
-interface CreateRoomArgs extends BaseArgs {
+export interface CreateRoomArgs extends BaseArgs {
   gameType: GameType;
-};
+}
 
-interface JoinRoomArgs extends BaseArgs {
+export interface JoinRoomArgs extends BaseArgs {
   roomId: string;
+}
+
+const createRoom = async (data: CreateRoomArgs) => {
+  try {
+    const newGame = new GameModel({
+      createdBy: data.token,
+      whitePlayer: {
+        userId: data.token,
+        isCPU: false,
+      },
+      blackPlayer: {
+        connectionStatus: data.gameType.includes('AI') ? "CONNECTED" : "DISCONNECTED",
+        isCPU: data.gameType.includes('AI'),
+      },
+      type: data.gameType,
+    });
+
+    await newGame.save();
+  } catch (e) {
+    console.log(e);
+  }
 };
 
-const onCreateRoom = (socket: Socket, ...callbacks: Middleware<CreateRoomArgs>[]) => {
-  on<CreateRoomArgs>(socket, ClientEvents.CreateRoom, isLoggedIn, ...callbacks);
+const joinRoom = async (data: JoinRoomArgs) => {
+  const game = await GameModel.findById(data.roomId);
+
+  if (
+    !game?.whitePlayer?.isCPU &&
+    game?.whitePlayer?.connectionStatus === 'DISCONNECTED'
+  ) {
+    game.whitePlayer.connectionStatus = 'CONNECTED';
+    await game.save();
+  } else if (
+    !game?.blackPlayer?.isCPU &&
+    game?.blackPlayer?.connectionStatus === 'DISCONNECTED'
+  ) {
+    game.blackPlayer.connectionStatus = 'CONNECTED';
+  }
 };
 
-const onJoinRoom = (socket: Socket, ...callbacks: Middleware<JoinRoomArgs>[]) => {
-  on<JoinRoomArgs>(socket, ClientEvents.JOINED, isLoggedIn, ...callbacks);
-};
-
-export {onCreateRoom, onJoinRoom};
+export {createRoom, joinRoom};

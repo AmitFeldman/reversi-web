@@ -69,8 +69,8 @@ const PlayerSchema = new Schema({
 });
 
 const INITIAL_BOARD = new Array(64).fill(0);
-INITIAL_BOARD[36] = INITIAL_BOARD[45] = Cell.BLACK;
-INITIAL_BOARD[37] = INITIAL_BOARD[44] = Cell.WHITE;
+INITIAL_BOARD[27] = INITIAL_BOARD[36] = Cell.BLACK;
+INITIAL_BOARD[28] = INITIAL_BOARD[35] = Cell.WHITE;
 
 export const GameSchema = new Schema({
   name: {

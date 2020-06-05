@@ -34,10 +34,11 @@ function App() {
   const {user} = useAuth();
 
   React.useEffect(() => {
-    onSocketEvent(ClientEvents.CreateRoom, (id: string) => {
-      onSocketEvent(id, (data: any) => {
-        const {a: newStatus, b: newBoard} = JSON.parse(data);
-        setBoard(newBoard);
+    onSocketEvent(ServerEvents.CreatedRoom, (roomId: string) => {
+      onSocketEvent(ServerEvents.GameUpdated, (data: any) => {
+        console.log("asdasdasd");
+        // const {a: newStatus, b: newBoard} = JSON.parse(data);
+        setBoard(data.board);
         setTurn((t) =>
           t === CellState.WHITE ? CellState.BLACK : CellState.WHITE
         );

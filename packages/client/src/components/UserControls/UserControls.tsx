@@ -7,7 +7,7 @@ import Modal from 'react-modal';
 import Login from '../Login/Login';
 import Register from '../Register/Register';
 
-type ModalContent = 'login' | 'register' | 'none';
+type ModalContent = 'login' | 'register' | 'join room' | 'none';
 
 const UserControls: React.FC = () => {
   const {isUserLoggedIn, logout} = useAuth();
@@ -19,6 +19,16 @@ const UserControls: React.FC = () => {
 
   return (
     <>
+      {loggedIn ? (
+        <IconButton
+          tooltipText="Join Room"
+          place="left"
+          onClick={() => {
+            setModalContent('join room');
+          }}>
+          <MdCreate />
+        </IconButton>
+      ): undefined}
       {loggedIn ? (
         <IconButton onClick={logout} place="left">
           <AiOutlineLogout />

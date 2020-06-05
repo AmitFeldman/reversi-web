@@ -1,17 +1,23 @@
-import {emitEventToSocket, Middleware, on, onConnect, onDisconnect} from '../utils/socket-service';
+import {
+  emitEventToSocket,
+  Middleware,
+  on,
+  onConnect,
+  onDisconnect,
+} from '../utils/socket-service';
 import {Socket} from 'socket.io';
 import {onGameUpdate, onNewGame} from '../utils/changes-listener';
 import {BaseArgs, ClientEvents, ServerEvents} from '../types/events';
 import GameModel from '../models/Game';
-import {onCreateRoom, onJoinRoom} from '../routes/socket/room';
+import {createRoom, CreateRoomArgs, joinRoom, JoinRoomArgs} from '../routes/socket/room';
 import BsonObjectId from 'bson-objectid';
+import {isLoggedIn} from '../middlewares/socket-auth';
 
 const usersToSockets = new Map<string, Socket>();
 
 const bsonToObjectId = (bsonItem: Buffer) => new BsonObjectId(bsonItem).str;
 
 const initSocketListeners = () => {
-
   onConnect((socket) => {
     const pushToUsers: Middleware<BaseArgs> = (data, next) => {
       if (data?.user) {
@@ -21,63 +27,13 @@ const initSocketListeners = () => {
       next();
     };
 
-    on(socket, ClientEvents.DISCONNECT,(data) => {
-      console.log("socket disconnected!!!!");
+    on(socket, ClientEvents.DISCONNECT, (data) => {
+      console.log('socket disconnected!!!!');
     });
 
-    onDisconnect(socket, () => {
-      // usersToSockets.delete(userId);
-      console.log("zain tov");
+    on<CreateRoomArgs>(socket, ClientEvents.CreateRoom, isLoggedIn, pushToUsers, createRoom);
 
-      // ToDo: Update player status in game room to disconnected (leave room)
-    });
-
-    socket.on(ClientEvents.CreateRoom, (data) => {
-      console.log(data.toString());
-      console.log("asldjasljdhaslkjdhaskdjhaskdjh");
-    });
-
-    onCreateRoom(socket, pushToUsers, async (data) => {
-      console.log(`AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ${data}`);
-
-      try {
-        const newGame = new GameModel({
-          createdBy: data.token,
-          whitePlayer: {
-            isCPU: false
-          },
-          blackPlayer: {
-            isCPU: data.gameType.includes("CPU")
-          },
-          type: data.gameType
-        });
-
-        await newGame.save();
-      } catch (e) {
-        console.log(e);
-      }
-    });
-
-    onJoinRoom(socket, pushToUsers, async (data) => {
-      // Todo: Update player status in game room to connected
-      const game = await GameModel.findById(data.roomId);
-
-      if (!game?.whitePlayer?.isCPU && game?.whitePlayer?.connectionStatus === "DISCONNECTED") {
-        game.whitePlayer.connectionStatus = "CONNECTED";
-        await game.save();
-      }
-    });
-    //
-    //   onLeaveRoom((roomId: string, userId: string) => {
-    //     // ToDo: Update player status in game room to disconnected
-    //   });
-    // });
-    //
-    // onLoggedOut((userId) => {
-    //   usersToSockets.delete(userId);
-    //
-    //   // ToDo: Update player status in game room to disconnected
-    // });
+    on<JoinRoomArgs>(socket, ClientEvents.JOINED, isLoggedIn, pushToUsers, joinRoom);
   });
 };
 
@@ -91,7 +47,7 @@ const initDbListeners = () => {
     const socket = usersToSockets.get(createdBy);
 
     if (socket) {
-      console.log("Emitted created gane");
+      console.log('Emitted created gane');
       emitEventToSocket(socket, ServerEvents.CreatedRoom, game?._id.toString());
     }
   });
@@ -101,14 +57,15 @@ const initDbListeners = () => {
     const whitePlayer = game?.whitePlayer;
     const blackPlayer = game?.blackPlayer;
 
-    if (whitePlayer && !whitePlayer.isCPU) {
-      const socket = usersToSockets.get(whitePlayer._id.toString());
+    if (whitePlayer && !whitePlayer.isCPU && whitePlayer.userId) {
+      const socket = usersToSockets.get(whitePlayer.userId.toString());
 
       if (socket) {
+        console.log("emit game update to white player");
         emitEventToSocket(socket, ServerEvents.GameUpdated, game);
       }
-    } else if (blackPlayer && !blackPlayer.isCPU) {
-      const socket = usersToSockets.get(blackPlayer._id.toString());
+    } else if (blackPlayer && !blackPlayer.isCPU && blackPlayer.userId) {
+      const socket = usersToSockets.get(blackPlayer.userId.toString());
 
       if (socket) {
         emitEventToSocket(socket, ServerEvents.GameUpdated, game);
