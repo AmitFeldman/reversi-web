@@ -33,8 +33,12 @@ function App() {
   );
   const {user} = useAuth();
 
+  const [roomId, setRoomId] = React.useState<string>("");
+
   React.useEffect(() => {
     onSocketEvent(ServerEvents.CreatedRoom, (roomId: string) => {
+      setRoomId(roomId);
+
       onSocketEvent(ServerEvents.GameUpdated, (data: any) => {
         console.log("asdasdasd");
         // const {a: newStatus, b: newBoard} = JSON.parse(data);
@@ -70,16 +74,7 @@ function App() {
           disabled={state === AppState.MAIN_MENU}
           cells={board}
           onCellClick={(index) => {
-            emitEvent('playerMove', JSON.stringify({index}));
-
-            // setTurn((t) =>
-            //   t === CellState.WHITE ? CellState.BLACK : CellState.WHITE
-            // );
-            // setBoard((board) => [
-            //   ...board.slice(0, index),
-            //   turn,
-            //   ...board.slice(index + 1),
-            // ]);
+            emitEvent(ClientEvents.PlayerMove, {token: user?._id, roomId, moveId: index});
           }}
         />
         <DiscLayer cells={board} />

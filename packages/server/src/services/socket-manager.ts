@@ -1,15 +1,8 @@
-import {
-  emitEventToSocket,
-  Middleware,
-  on,
-  onConnect,
-  onDisconnect,
-} from '../utils/socket-service';
+import {emitEventToSocket, Middleware, on, onConnect} from '../utils/socket-service';
 import {Socket} from 'socket.io';
 import {onGameUpdate, onNewGame} from '../utils/changes-listener';
 import {BaseArgs, ClientEvents, ServerEvents} from '../types/events';
-import GameModel from '../models/Game';
-import {createRoom, CreateRoomArgs, joinRoom, JoinRoomArgs} from '../routes/socket/room';
+import {createRoom, CreateRoomArgs, joinRoom, JoinRoomArgs, playerMove, PlayerMoveArgs} from '../routes/socket/room';
 import BsonObjectId from 'bson-objectid';
 import {isLoggedIn} from '../middlewares/socket-auth';
 
@@ -34,11 +27,10 @@ const initSocketListeners = () => {
     on<CreateRoomArgs>(socket, ClientEvents.CreateRoom, isLoggedIn, pushToUsers, createRoom);
 
     on<JoinRoomArgs>(socket, ClientEvents.JOINED, isLoggedIn, pushToUsers, joinRoom);
+
+    on<PlayerMoveArgs>(socket, ClientEvents.PlayerMove, isLoggedIn, pushToUsers, playerMove);
   });
 };
-
-const NEW_GAME_EVENT = 'NEW_GAME_EVENT';
-const GAME_UPDATE_EVENT = 'GAME_UPDATE_EVENT';
 
 const initDbListeners = () => {
   onNewGame((change) => {
@@ -47,7 +39,7 @@ const initDbListeners = () => {
     const socket = usersToSockets.get(createdBy);
 
     if (socket) {
-      console.log('Emitted created gane');
+      console.log('Emitted created game');
       emitEventToSocket(socket, ServerEvents.CreatedRoom, game?._id.toString());
     }
   });
