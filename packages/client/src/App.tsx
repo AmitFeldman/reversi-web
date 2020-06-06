@@ -43,9 +43,9 @@ function App() {
         console.log("asdasdasd");
         // const {a: newStatus, b: newBoard} = JSON.parse(data);
         setBoard(data.board);
-        setTurn((t) =>
-          t === CellState.WHITE ? CellState.BLACK : CellState.WHITE
-        );
+        // setTurn((t) =>
+        //   t === CellState.WHITE ? CellState.BLACK : CellState.WHITE
+        // );
       });
     });
 

@@ -30,7 +30,9 @@ const createRoom = async (data: CreateRoomArgs) => {
         isCPU: false,
       },
       blackPlayer: {
-        connectionStatus: data.gameType.includes('AI') ? "CONNECTED" : "DISCONNECTED",
+        connectionStatus: data.gameType.includes('AI')
+          ? 'CONNECTED'
+          : 'DISCONNECTED',
         isCPU: data.gameType.includes('AI'),
       },
       type: data.gameType,
@@ -66,32 +68,40 @@ const playerMove = async (data: PlayerMoveArgs) => {
 
   const newBoard = game ? [...game.board] : [];
 
-  if (data?.user?.id === whitePlayerId && game) {
+  if (
+    !game?.whitePlayer?.isCPU &&
+    (data?.user?.id === whitePlayerId || data.token === whitePlayerId) &&
+    game
+  ) {
     newBoard[data.moveId] = Cell.WHITE;
     game.board = newBoard;
-  } else if (data?.user?.id === blackPlayerId && game) {
+  } else if (
+    (data?.user?.id === blackPlayerId || data.token === blackPlayerId) &&
+    game
+  ) {
     newBoard[data.moveId] = Cell.BLACK;
     game.board = newBoard;
   }
 
   await game?.save();
 
-  //
-  // if (game?.type.includes("AI")) {
-  //   await aiMove(data);
-  // }
+  if (game?.type.includes('AI')) {
+    await aiMove(data);
+  }
 };
 
 const aiMove = async (data: PlayerMoveArgs) => {
   const game = await GameModel.findById(data.roomId);
+  const newBoard = game ? [...game.board] : [];
 
   setTimeout(async () => {
     if (game) {
-      game.board[data.moveId - 8] = Cell.BLACK;
+      newBoard[data.moveId - 8] = Cell.BLACK;
+      game.board = newBoard;
     }
 
     await game?.save();
-  }, 3000)
+  }, 1500);
 };
 
 export {createRoom, joinRoom, playerMove};
