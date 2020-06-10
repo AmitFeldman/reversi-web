@@ -76,15 +76,20 @@ const on = <Data extends BaseArgs>(
   event: ClientEvents,
   ...callbacks: Middleware<Data>[]
 ): (() => void) => {
-  callbacks.unshift(parseToken);
+  const listeners = [parseToken, ...callbacks];
 
   const listener = (data: Data) => {
-    const next = () => {
-      callbacks.shift();
-      callbacks[0](data, next);
+    const next = (index: number) => {
+      if (index === listeners.length) {
+        console.log(
+          `Socket Service ERROR: last callback passed to on: ${event} cannot run next function`
+        );
+      }
+
+      listeners[index](data, () => next(index + 1));
     };
 
-    callbacks[0](data, next);
+    next(0);
   };
 
   socket.on(event, listener);
