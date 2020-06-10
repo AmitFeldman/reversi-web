@@ -79,6 +79,14 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
               }}>
               Play
             </p>
+            <p
+              className="text-3xl"
+              onClick={() => {
+                emitEvent(ClientEvents.CreateRoom, {token: user?._id, gameType: 'AI_EASY'});
+                setAppState(AppState.IN_GAME);
+              }}>
+              Join Game
+            </p>
           </div>
         </>
       )}
