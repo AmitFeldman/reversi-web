@@ -1,5 +1,5 @@
 import {Board, GameStatus, GameType, IPlayer} from '../models/Game';
-import {User} from '../models/User';
+import {User} from 'reversi-types';
 
 enum ClientEvents {
   CreateRoom = 'CREATE_ROOM',
