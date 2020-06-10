@@ -1,21 +1,5 @@
-import {BaseArgs, ClientEvents} from '../../types/events';
-import GameModel, {Cell, CurrentTurn, GameType} from '../../models/Game';
-import BsonObjectId from 'bson-objectid';
-
-const bsonToObjectId = (bsonItem: Buffer) => new BsonObjectId(bsonItem).str;
-
-export interface CreateRoomArgs extends BaseArgs {
-  gameType: GameType;
-}
-
-export interface JoinRoomArgs extends BaseArgs {
-  roomId: string;
-}
-
-export interface PlayerMoveArgs extends BaseArgs {
-  roomId: string;
-  moveId: number;
-}
+import GameModel from '../../models/Game';
+import {Cell, CreateRoomArgs, CurrentTurn, JoinRoomArgs, PlayerMoveArgs} from 'reversi-types';
 
 const createRoom = async (data: CreateRoomArgs) => {
   try {

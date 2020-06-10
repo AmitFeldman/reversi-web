@@ -1,40 +1,7 @@
 import {Document, Model, model, Schema} from 'mongoose';
 import {BaseDocument} from '../types/base-document';
-import {User} from 'reversi-types';
+import {Board, Difficulty, GameStatus, GameType, User, Cell, CurrentTurn} from 'reversi-types';
 
-export enum Cell {
-  EMPTY = 0,
-  WHITE = 1,
-  BLACK = 2,
-}
-
-export enum GameStatus {
-  NOT_READY = 'NOT_READY',
-
-  WAITING = 'WAITING_FOR_OPPONENT',
-  PLAYING = 'PLAYING',
-
-  WIN = 'WIN',
-  LOSS = 'LOSS',
-  TIE = 'TIE',
-}
-
-export enum CurrentTurn {
-  WHITE = 'WHITE',
-  BLACK = 'BLACK'
-}
-
-export type GameType =
-  | 'PUBLIC'
-  | 'PRIVATE'
-  | 'CPU-EASY'
-  | 'CPU-MEDIUM'
-  | 'CPU-HARD'
-  | 'LOCAL';
-
-export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
-
-export type Board = Cell[];
 
 export interface IPlayer extends Document {
   connectionStatus: string;

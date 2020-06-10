@@ -1,10 +1,10 @@
 import {emitEventToSocket, Middleware, on, onConnect} from '../utils/socket-service';
 import {Socket} from 'socket.io';
 import {onGameUpdate, onNewGame} from '../utils/changes-listener';
-import {BaseArgs, ClientEvents, ServerEvents} from '../types/events';
-import {createRoom, CreateRoomArgs, joinRoom, JoinRoomArgs, playerMove, PlayerMoveArgs} from '../routes/socket/room';
+import {createRoom, joinRoom, playerMove} from '../routes/socket/room';
 import BsonObjectId from 'bson-objectid';
 import {isLoggedIn} from '../middlewares/socket-auth';
+import {BaseArgs, ClientEvents, CreateRoomArgs, JoinRoomArgs, PlayerMoveArgs, ServerEvents} from 'reversi-types';
 
 const usersToSockets = new Map<string, Socket>();
 

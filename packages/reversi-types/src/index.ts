@@ -18,6 +18,14 @@ export interface User extends BaseDocument {
 // export const EVENT_STATE_CHANGED = 'game-state-changed';
 // export const EVENT_GAME_FINISHED = 'game-finished';
 
+export enum ClientEvents {
+  CreateRoom = 'CREATE_ROOM',
+  JOINED = 'JOINED',
+  PlayerMove = 'PLAYER_MOVE',
+  LEAVE_ROOM = 'LEAVE_ROOM',
+  DISCONNECT = 'disconnect'
+}
+
 export type GameType =
   | 'PUBLIC_ROOM'
   | 'PRIVATE_ROOM'
@@ -35,27 +43,6 @@ export enum Cell {
 
 export type Board = Cell[];
 
-// interface Game extends Document {
-//   name: string,
-//   type: GameType,
-//   whitePlayer: Player,
-//   blackPlayer: Player | undefined,
-//   status: string,
-//   turn: 'WHITE' | 'BLACK',
-//   board: Cell[],
-// }
-//
-// type Player = Pick<User, '_id' | 'username'>;
-
-// interface Game extends Document {
-//   name: string,
-//   type: GameType,
-//   whitePlayer: Player,
-//   blackPlayer: Player | undefined,
-//   status: string,
-//   turn: 'WHITE' | 'BLACK',
-//   board: Cell[],
-// }
 
 // SERVER
 export interface Game extends Document {
@@ -83,18 +70,47 @@ export type moveResponse = {
   board: Board
 };
 
+export interface BaseArgs {
+  token: string;
+  user: undefined | User;
+}
+
+export interface PlayerMoveArgs extends BaseArgs {
+  index: number;
+}
+
+export enum ServerEvents {
+  CreatedRoom = 'CREATED_ROOM',
+  GameUpdated = 'GAME_UPDATE'
+}
+
+export enum CurrentTurn {
+  WHITE = 'WHITE',
+  BLACK = 'BLACK'
+}
+
 export enum GameStatus {
+  NOT_READY = 'NOT_READY',
+
   WAITING = 'WAITING_FOR_OPPONENT',
   PLAYING = 'PLAYING',
+
   WIN = 'WIN',
   LOSS = 'LOSS',
   TIE = 'TIE',
 }
 
-// // Client
-// interface Game extends Documents {
-//   name: string;
-//   status: ClientGameStatus;
-//   enemyName: string;
-//   board: Cell[];
-// }
+export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
+
+export interface CreateRoomArgs extends BaseArgs {
+  gameType: GameType;
+}
+
+export interface JoinRoomArgs extends BaseArgs {
+  roomId: string;
+}
+
+export interface PlayerMoveArgs extends BaseArgs {
+  roomId: string;
+  moveId: number;
+}

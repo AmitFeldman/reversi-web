@@ -2,8 +2,8 @@ import socketIO, {Server, Socket} from 'socket.io';
 import {express as expressConfig} from '../config/config';
 import http from 'http';
 import {Express} from 'express';
-import {BaseArgs, ClientEvents} from '../types/events';
 import {parseToken} from '../middlewares/socket-auth';
+import {BaseArgs, ClientEvents} from 'reversi-types';
 
 const CONNECT_EVENT = 'connection';
 const DISCONNECT_EVENT = 'disconnect';

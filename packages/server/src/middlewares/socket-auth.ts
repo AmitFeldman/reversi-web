@@ -1,7 +1,7 @@
 import {isIdValid} from '../utils/validation';
 import User from '../models/User';
 import {Middleware} from '../utils/socket-service';
-import {BaseArgs} from '../types/events';
+import {BaseArgs} from 'reversi-types';
 
 const parseToken: Middleware<BaseArgs> = (data, next) => {
   const {token: id} = data;
