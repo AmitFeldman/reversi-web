@@ -1,6 +1,6 @@
 import {Document, Model, model, Schema} from 'mongoose';
 import {BaseDocument} from '../types/base-document';
-import {User} from './User';
+import {User} from 'reversi-types';
 
 export enum Cell {
   EMPTY = 0,

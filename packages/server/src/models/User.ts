@@ -1,12 +1,5 @@
 import {Schema, model, Model} from 'mongoose';
-import {BaseDocument} from '../types/base-document';
-
-export interface User extends BaseDocument {
-  username: string;
-  password: string;
-  email: string;
-  isAdmin: boolean;
-}
+import {User} from 'reversi-types';
 
 const UserSchema = new Schema({
   username: {

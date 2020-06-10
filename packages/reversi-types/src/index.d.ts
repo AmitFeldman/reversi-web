@@ -2,12 +2,15 @@ import {Document} from 'mongoose';
 
 // Duplicate of reversi-types package TODO: Fix alias paths
 
-export interface User extends Document {
+export interface BaseDocument extends Document {
+  date: Date;
+}
+
+export interface User extends BaseDocument {
   username: string;
   password: string;
   email: string;
   isAdmin: boolean;
-  date: string;
 }
 
 // export const EVENT_GAME_CREATED = 'game-created';
