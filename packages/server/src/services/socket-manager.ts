@@ -22,6 +22,16 @@ const initSocketListeners = () => {
 
     on(socket, ClientEvents.DISCONNECT, (data) => {
       console.log('socket disconnected!!!!');
+
+      usersToSockets.forEach((currentSocket: Socket, userId: string) => {
+        if (currentSocket.id === socket.id) {
+          usersToSockets.delete(userId);
+        }
+      });
+    });
+
+    on(socket, ClientEvents.LEAVE_ROOM, (data) => {
+      console.log('socket disconnected!!!!');
     });
 
     on<CreateRoomArgs>(socket, ClientEvents.CreateRoom, isLoggedIn, pushToUsers, createRoom);
@@ -60,6 +70,7 @@ const initDbListeners = () => {
       const socket = usersToSockets.get(blackPlayer.userId.toString());
 
       if (socket) {
+        console.log("emit game update to black player");
         emitEventToSocket(socket, ServerEvents.GameUpdated, game);
       }
     }

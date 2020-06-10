@@ -1,9 +1,5 @@
-import {Socket} from 'socket.io';
-import {Middleware, on} from '../../utils/socket-service';
 import {BaseArgs, ClientEvents} from '../../types/events';
 import GameModel, {Cell, GameType} from '../../models/Game';
-import {isLoggedIn} from '../../middlewares/socket-auth';
-import {white} from 'color-name';
 import BsonObjectId from 'bson-objectid';
 
 const bsonToObjectId = (bsonItem: Buffer) => new BsonObjectId(bsonItem).str;

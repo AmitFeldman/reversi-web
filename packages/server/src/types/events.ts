@@ -5,7 +5,8 @@ enum ClientEvents {
   CreateRoom = 'CREATE_ROOM',
   JOINED = 'JOINED',
   PlayerMove = 'PLAYER_MOVE',
-  DISCONNECT = 'DISCONNECTED',
+  LEAVE_ROOM = 'LEAVE_ROOM',
+  DISCONNECT = 'disconnect'
 }
 
 export interface BaseArgs {
