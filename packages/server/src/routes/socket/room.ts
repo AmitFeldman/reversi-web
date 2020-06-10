@@ -54,6 +54,8 @@ const joinRoom = async (data: JoinRoomArgs) => {
     game?.blackPlayer?.connectionStatus === 'DISCONNECTED'
   ) {
     game.blackPlayer.connectionStatus = 'CONNECTED';
+    game.blackPlayer.userId = data.token;
+    await game.save();
   }
 };
 
@@ -64,17 +66,19 @@ const playerMove = async (data: PlayerMoveArgs) => {
 
   const newBoard = game ? [...game.board] : [];
 
+  console.log(game?.turn);
+
   if (
     !game?.whitePlayer?.isCPU &&
     (data?.user?.id === whitePlayerId || data.token === whitePlayerId) &&
-    game
+    game && game.turn === CurrentTurn.WHITE
   ) {
     newBoard[data.moveId] = Cell.WHITE;
     game.board = newBoard;
     game.turn = CurrentTurn.BLACK;
   } else if (
     (data?.user?.id === blackPlayerId || data.token === blackPlayerId) &&
-    game
+    game && game.turn === CurrentTurn.BLACK
   ) {
     newBoard[data.moveId] = Cell.BLACK;
     game.board = newBoard;

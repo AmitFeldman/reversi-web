@@ -75,10 +75,7 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
             <p
               className="text-3xl"
               onClick={() => {
-                emitEvent(ClientEvents.CreateRoom, {
-                  token: user?._id,
-                  gameType: 'AI_EASY',
-                });
+                emitEvent(ClientEvents.CreateRoom, {token: user?._id, gameType: 'NORMAL'});
                 setAppState(AppState.IN_GAME);
               }}>
               Play
