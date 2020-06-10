@@ -66,8 +66,6 @@ const playerMove = async (data: PlayerMoveArgs) => {
 
   const newBoard = game ? [...game.board] : [];
 
-  console.log(game?.turn);
-
   if (
     !game?.whitePlayer?.isCPU &&
     (data?.user?.id === whitePlayerId || data.token === whitePlayerId) &&
