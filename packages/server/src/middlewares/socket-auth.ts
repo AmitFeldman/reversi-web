@@ -13,6 +13,9 @@ const parseToken: Middleware<BaseArgs> = (data, next) => {
           data.user = user;
         }
       })
+      .catch(e => {
+        console.log(e);
+      })
       .finally(() => {
         next();
       });

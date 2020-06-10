@@ -66,20 +66,21 @@ const joinRoom = (socket: Socket, room: string | string[]) => {
   socket.join(room);
 };
 
-export type Middleware<Data extends BaseArgs> = (data: Data, next: Function) => void;
+export type Middleware<Data extends BaseArgs> = (
+  data: Data,
+  next: Function
+) => void;
 
 const on = <Data extends BaseArgs>(
   socket: Socket,
   event: ClientEvents,
   ...callbacks: Middleware<Data>[]
-): () => void => {
+): (() => void) => {
   callbacks.unshift(parseToken);
 
   const listener = (data: Data) => {
     const next = () => {
-      if (callbacks.length > 1) {
-        callbacks.shift();
-      }
+      callbacks.shift();
       callbacks[0](data, next);
     };
 
