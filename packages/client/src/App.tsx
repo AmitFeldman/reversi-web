@@ -43,11 +43,12 @@ function App() {
   React.useEffect(() => {
     onSocketEvent(ServerEvents.CreatedRoom, (roomId: string) => {
       setRoomId(roomId);
+    });
 
-      onSocketEvent(ServerEvents.GameUpdated, (data: any) => {
-        setBoard(data.board);
-        setTurn(data.turn === CurrentTurn.WHITE ? CellState.WHITE : CellState.BLACK);
-      });
+    onSocketEvent(ServerEvents.GameUpdated, (data: any) => {
+      setRoomId(data._id);
+      setBoard(data.board);
+      setTurn(data.turn === CurrentTurn.WHITE ? CellState.WHITE : CellState.BLACK);
     });
 
     // emitEvent('createRoom', {token: user._id, gameType: 'AI_EASY'});

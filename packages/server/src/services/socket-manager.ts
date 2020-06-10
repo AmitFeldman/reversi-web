@@ -59,14 +59,16 @@ const initDbListeners = () => {
     const whitePlayer = game?.whitePlayer;
     const blackPlayer = game?.blackPlayer;
 
-    if (whitePlayer && !whitePlayer.isCPU && whitePlayer.userId) {
+    if (whitePlayer && !whitePlayer.isCPU && whitePlayer.userId && whitePlayer.connectionStatus === "CONNECTED") {
       const socket = usersToSockets.get(whitePlayer.userId.toString());
 
       if (socket) {
         console.log("emit game update to white player");
         emitEventToSocket(socket, ServerEvents.GameUpdated, game);
       }
-    } else if (blackPlayer && !blackPlayer.isCPU && blackPlayer.userId) {
+    }
+
+    if (blackPlayer && !blackPlayer.isCPU && blackPlayer.userId && blackPlayer.connectionStatus === "CONNECTED") {
       const socket = usersToSockets.get(blackPlayer.userId.toString());
 
       if (socket) {
