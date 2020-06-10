@@ -1,5 +1,5 @@
 import {BaseArgs, ClientEvents} from '../../types/events';
-import GameModel, {Cell, GameType} from '../../models/Game';
+import GameModel, {Cell, CurrentTurn, GameType} from '../../models/Game';
 import BsonObjectId from 'bson-objectid';
 
 const bsonToObjectId = (bsonItem: Buffer) => new BsonObjectId(bsonItem).str;
@@ -71,12 +71,14 @@ const playerMove = async (data: PlayerMoveArgs) => {
   ) {
     newBoard[data.moveId] = Cell.WHITE;
     game.board = newBoard;
+    game.turn = CurrentTurn.BLACK;
   } else if (
     (data?.user?.id === blackPlayerId || data.token === blackPlayerId) &&
     game
   ) {
     newBoard[data.moveId] = Cell.BLACK;
     game.board = newBoard;
+    game.turn = CurrentTurn.WHITE;
   }
 
   await game?.save();
@@ -94,6 +96,7 @@ const aiMove = async (data: PlayerMoveArgs) => {
     if (game) {
       newBoard[data.moveId - 8] = Cell.BLACK;
       game.board = newBoard;
+      game.turn = CurrentTurn.WHITE;
     }
 
     await game?.save();

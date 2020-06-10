@@ -19,6 +19,11 @@ export enum GameStatus {
   TIE = 'TIE',
 }
 
+export enum CurrentTurn {
+  WHITE = 'WHITE',
+  BLACK = 'BLACK'
+}
+
 export type GameType =
   | 'PUBLIC'
   | 'PRIVATE'
@@ -87,7 +92,8 @@ export const GameSchema = new Schema({
     default: GameStatus.NOT_READY,
   },
   turn: {
-    type: Schema.Types.ObjectId,
+    type: CurrentTurn,
+    default: CurrentTurn.WHITE
   },
   winner: {
     type: Schema.Types.ObjectId,

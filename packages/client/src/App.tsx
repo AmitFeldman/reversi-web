@@ -24,6 +24,11 @@ enum ServerEvents {
   GameUpdated = 'GAME_UPDATE'
 }
 
+enum CurrentTurn {
+  WHITE = 'WHITE',
+  BLACK = 'BLACK'
+}
+
 function App() {
   const controls = React.useRef<OrbitControls>();
   const [state, setState] = React.useState<AppState>(AppState.MAIN_MENU);
@@ -40,12 +45,8 @@ function App() {
       setRoomId(roomId);
 
       onSocketEvent(ServerEvents.GameUpdated, (data: any) => {
-        console.log("asdasdasd");
-        // const {a: newStatus, b: newBoard} = JSON.parse(data);
         setBoard(data.board);
-        // setTurn((t) =>
-        //   t === CellState.WHITE ? CellState.BLACK : CellState.WHITE
-        // );
+        setTurn(data.turn === CurrentTurn.WHITE ? CellState.WHITE : CellState.BLACK);
       });
     });
 
