@@ -26,7 +26,7 @@ enum ClientEvents {
 
 enum ServerEvents {
   CreatedRoom = 'CREATED_ROOM',
-  GameUpdated = 'GAME_UPDATE'
+  GameUpdated = 'GAME_UPDATE',
 }
 
 const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
@@ -38,10 +38,11 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
   turn,
 }) => {
   const {user, isUserLoggedIn} = useAuth();
+  const [roomId, setRoomId] = React.useState<string>('');
 
   onSocketEvent(ServerEvents.CreatedRoom, (roomId: string) => {
     console.log(roomId);
-    emitEvent(ClientEvents.JOINED, {token: user?._id, roomId})
+    emitEvent(ClientEvents.JOINED, {token: user?._id, roomId});
   });
 
   return (
@@ -74,7 +75,10 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
             <p
               className="text-3xl"
               onClick={() => {
-                emitEvent(ClientEvents.CreateRoom, {token: user?._id, gameType: 'AI_EASY'});
+                emitEvent(ClientEvents.CreateRoom, {
+                  token: user?._id,
+                  gameType: 'AI_EASY',
+                });
                 setAppState(AppState.IN_GAME);
               }}>
               Play
@@ -82,11 +86,16 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
             <p
               className="text-3xl"
               onClick={() => {
-                emitEvent(ClientEvents.CreateRoom, {token: user?._id, gameType: 'AI_EASY'});
+                emitEvent(ClientEvents.JOINED, {token: user?._id, roomId});
                 setAppState(AppState.IN_GAME);
               }}>
               Join Game
             </p>
+            <input
+              className="text-black"
+              onChange={(e) => setRoomId(e.target.value)}
+              value={roomId}
+            />
           </div>
         </>
       )}
