@@ -27,10 +27,10 @@
     "typescript": "^3.7.5"
   },
   "scripts": {
-    "start": "npm run tailwind && react-scripts start",
+    "start": "npm run tailwind && react-app-rewired start",
     "tailwind": "tailwind build src/tailwind.css -c tailwind.config.js -o src/index.css",
-    "build": "npm run tailwind && react-scripts build",
-    "test": "react-scripts test",
+    "build": "npm run tailwind && react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -48,5 +48,8 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "react-app-rewire-alias": "^0.1.6",
+    "react-app-rewired": "^2.1.6"
+  }
 }

@@ -51,8 +51,8 @@ export interface Game extends Document {
   whitePlayer: Player;
   blackPlayer: Player | undefined;
   status: GameStatus;
-  turn: Player['_id'] | undefined;
-  winner: Player['_id'] | undefined;
+  turn: string | undefined;
+  winner: string | undefined;
   board: Board;
 }
 
@@ -108,9 +108,4 @@ export interface CreateRoomArgs extends BaseArgs {
 
 export interface JoinRoomArgs extends BaseArgs {
   roomId: string;
-}
-
-export interface PlayerMoveArgs extends BaseArgs {
-  roomId: string;
-  moveId: number;
 }

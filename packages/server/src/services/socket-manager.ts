@@ -15,9 +15,9 @@ const initSocketListeners = () => {
     const pushToUsers: Middleware<BaseArgs> = (data, next) => {
       if (data?.user) {
         usersToSockets.set(data.user.id, socket);
-      }
 
-      next();
+        next();
+      }
     };
 
     on(socket, ClientEvents.DISCONNECT, (data) => {
@@ -28,10 +28,13 @@ const initSocketListeners = () => {
           usersToSockets.delete(userId);
         }
       });
+
+      // ToDo: if the user is connected to the room update the game to disconnected
     });
 
     on(socket, ClientEvents.LEAVE_ROOM, (data) => {
       console.log('socket disconnected!!!!');
+      // ToDo: update the game to disconnected
     });
 
     on<CreateRoomArgs>(socket, ClientEvents.CreateRoom, isLoggedIn, pushToUsers, createRoom);
