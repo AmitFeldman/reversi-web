@@ -26,6 +26,18 @@ export enum ClientEvents {
   DISCONNECT = 'disconnect'
 }
 
+// ToDo: change to player status
+export enum GameStatus {
+  NOT_READY = 'NOT_READY',
+
+  WAITING = 'WAITING_FOR_OPPONENT',
+  PLAYING = 'PLAYING',
+
+  WIN = 'WIN',
+  LOSS = 'LOSS',
+  TIE = 'TIE',
+}
+
 export type GameType =
   | 'PUBLIC_ROOM'
   | 'PRIVATE_ROOM'
@@ -33,7 +45,6 @@ export type GameType =
   | 'AI_MEDIUM'
   | 'AI_HARD'
   | 'LOCAL';
-// type GameStatus = 'WAITING' | 'DURING' | 'FINISHED';
 
 export enum Cell {
   EMPTY = 0,
@@ -43,6 +54,7 @@ export enum Cell {
 
 export type Board = Cell[];
 
+type Player = Pick<User, '_id' | 'username'>;
 
 // SERVER
 export interface Game extends Document {
@@ -55,11 +67,6 @@ export interface Game extends Document {
   winner: string | undefined;
   board: Board;
 }
-
-type Player = Pick<User, '_id' | 'username'>;
-type EndGameStates = 'WIN' | 'LOSS' | 'TIE';
-
-// export type GameStatus = 'WAITING_FOR_OPPONENT' | 'PLAYING' | EndGameStates;
 
 export type MoveData = {
   index: number;
@@ -87,17 +94,6 @@ export enum ServerEvents {
 export enum CurrentTurn {
   WHITE = 'WHITE',
   BLACK = 'BLACK'
-}
-
-export enum GameStatus {
-  NOT_READY = 'NOT_READY',
-
-  WAITING = 'WAITING_FOR_OPPONENT',
-  PLAYING = 'PLAYING',
-
-  WIN = 'WIN',
-  LOSS = 'LOSS',
-  TIE = 'TIE',
 }
 
 export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';

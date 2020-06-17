@@ -12,23 +12,7 @@ import {CellState} from './components/Cell/Cell';
 import {DiscType} from './components/Disc/Disc';
 import {emitEvent, onSocketEvent} from './utils/socket-client';
 import {useAuth} from './context/AuthContext';
-import {CurrentTurn} from 'reversi-types';
-
-enum ClientEvents {
-  CreateRoom = 'CREATE_ROOM',
-  Ready = 'READY',
-  PlayerMove = 'PLAYER_MOVE',
-}
-
-enum ServerEvents {
-  CreatedRoom = 'CREATED_ROOM',
-  GameUpdated = 'GAME_UPDATE'
-}
-
-// enum CurrentTurn {
-//   WHITE = 'WHITE',
-//   BLACK = 'BLACK'
-// }
+import {ClientEvents, CurrentTurn, ServerEvents} from 'reversi-types';
 
 function App() {
   const controls = React.useRef<OrbitControls>();

@@ -6,6 +6,7 @@ import {AppState} from '../../context/AppContext';
 import {DiscType} from '../Disc/Disc';
 import InGameHud from '../InGameHUD/InGameHUD';
 import {emitEvent, onSocketEvent} from '../../utils/socket-client';
+import {ClientEvents, ServerEvents} from 'reversi-types';
 
 const DEFAULT_USERNAME = 'Guest';
 
@@ -16,17 +17,6 @@ interface HeadsUpDisplayProps {
   scoreBlack: number;
   scoreWhite: number;
   turn: DiscType;
-}
-
-enum ClientEvents {
-  CreateRoom = 'CREATE_ROOM',
-  JOINED = 'JOINED',
-  PlayerMove = 'PLAYER_MOVE',
-}
-
-enum ServerEvents {
-  CreatedRoom = 'CREATED_ROOM',
-  GameUpdated = 'GAME_UPDATE',
 }
 
 const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
