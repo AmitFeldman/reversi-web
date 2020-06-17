@@ -1,6 +1,6 @@
 import {Document, Model, model, Schema} from 'mongoose';
 import {BaseDocument} from '../types/base-document';
-import {Board, Difficulty, GameStatus, GameType, User, Cell, CurrentTurn} from 'reversi-types';
+import {Board, Difficulty, GameStatus, GameType, User, Cell, CurrentTurn, PlayerStatus} from 'reversi-types';
 
 
 export interface IPlayer extends Document {
@@ -25,7 +25,7 @@ export interface IGame extends BaseDocument {
 const PlayerSchema = new Schema({
   connectionStatus: {
     type: String,
-    default: 'DISCONNECTED',
+    default: PlayerStatus.DISCONNECTED,
   },
   difficulty: {
     type: String,
@@ -37,8 +37,9 @@ const PlayerSchema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'users',
+    required: true
   },
-});
+}, {_id: false});
 
 const INITIAL_BOARD = new Array(64).fill(0);
 INITIAL_BOARD[27] = INITIAL_BOARD[36] = Cell.BLACK;

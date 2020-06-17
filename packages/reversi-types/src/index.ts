@@ -6,6 +6,11 @@ export interface BaseDocument extends Document {
   date: Date;
 }
 
+export enum PlayerStatus {
+  CONNECTED = 'CONNECTED',
+  DISCONNECTED = 'DISCONNECTED'
+}
+
 export interface User extends BaseDocument {
   username: string;
   password: string;
@@ -82,9 +87,19 @@ export interface BaseArgs {
   user: undefined | User;
 }
 
-export interface PlayerMoveArgs extends BaseArgs {
-  index: number;
+export interface CreateRoomArgs extends BaseArgs {
+  gameType: GameType;
 }
+
+export interface JoinRoomArgs extends BaseArgs {
+  roomId: string;
+}
+
+export interface PlayerMoveArgs extends BaseArgs {
+  roomId: string;
+  moveId: number;
+}
+
 
 export enum ServerEvents {
   CreatedRoom = 'CREATED_ROOM',
@@ -97,11 +112,3 @@ export enum CurrentTurn {
 }
 
 export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
-
-export interface CreateRoomArgs extends BaseArgs {
-  gameType: GameType;
-}
-
-export interface JoinRoomArgs extends BaseArgs {
-  roomId: string;
-}

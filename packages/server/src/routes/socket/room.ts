@@ -1,5 +1,6 @@
 import GameModel from '../../models/Game';
-import {Cell, CreateRoomArgs, CurrentTurn, JoinRoomArgs, PlayerMoveArgs} from 'reversi-types';
+import {BaseArgs, Cell, CreateRoomArgs, CurrentTurn, JoinRoomArgs, PlayerMoveArgs, PlayerStatus} from 'reversi-types';
+import mongoose from 'mongoose';
 
 const createRoom = async (data: CreateRoomArgs) => {
   try {
@@ -11,8 +12,8 @@ const createRoom = async (data: CreateRoomArgs) => {
       },
       blackPlayer: {
         connectionStatus: data.gameType.includes('AI')
-          ? 'CONNECTED'
-          : 'DISCONNECTED',
+          ? PlayerStatus.CONNECTED
+          : PlayerStatus.DISCONNECTED,
         isCPU: data.gameType.includes('AI'),
       },
       type: data.gameType,
@@ -29,16 +30,16 @@ const joinRoom = async (data: JoinRoomArgs) => {
 
   if (
     !game?.whitePlayer?.isCPU &&
-    game?.whitePlayer?.connectionStatus === 'DISCONNECTED'
+    game?.whitePlayer?.connectionStatus === PlayerStatus.DISCONNECTED
   ) {
-    game.whitePlayer.connectionStatus = 'CONNECTED';
+    game.whitePlayer.connectionStatus = PlayerStatus.CONNECTED;
     await game.save();
   } else if (
     !game?.blackPlayer?.isCPU &&
-    game?.blackPlayer?.connectionStatus === 'DISCONNECTED'
+    game?.blackPlayer?.connectionStatus === PlayerStatus.DISCONNECTED
   ) {
-    game.blackPlayer.connectionStatus = 'CONNECTED';
-    game.blackPlayer.userId = data.token;
+    game.blackPlayer.connectionStatus = PlayerStatus.CONNECTED;
+    game.blackPlayer.userId = data?.user?._id;
     await game.save();
   }
 };
@@ -52,14 +53,14 @@ const playerMove = async (data: PlayerMoveArgs) => {
 
   if (
     !game?.whitePlayer?.isCPU &&
-    (data?.user?.id === whitePlayerId || data.token === whitePlayerId) &&
+    (data?.user?.id === whitePlayerId || data?.user?._id === whitePlayerId) &&
     game && game.turn === CurrentTurn.WHITE
   ) {
     newBoard[data.moveId] = Cell.WHITE;
     game.board = newBoard;
     game.turn = CurrentTurn.BLACK;
   } else if (
-    (data?.user?.id === blackPlayerId || data.token === blackPlayerId) &&
+    (data?.user?.id === blackPlayerId || data?.user?._id === blackPlayerId) &&
     game && game.turn === CurrentTurn.BLACK
   ) {
     newBoard[data.moveId] = Cell.BLACK;
@@ -89,4 +90,27 @@ const aiMove = async (data: PlayerMoveArgs) => {
   }, 1500);
 };
 
-export {createRoom, joinRoom, playerMove};
+const disconnectFromGame = async (id: string) => {
+  console.log("YESHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+  const userId = mongoose.Types.ObjectId(id);
+  const whitePlayerGames = await GameModel.find({ $and: [{"whitePlayer.userId": userId}, {"whitePlayer.connectionStatus": PlayerStatus.CONNECTED}] });
+  const blackPlayerGames = await GameModel.find({ $and: [{"blackPlayer.userId": userId}, {"blackPlayer.connectionStatus": PlayerStatus.CONNECTED}] });
+
+  whitePlayerGames.forEach(async (game) => {
+    if (game?.whitePlayer?.connectionStatus === PlayerStatus.CONNECTED) {
+      game.whitePlayer.connectionStatus = PlayerStatus.DISCONNECTED;
+
+      await game.save();
+    }
+  });
+
+  blackPlayerGames.forEach(async (game) => {
+    if (game?.blackPlayer?.connectionStatus === PlayerStatus.CONNECTED) {
+      game.blackPlayer.connectionStatus = PlayerStatus.DISCONNECTED;
+
+      await game.save();
+    }
+  })
+};
+
+export {createRoom, joinRoom, playerMove, disconnectFromGame};

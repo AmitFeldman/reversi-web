@@ -15,6 +15,7 @@
     "noEmit": true,
     "sourceMap": true,
     "baseUrl": "./packages",
+    "downlevelIteration": true,
     "paths": {
       "reversi-types": ["reversi-types/src"]
     }

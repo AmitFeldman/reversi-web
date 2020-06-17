@@ -1,7 +1,7 @@
 import {emitEventToSocket, Middleware, on, onConnect} from '../utils/socket-service';
 import {Socket} from 'socket.io';
 import {onGameUpdate, onNewGame} from '../utils/changes-listener';
-import {createRoom, joinRoom, playerMove} from '../routes/socket/room';
+import {createRoom, disconnectFromGame, joinRoom, playerMove} from '../routes/socket/room';
 import BsonObjectId from 'bson-objectid';
 import {isLoggedIn} from '../middlewares/socket-auth';
 import {BaseArgs, ClientEvents, CreateRoomArgs, JoinRoomArgs, PlayerMoveArgs, ServerEvents} from 'reversi-types';
@@ -20,16 +20,18 @@ const initSocketListeners = () => {
       }
     };
 
-    on(socket, ClientEvents.DISCONNECT, (data) => {
+    on(socket, ClientEvents.DISCONNECT, () => {
       console.log('socket disconnected!!!!');
 
-      usersToSockets.forEach((currentSocket: Socket, userId: string) => {
+      usersToSockets.forEach(async (currentSocket: Socket, userId: string) => {
         if (currentSocket.id === socket.id) {
           usersToSockets.delete(userId);
+
+          console.log("Before!!!!!!!!!!!");
+          await disconnectFromGame(userId);
+          console.log("AFTERRRRRRRRRRRRRRRRRRRRRRRRR");
         }
       });
-
-      // ToDo: if the user is connected to the room update the game to disconnected
     });
 
     on(socket, ClientEvents.LEAVE_ROOM, (data) => {
