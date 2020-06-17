@@ -1,4 +1,5 @@
 import express from 'express';
+import 'module-alias/register';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import {express as expressConfig, mongo as mongoConfig} from './config/config';

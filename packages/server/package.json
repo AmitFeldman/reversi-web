@@ -4,9 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm run build && node ./dist/server.js",
+    "start": "npm run build && node ./dist/server/src/server.js",
     "build": "tsc",
-    "debug": "npm run build && nodemon --inspect-brk ./dist/server.js"
+    "debug": "npm run build && nodemon --inspect-brk ./dist/server/src/server.js"
+  },
+  "_moduleAliases": {
+    "reversi-types": "dist/reversi-types/src"
   },
   "author": "",
   "license": "ISC",
@@ -20,6 +23,7 @@
     "eventemitter3": "^4.0.4",
     "express": "^4.17.1",
     "http": "0.0.1-security",
+    "module-alias": "^2.2.2",
     "mongoose": "^5.9.12",
     "socket.io": "^2.3.0"
   },
