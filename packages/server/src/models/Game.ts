@@ -36,8 +36,7 @@ const PlayerSchema = new Schema({
   },
   userId: {
     type: Schema.Types.ObjectId,
-    ref: 'users',
-    required: true
+    ref: 'users'
   },
 }, {_id: false});
 

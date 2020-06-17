@@ -20,18 +20,22 @@ const initSocketListeners = () => {
       }
     };
 
-    on(socket, ClientEvents.DISCONNECT, () => {
-      console.log('socket disconnected!!!!');
+    on(socket, ClientEvents.DISCONNECT, async () => {
+      // console.log('socket disconnected!!!!');
 
-      usersToSockets.forEach(async (currentSocket: Socket, userId: string) => {
+      for (const [userId, currentSocket] of usersToSockets) {
         if (currentSocket.id === socket.id) {
-          usersToSockets.delete(userId);
+          // usersToSockets.delete(userId);
 
-          console.log("Before!!!!!!!!!!!");
-          await disconnectFromGame(userId);
-          console.log("AFTERRRRRRRRRRRRRRRRRRRRRRRRR");
+          try {
+            console.log("Before!!!!!!!!!!!");
+            await disconnectFromGame(userId);
+            console.log("AFTERRRRRRRRRRRRRRRRRRRRRRRRR");
+          } catch (e) {
+            console.log(e);
+          }
         }
-      });
+      }
     });
 
     on(socket, ClientEvents.LEAVE_ROOM, (data) => {

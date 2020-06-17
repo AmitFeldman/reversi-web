@@ -5,9 +5,9 @@ import mongoose from 'mongoose';
 const createRoom = async (data: CreateRoomArgs) => {
   try {
     const newGame = new GameModel({
-      createdBy: data.token,
+      createdBy: data?.user?.id,
       whitePlayer: {
-        userId: data.token,
+        userId: data?.user?.id,
         isCPU: false,
       },
       blackPlayer: {
@@ -96,19 +96,19 @@ const disconnectFromGame = async (id: string) => {
   const whitePlayerGames = await GameModel.find({ $and: [{"whitePlayer.userId": userId}, {"whitePlayer.connectionStatus": PlayerStatus.CONNECTED}] });
   const blackPlayerGames = await GameModel.find({ $and: [{"blackPlayer.userId": userId}, {"blackPlayer.connectionStatus": PlayerStatus.CONNECTED}] });
 
-  whitePlayerGames.forEach(async (game) => {
+  whitePlayerGames.forEach((game) => {
     if (game?.whitePlayer?.connectionStatus === PlayerStatus.CONNECTED) {
       game.whitePlayer.connectionStatus = PlayerStatus.DISCONNECTED;
 
-      await game.save();
+      game.save();
     }
   });
 
-  blackPlayerGames.forEach(async (game) => {
+  blackPlayerGames.forEach((game) => {
     if (game?.blackPlayer?.connectionStatus === PlayerStatus.CONNECTED) {
       game.blackPlayer.connectionStatus = PlayerStatus.DISCONNECTED;
 
-      await game.save();
+      game.save();
     }
   })
 };
