@@ -2,13 +2,10 @@ import {emitEventToSocket, Middleware, on, onConnect} from '../utils/socket-serv
 import {Socket} from 'socket.io';
 import {onGameUpdate, onNewGame} from '../utils/changes-listener';
 import {createRoom, disconnectFromGame, joinRoom, playerMove} from '../routes/socket/room';
-import BsonObjectId from 'bson-objectid';
 import {isLoggedIn} from '../middlewares/socket-auth';
 import {BaseArgs, ClientEvents, CreateRoomArgs, JoinRoomArgs, PlayerMoveArgs, ServerEvents} from 'reversi-types';
 
 const usersToSockets = new Map<string, Socket>();
-
-const bsonToObjectId = (bsonItem: Buffer) => new BsonObjectId(bsonItem).str;
 
 // TODO: Add remove listeners on socket disconnect
 const initSocketListeners = () => {
@@ -50,8 +47,7 @@ const initSocketListeners = () => {
 const initDbListeners = () => {
   onNewGame((change) => {
     const game = change?.fullDocument;
-    const createdBy = bsonToObjectId(game?.createdBy?.id);
-    const socket = usersToSockets.get(createdBy);
+    const socket = game?.createdBy ? usersToSockets.get(game.createdBy) : undefined;
 
     if (socket) {
       console.log('Emitted created game');

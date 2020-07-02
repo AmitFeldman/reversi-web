@@ -63,7 +63,7 @@ export const GameSchema = new Schema({
     immutable: true,
   },
   createdBy: {
-    type: Schema.Types.ObjectId,
+    type: String,
     required: true,
   },
 });

@@ -1,5 +1,4 @@
 import GameModel from '../models/Game';
-import BsonObjectId from 'bson-objectid';
 import EventEmitter from 'eventemitter3';
 import {ChangeEventUpdate, ChangeEventCR} from 'mongodb';
 import {IGame} from 'reversi-types';
@@ -13,10 +12,6 @@ const pipeline = [
   {$match: {operationType: {$in: ['insert', 'update']}}},
   {$project: {fullDocument: 1, operationType: 1}},
 ];
-
-// Parse bson to normal id
-const bsonToObjectId = (bsonItem: BsonObjectId) =>
-  new BsonObjectId(bsonItem.id).str;
 
 const initChangesListener = () => {
   GameModel.watch(pipeline, {fullDocument: 'updateLookup'}).on(
