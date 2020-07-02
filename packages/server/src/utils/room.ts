@@ -1,12 +1,17 @@
-import GameModel from '../../models/Game';
+import GameModel from '../models/Game';
 import {
   Cell,
   CreateRoomArgs,
+  IGame,
   JoinRoomArgs,
   PlayerMoveArgs,
   PlayerStatus,
+  ServerEvents,
 } from 'reversi-types';
 import mongoose from 'mongoose';
+import {emitEventToSocket} from './socket-service';
+import {getSocketByUserId} from '../services/socket-manager';
+import {ChangeEventCR, ChangeEventUpdate} from 'mongodb';
 
 const createRoom = async (data: CreateRoomArgs) => {
   try {
@@ -130,4 +135,57 @@ const disconnectFromGame = async (id: string) => {
   });
 };
 
-export {createRoom, joinRoom, playerMove, disconnectFromGame};
+const onNewGame = (change: ChangeEventCR<IGame>) => {
+  const game = change?.fullDocument;
+  const socket = game?.createdBy
+    ? getSocketByUserId(game.createdBy)
+    : undefined;
+
+  if (socket) {
+    console.log('Emitted created game');
+    emitEventToSocket(socket, ServerEvents.CreatedRoom, game?._id.toString());
+  }
+};
+
+const onGameUpdate = (change: ChangeEventUpdate<IGame>) => {
+  const game = change?.fullDocument;
+  const whitePlayer = game?.whitePlayer;
+  const blackPlayer = game?.blackPlayer;
+
+  if (
+    whitePlayer &&
+    !whitePlayer.isCPU &&
+    whitePlayer.userId &&
+    whitePlayer.connectionStatus === 'CONNECTED'
+  ) {
+    const socket = getSocketByUserId(whitePlayer.userId.toString());
+
+    if (socket) {
+      console.log('emit game update to white player');
+      emitEventToSocket(socket, ServerEvents.GameUpdated, game);
+    }
+  }
+
+  if (
+    blackPlayer &&
+    !blackPlayer.isCPU &&
+    blackPlayer.userId &&
+    blackPlayer.connectionStatus === 'CONNECTED'
+  ) {
+    const socket = getSocketByUserId(blackPlayer.userId.toString());
+
+    if (socket) {
+      console.log('emit game update to black player');
+      emitEventToSocket(socket, ServerEvents.GameUpdated, game);
+    }
+  }
+};
+
+export {
+  createRoom,
+  joinRoom,
+  playerMove,
+  disconnectFromGame,
+  onNewGame,
+  onGameUpdate,
+};

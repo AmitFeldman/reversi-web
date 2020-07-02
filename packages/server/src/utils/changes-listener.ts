@@ -2,6 +2,7 @@ import GameModel from '../models/Game';
 import EventEmitter from 'eventemitter3';
 import {ChangeEventUpdate, ChangeEventCR} from 'mongodb';
 import {IGame} from 'reversi-types';
+import {onGameUpdate, onNewGame} from './room';
 
 const dbEventEmitter = new EventEmitter();
 
@@ -20,10 +21,8 @@ const initChangesListener = () => {
       const type = data.operationType;
 
       if (type === 'insert') {
-        console.log("A game has been inserted");
         dbEventEmitter.emit(NEW_GAME_EVENT, data as ChangeEventCR<IGame>);
       } else if (type === 'update') {
-        console.log("A game has been updated");
         dbEventEmitter.emit(
           GAME_UPDATE_EVENT,
           data as ChangeEventUpdate<IGame>
@@ -31,14 +30,9 @@ const initChangesListener = () => {
       }
     }
   );
+
+  dbEventEmitter.on(NEW_GAME_EVENT, onNewGame);
+  dbEventEmitter.on(GAME_UPDATE_EVENT, onGameUpdate);
 };
 
-const onNewGame = (callback: (change: ChangeEventCR<IGame>) => void) => {
-  dbEventEmitter.on(NEW_GAME_EVENT, callback);
-};
-
-const onGameUpdate = (callback: (change: ChangeEventUpdate<IGame>) => void) => {
-  dbEventEmitter.on(GAME_UPDATE_EVENT, callback);
-};
-
-export {initChangesListener, onNewGame, onGameUpdate};
+export {initChangesListener};

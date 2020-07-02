@@ -1,27 +1,34 @@
-import {emitEventToSocket, Middleware, on, onConnect} from '../utils/socket-service';
+import {Middleware, on, onConnect} from '../utils/socket-service';
 import {Socket} from 'socket.io';
-import {onGameUpdate, onNewGame} from '../utils/changes-listener';
-import {createRoom, disconnectFromGame, joinRoom, playerMove} from '../routes/socket/room';
-import {isLoggedIn} from '../middlewares/socket-auth';
-import {BaseArgs, ClientEvents, CreateRoomArgs, JoinRoomArgs, PlayerMoveArgs, ServerEvents} from 'reversi-types';
+import {disconnectFromGame} from '../utils/room';
+import {BaseArgs, ClientEvents} from 'reversi-types';
 
 const usersToSockets = new Map<string, Socket>();
 
-// TODO: Add remove listeners on socket disconnect
-const initSocketListeners = () => {
+const getSocketByUserId = (id: string) => usersToSockets.get(id);
+
+const createPushSocketMiddleware = (socket: Socket): Middleware<BaseArgs> => (
+  data,
+  next
+) => {
+  if (data?.user) {
+    usersToSockets.set(data.user.id, socket);
+    next();
+  }
+};
+
+const initSocketManager = (onSocketAdd: (socket: Socket) => () => void) => {
   onConnect((socket) => {
-    const pushToUsers: Middleware<BaseArgs> = (data, next) => {
-      if (data?.user) {
-        usersToSockets.set(data.user.id, socket);
+    const cleanupListeners = onSocketAdd(socket);
 
-        next();
-      }
-    };
-
-    on(socket, ClientEvents.DISCONNECT, async () => {
+    const cancelOnDisconnect = on(socket, ClientEvents.DISCONNECT, async () => {
       for (const [userId, currentSocket] of usersToSockets) {
         if (currentSocket.id === socket.id) {
-          // usersToSockets.delete(userId);
+          usersToSockets.delete(userId);
+
+          // Event listener cleanup
+          cleanupListeners();
+          cancelOnDisconnect();
 
           try {
             await disconnectFromGame(userId);
@@ -32,52 +39,9 @@ const initSocketListeners = () => {
       }
     });
 
-    on(socket, ClientEvents.LEAVE_ROOM, (data) => {
-      // ToDo: Update the game to disconnected
-    });
-
-    on<CreateRoomArgs>(socket, ClientEvents.CREATE_ROOM, isLoggedIn, pushToUsers, createRoom);
-
-    on<JoinRoomArgs>(socket, ClientEvents.JOINED, isLoggedIn, pushToUsers, joinRoom);
-
-    on<PlayerMoveArgs>(socket, ClientEvents.PLAYER_MOVE, isLoggedIn, pushToUsers, playerMove);
+    // TODO: Implement leave room in client + server
+    // on(socket, ClientEvents.LEAVE_ROOM, () => {});
   });
 };
 
-const initDbListeners = () => {
-  onNewGame((change) => {
-    const game = change?.fullDocument;
-    const socket = game?.createdBy ? usersToSockets.get(game.createdBy) : undefined;
-
-    if (socket) {
-      console.log('Emitted created game');
-      emitEventToSocket(socket, ServerEvents.CreatedRoom, game?._id.toString());
-    }
-  });
-
-  onGameUpdate((change) => {
-    const game = change?.fullDocument;
-    const whitePlayer = game?.whitePlayer;
-    const blackPlayer = game?.blackPlayer;
-
-    if (whitePlayer && !whitePlayer.isCPU && whitePlayer.userId && whitePlayer.connectionStatus === "CONNECTED") {
-      const socket = usersToSockets.get(whitePlayer.userId.toString());
-
-      if (socket) {
-        console.log("emit game update to white player");
-        emitEventToSocket(socket, ServerEvents.GameUpdated, game);
-      }
-    }
-
-    if (blackPlayer && !blackPlayer.isCPU && blackPlayer.userId && blackPlayer.connectionStatus === "CONNECTED") {
-      const socket = usersToSockets.get(blackPlayer.userId.toString());
-
-      if (socket) {
-        console.log("emit game update to black player");
-        emitEventToSocket(socket, ServerEvents.GameUpdated, game);
-      }
-    }
-  });
-};
-
-export {initSocketListeners, initDbListeners};
+export {createPushSocketMiddleware, initSocketManager, getSocketByUserId};

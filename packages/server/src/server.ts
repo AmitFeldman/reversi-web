@@ -6,9 +6,20 @@ import {express as expressConfig, mongo as mongoConfig} from './config/config';
 import cors from 'cors';
 import users from './routes/api/users';
 import {parseToken} from './middlewares/auth';
-import {initSocketIO} from './utils/socket-service';
+import {initSocketIO, on} from './utils/socket-service';
 import {initChangesListener} from './utils/changes-listener';
-import {initDbListeners, initSocketListeners} from './services/socket-manager';
+import {
+  createPushSocketMiddleware,
+  initSocketManager,
+} from './services/socket-manager';
+import {
+  ClientEvents,
+  CreateRoomArgs,
+  JoinRoomArgs,
+  PlayerMoveArgs,
+} from 'reversi-types';
+import {isLoggedIn} from './middlewares/socket-auth';
+import {createRoom, joinRoom, playerMove} from './utils/room';
 
 const app = express();
 
@@ -54,5 +65,17 @@ const server = app.listen(serverPort, () => {
 
 // Init socket.io
 initSocketIO(app);
-initSocketListeners();
-initDbListeners();
+initSocketManager((socket) => {
+  const pushToUsers = createPushSocketMiddleware(socket);
+
+  const cancelOnCreateRoom = on<CreateRoomArgs>(socket, ClientEvents.CREATE_ROOM, isLoggedIn, pushToUsers, createRoom);
+  const cancelOnJoinRoom = on<JoinRoomArgs>(socket, ClientEvents.JOINED, isLoggedIn, pushToUsers, joinRoom);
+  const cancelOnPlayerMove = on<PlayerMoveArgs>(socket, ClientEvents.PLAYER_MOVE, isLoggedIn, pushToUsers, playerMove);
+
+  return () => {
+    cancelOnCreateRoom();
+    cancelOnJoinRoom();
+    cancelOnPlayerMove();
+  };
+});
+
