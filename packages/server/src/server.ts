@@ -1,10 +1,25 @@
 import express from 'express';
+import 'module-alias/register';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import {express as expressConfig, mongo as mongoConfig} from './config/config';
 import cors from 'cors';
 import users from './routes/api/users';
 import {parseToken} from './middlewares/auth';
+import {initSocketIO, on} from './utils/socket-service';
+import {initChangesListener} from './utils/changes-listener';
+import {
+  createPushSocketMiddleware,
+  initSocketManager,
+} from './services/socket-manager';
+import {
+  ClientEvents,
+  CreateRoomArgs,
+  JoinRoomArgs,
+  PlayerMoveArgs,
+} from 'reversi-types';
+import {isLoggedIn} from './middlewares/socket-auth';
+import {createRoom, joinRoom, playerMove} from './utils/room';
 
 const app = express();
 
@@ -32,14 +47,35 @@ const mongoURI = `mongodb+srv://${user}:${password}@${host}/${database}?retryWri
 console.log(`connecting to MongoDB through uri ${mongoURI}...`);
 mongoose
   .connect(mongoURI, {useNewUrlParser: true, useUnifiedTopology: true})
-  .then(() => console.log('successfully connected to MongoDB...'))
-  .catch(err => console.log(err));
+  .then(() => {
+    console.log('successfully connected to MongoDB...');
+
+    // Listens to changes in mongoDB
+    initChangesListener();
+  })
+  .catch((err) => console.log(err));
 
 // Express config variables
 const {serverPort} = expressConfig;
 
 // Express server listening
-// eslint-disable-next-line no-unused-vars
 const server = app.listen(serverPort, () => {
   console.log(`server listening on port ${serverPort}...`);
 });
+
+// Init socket.io
+initSocketIO(app);
+initSocketManager((socket) => {
+  const pushToUsers = createPushSocketMiddleware(socket);
+
+  const cancelOnCreateRoom = on<CreateRoomArgs>(socket, ClientEvents.CREATE_ROOM, isLoggedIn, pushToUsers, createRoom);
+  const cancelOnJoinRoom = on<JoinRoomArgs>(socket, ClientEvents.JOINED, isLoggedIn, pushToUsers, joinRoom);
+  const cancelOnPlayerMove = on<PlayerMoveArgs>(socket, ClientEvents.PLAYER_MOVE, isLoggedIn, pushToUsers, playerMove);
+
+  return () => {
+    cancelOnCreateRoom();
+    cancelOnJoinRoom();
+    cancelOnPlayerMove();
+  };
+});
+

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Vector3} from 'three';
-import {CellState} from '../Cell/Cell';
 import {PositionArray} from '../../constants/game-constants';
+import {Cell, PlayerColor} from 'reversi-types';
 
 const DISC_RADIUS = 0.4;
 const DISC_HEIGHT = 0.05;
@@ -9,11 +9,9 @@ const RADIAL_SEGMENTS = 32;
 const BLACK = 'black';
 const WHITE = 'white';
 
-export type DiscType = CellState.BLACK | CellState.WHITE;
-
 interface DiskProps {
   position: PositionArray;
-  type: DiscType;
+  type: PlayerColor;
 }
 
 const Disc: React.FC<DiskProps> = ({position, type}) => {
@@ -28,7 +26,7 @@ const Disc: React.FC<DiskProps> = ({position, type}) => {
         />
         <meshStandardMaterial
           attach="material"
-          color={type === CellState.WHITE ? BLACK : WHITE}
+          color={type === Cell.WHITE ? BLACK : WHITE}
         />
       </mesh>
 
@@ -39,7 +37,7 @@ const Disc: React.FC<DiskProps> = ({position, type}) => {
         />
         <meshStandardMaterial
           attach="material"
-          color={type === CellState.WHITE ? WHITE : BLACK}
+          color={type === Cell.WHITE ? WHITE : BLACK}
         />
       </mesh>
     </group>

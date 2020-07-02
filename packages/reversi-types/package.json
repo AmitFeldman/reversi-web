@@ -16,6 +16,7 @@
     "url": "git+https://github.com/AmitFeldman/reversi-web.git"
   },
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {

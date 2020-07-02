@@ -1,12 +1,11 @@
 import * as React from 'react';
-import {CellState} from '../Cell/Cell';
 import {FaCircle} from 'react-icons/fa';
-import {DiscType} from '../Disc/Disc';
+import {Cell, PlayerColor} from 'reversi-types';
 
 interface ScoreCardProps {
   score: number;
   border: boolean;
-  playerType: DiscType;
+  playerType: PlayerColor;
   className?: string;
 }
 
@@ -19,7 +18,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
   return (
     <div
       className={`text-${
-        playerType === CellState.WHITE ? 'white' : 'black'
+        playerType === Cell.WHITE ? 'white' : 'black'
       } ${className} pt-4 ${
         border ? 'border-4 rounded-md border-purple-500 p-2' : ''
       }`}>

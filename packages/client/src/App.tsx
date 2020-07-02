@@ -8,16 +8,38 @@ import Modal from 'react-modal';
 import HeadsUpDisplay from './components/HeadsUpDisplay/HeadsUpDisplay';
 import CellLayer from './components/CellsLayer/CellsLayer';
 import DiscLayer from './components/DiscsLayer/DiscLayer';
-import {CellState} from './components/Cell/Cell';
-import {DiscType} from './components/Disc/Disc';
+import {useAuth} from './context/AuthContext';
+import {Cell, Board as IBoard, PlayerColor} from 'reversi-types';
+import {onGameUpdated, onRoomCreated} from './utils/server-events';
+import {emitJoinedRoom, emitPlayerMove} from './utils/client-events';
 
 function App() {
+  const {user} = useAuth();
   const controls = React.useRef<OrbitControls>();
   const [state, setState] = React.useState<AppState>(AppState.MAIN_MENU);
-  const [turn, setTurn] = React.useState<DiscType>(CellState.WHITE);
-  const [board, setBoard] = React.useState<CellState[]>(
-    new Array(64).fill(CellState.EMPTY)
+  const [turn, setTurn] = React.useState<PlayerColor | undefined>();
+  const [roomId, setRoomId] = React.useState<string>('');
+  const [board, setBoard] = React.useState<IBoard>(
+    new Array(64).fill(Cell.EMPTY)
   );
+
+  React.useEffect(() => {
+    const cancelOnRoomCreated = onRoomCreated((newRoomId) => {
+      setRoomId(newRoomId);
+      emitJoinedRoom({token: user?._id, roomId: newRoomId});
+    });
+
+    const cancelOnGameUpdated = onGameUpdated(({_id, board, turn}) => {
+      setRoomId(_id);
+      setBoard(board);
+      setTurn(turn);
+    });
+
+    return () => {
+      cancelOnRoomCreated();
+      cancelOnGameUpdated();
+    };
+  }, []);
 
   // Reset Camera when going into game
   React.useEffect(() => {
@@ -40,27 +62,26 @@ function App() {
         <CellLayer
           disabled={state === AppState.MAIN_MENU}
           cells={board}
-          onCellClick={(index) => {
-            setTurn((t) =>
-              t === CellState.WHITE ? CellState.BLACK : CellState.WHITE
-            );
-            setBoard((board) => [
-              ...board.slice(0, index),
-              turn,
-              ...board.slice(index + 1),
-            ]);
-          }}
+          onCellClick={(index) =>
+            emitPlayerMove({
+              token: user?._id,
+              roomId,
+              moveId: index,
+            })
+          }
         />
         <DiscLayer cells={board} />
       </Scene>
 
       <HeadsUpDisplay
-        scoreBlack={board.filter((state) => state === CellState.BLACK).length}
-        scoreWhite={board.filter((state) => state === CellState.WHITE).length}
+        scoreBlack={board.filter((state) => state === Cell.BLACK).length}
+        scoreWhite={board.filter((state) => state === Cell.WHITE).length}
         turn={turn}
         appState={state}
         setAppState={(state) => setState(state)}
         cameraControls={controls.current}
+        roomId={roomId}
+        setRoomId={setRoomId}
       />
     </>
   );
