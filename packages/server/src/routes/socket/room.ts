@@ -11,9 +11,9 @@ import mongoose from 'mongoose';
 const createRoom = async (data: CreateRoomArgs) => {
   try {
     const newGame = new GameModel({
-      createdBy: data?.user?.id.toString(),
+      createdBy: data?.user?.id,
       whitePlayer: {
-        userId: data?.user?.id.toString(),
+        userId: data?.user?.id,
         isCPU: false,
       },
       blackPlayer: {
