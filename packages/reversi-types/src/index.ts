@@ -1,14 +1,12 @@
 import {Document} from 'mongoose';
 
-// Duplicate of reversi-types package TODO: Fix alias paths
-
 export interface BaseDocument extends Document {
   date: Date;
 }
 
 export enum PlayerStatus {
   CONNECTED = 'CONNECTED',
-  DISCONNECTED = 'DISCONNECTED'
+  DISCONNECTED = 'DISCONNECTED',
 }
 
 export interface User extends BaseDocument {
@@ -17,18 +15,12 @@ export interface User extends BaseDocument {
   email: string;
   isAdmin: boolean;
 }
-
-// export const EVENT_GAME_CREATED = 'game-created';
-// export const EVENT_GAME_JOINED = 'game-joined';
-// export const EVENT_STATE_CHANGED = 'game-state-changed';
-// export const EVENT_GAME_FINISHED = 'game-finished';
-
 export enum ClientEvents {
-  CreateRoom = 'CREATE_ROOM',
+  CREATE_ROOM = 'CREATE_ROOM',
   JOINED = 'JOINED',
-  PlayerMove = 'PLAYER_MOVE',
+  PLAYER_MOVE = 'PLAYER_MOVE',
   LEAVE_ROOM = 'LEAVE_ROOM',
-  DISCONNECT = 'disconnect'
+  DISCONNECT = 'DISCONNECT',
 }
 
 // ToDo: change to player status
@@ -59,18 +51,28 @@ export enum Cell {
 
 export type Board = Cell[];
 
-type Player = Pick<User, '_id' | 'username'>;
+export type PlayerColor = Cell.WHITE | Cell.BLACK;
 
 // SERVER
-export interface Game extends Document {
-  name: string;
+type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
+
+export interface IPlayer extends Document {
+  connectionStatus: string;
+  isCPU: boolean;
+  difficulty: Difficulty | undefined;
+  userId: string | undefined;
+}
+
+export interface IGame extends BaseDocument {
+  name?: string;
   type: GameType;
-  whitePlayer: Player;
-  blackPlayer: Player | undefined;
+  whitePlayer: IPlayer | undefined;
+  blackPlayer: IPlayer | undefined;
   status: GameStatus;
-  turn: string | undefined;
-  winner: string | undefined;
+  turn: PlayerColor | undefined;
+  winner: PlayerColor | undefined;
   board: Board;
+  createdBy: string;
 }
 
 export type MoveData = {
@@ -78,13 +80,13 @@ export type MoveData = {
 };
 
 export type moveResponse = {
-  gameStatus: GameStatus,
-  board: Board
+  gameStatus: GameStatus;
+  board: Board;
 };
 
 export interface BaseArgs {
   token: string;
-  user: undefined | User;
+  user?: undefined | User;
 }
 
 export interface CreateRoomArgs extends BaseArgs {
@@ -100,15 +102,7 @@ export interface PlayerMoveArgs extends BaseArgs {
   moveId: number;
 }
 
-
 export enum ServerEvents {
   CreatedRoom = 'CREATED_ROOM',
-  GameUpdated = 'GAME_UPDATE'
+  GameUpdated = 'GAME_UPDATE',
 }
-
-export enum CurrentTurn {
-  WHITE = 'WHITE',
-  BLACK = 'BLACK'
-}
-
-export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';

@@ -1,5 +1,11 @@
 import GameModel from '../../models/Game';
-import {BaseArgs, Cell, CreateRoomArgs, CurrentTurn, JoinRoomArgs, PlayerMoveArgs, PlayerStatus} from 'reversi-types';
+import {
+  Cell,
+  CreateRoomArgs,
+  JoinRoomArgs,
+  PlayerMoveArgs,
+  PlayerStatus,
+} from 'reversi-types';
 import mongoose from 'mongoose';
 
 const createRoom = async (data: CreateRoomArgs) => {
@@ -54,18 +60,20 @@ const playerMove = async (data: PlayerMoveArgs) => {
   if (
     !game?.whitePlayer?.isCPU &&
     (data?.user?.id === whitePlayerId || data?.user?._id === whitePlayerId) &&
-    game && game.turn === CurrentTurn.WHITE
+    game &&
+    game.turn === Cell.WHITE
   ) {
     newBoard[data.moveId] = Cell.WHITE;
     game.board = newBoard;
-    game.turn = CurrentTurn.BLACK;
+    game.turn = Cell.BLACK;
   } else if (
     (data?.user?.id === blackPlayerId || data?.user?._id === blackPlayerId) &&
-    game && game.turn === CurrentTurn.BLACK
+    game &&
+    game.turn === Cell.BLACK
   ) {
     newBoard[data.moveId] = Cell.BLACK;
     game.board = newBoard;
-    game.turn = CurrentTurn.WHITE;
+    game.turn = Cell.WHITE;
   }
 
   await game?.save();
@@ -83,7 +91,7 @@ const aiMove = async (data: PlayerMoveArgs) => {
     if (game) {
       newBoard[data.moveId - 8] = Cell.BLACK;
       game.board = newBoard;
-      game.turn = CurrentTurn.WHITE;
+      game.turn = Cell.WHITE;
     }
 
     await game?.save();
@@ -91,10 +99,19 @@ const aiMove = async (data: PlayerMoveArgs) => {
 };
 
 const disconnectFromGame = async (id: string) => {
-  console.log("YESHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
   const userId = mongoose.Types.ObjectId(id);
-  const whitePlayerGames = await GameModel.find({ $and: [{"whitePlayer.userId": userId}, {"whitePlayer.connectionStatus": PlayerStatus.CONNECTED}] });
-  const blackPlayerGames = await GameModel.find({ $and: [{"blackPlayer.userId": userId}, {"blackPlayer.connectionStatus": PlayerStatus.CONNECTED}] });
+  const whitePlayerGames = await GameModel.find({
+    $and: [
+      {'whitePlayer.userId': userId},
+      {'whitePlayer.connectionStatus': PlayerStatus.CONNECTED},
+    ],
+  });
+  const blackPlayerGames = await GameModel.find({
+    $and: [
+      {'blackPlayer.userId': userId},
+      {'blackPlayer.connectionStatus': PlayerStatus.CONNECTED},
+    ],
+  });
 
   whitePlayerGames.forEach((game) => {
     if (game?.whitePlayer?.connectionStatus === PlayerStatus.CONNECTED) {
@@ -110,7 +127,7 @@ const disconnectFromGame = async (id: string) => {
 
       game.save();
     }
-  })
+  });
 };
 
 export {createRoom, joinRoom, playerMove, disconnectFromGame};

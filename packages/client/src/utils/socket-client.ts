@@ -3,11 +3,10 @@ import {connect} from 'socket.io-client';
 const SOCKET_URI = 'http://localhost:7000';
 const socket = connect(SOCKET_URI);
 
-export type SocketEvent = 'NEW_POST' | 'playerMove' | 'createRoom' | string;
 export type EventCallback<D> = (data: D) => void;
 
-// Adds a listener for socket event
-const onSocketEvent = <D>(event: SocketEvent, callback: EventCallback<D>) => {
+// Adds a listener for event
+const onEvent = <D>(event: string, callback: EventCallback<D>) => {
   socket.addEventListener(event, callback);
 
   return () => socket.removeEventListener(event, callback);
@@ -18,4 +17,4 @@ const emitEvent = <D>(event: string, ...args: D[]) => {
   socket.emit(event, ...args);
 };
 
-export {onSocketEvent, emitEvent};
+export {onEvent, emitEvent};

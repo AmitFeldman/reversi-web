@@ -27,9 +27,10 @@
     "typescript": "^3.7.5"
   },
   "scripts": {
-    "start": "npm run tailwind && react-app-rewired start",
-    "tailwind": "tailwind build src/tailwind.css -c tailwind.config.js -o src/index.css",
-    "build": "npm run tailwind && react-app-rewired build",
+    "start": "npm run build:tailwind && react-app-rewired start",
+    "dev": "react-app-rewired start",
+    "build": "npm run build:tailwind && react-app-rewired build",
+    "build:tailwind": "tailwind build src/tailwind.css -c tailwind.config.js -o src/index.css",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },

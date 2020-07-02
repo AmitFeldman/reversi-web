@@ -30,8 +30,6 @@ const initSocketIO = (app: Express) => {
 
 const onConnect = (listener: (socket: Socket) => void) => {
   io.on(CONNECT_EVENT, listener);
-
-  // TODO: Return off?
 };
 
 const onDisconnect = (socket: Socket, callback: () => void) => {

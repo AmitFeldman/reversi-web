@@ -8,35 +8,37 @@ import Modal from 'react-modal';
 import HeadsUpDisplay from './components/HeadsUpDisplay/HeadsUpDisplay';
 import CellLayer from './components/CellsLayer/CellsLayer';
 import DiscLayer from './components/DiscsLayer/DiscLayer';
-import {CellState} from './components/Cell/Cell';
-import {DiscType} from './components/Disc/Disc';
-import {emitEvent, onSocketEvent} from './utils/socket-client';
 import {useAuth} from './context/AuthContext';
-import {ClientEvents, CurrentTurn, ServerEvents} from 'reversi-types';
+import {Cell, Board as IBoard, PlayerColor} from 'reversi-types';
+import {onGameUpdated, onRoomCreated} from './utils/server-events';
+import {emitJoinedRoom, emitPlayerMove} from './utils/client-events';
 
 function App() {
+  const {user} = useAuth();
   const controls = React.useRef<OrbitControls>();
   const [state, setState] = React.useState<AppState>(AppState.MAIN_MENU);
-  const [turn, setTurn] = React.useState<DiscType>(CellState.WHITE);
-  const [board, setBoard] = React.useState<CellState[]>(
-    new Array(64).fill(CellState.EMPTY)
+  const [turn, setTurn] = React.useState<PlayerColor | undefined>();
+  const [roomId, setRoomId] = React.useState<string>('');
+  const [board, setBoard] = React.useState<IBoard>(
+    new Array(64).fill(Cell.EMPTY)
   );
-  const {user} = useAuth();
-
-  const [roomId, setRoomId] = React.useState<string>("");
 
   React.useEffect(() => {
-    onSocketEvent(ServerEvents.CreatedRoom, (roomId: string) => {
-      setRoomId(roomId);
+    const cancelOnRoomCreated = onRoomCreated((newRoomId) => {
+      setRoomId(newRoomId);
+      emitJoinedRoom({token: user?._id, roomId: newRoomId});
     });
 
-    onSocketEvent(ServerEvents.GameUpdated, (data: any) => {
-      setRoomId(data._id);
-      setBoard(data.board);
-      setTurn(data.turn === CurrentTurn.WHITE ? CellState.WHITE : CellState.BLACK);
+    const cancelOnGameUpdated = onGameUpdated(({_id, board, turn}) => {
+      setRoomId(_id);
+      setBoard(board);
+      setTurn(turn);
     });
 
-    // emitEvent('createRoom', {token: user._id, gameType: 'AI_EASY'});
+    return () => {
+      cancelOnRoomCreated();
+      cancelOnGameUpdated();
+    };
   }, []);
 
   // Reset Camera when going into game
@@ -60,20 +62,26 @@ function App() {
         <CellLayer
           disabled={state === AppState.MAIN_MENU}
           cells={board}
-          onCellClick={(index) => {
-            emitEvent(ClientEvents.PlayerMove, {token: user?._id, roomId, moveId: index});
-          }}
+          onCellClick={(index) =>
+            emitPlayerMove({
+              token: user?._id,
+              roomId,
+              moveId: index,
+            })
+          }
         />
         <DiscLayer cells={board} />
       </Scene>
 
       <HeadsUpDisplay
-        scoreBlack={board.filter((state) => state === CellState.BLACK).length}
-        scoreWhite={board.filter((state) => state === CellState.WHITE).length}
+        scoreBlack={board.filter((state) => state === Cell.BLACK).length}
+        scoreWhite={board.filter((state) => state === Cell.WHITE).length}
         turn={turn}
         appState={state}
         setAppState={(state) => setState(state)}
         cameraControls={controls.current}
+        roomId={roomId}
+        setRoomId={setRoomId}
       />
     </>
   );

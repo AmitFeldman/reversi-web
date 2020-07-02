@@ -10,6 +10,7 @@ const usersToSockets = new Map<string, Socket>();
 
 const bsonToObjectId = (bsonItem: Buffer) => new BsonObjectId(bsonItem).str;
 
+// TODO: Add remove listeners on socket disconnect
 const initSocketListeners = () => {
   onConnect((socket) => {
     const pushToUsers: Middleware<BaseArgs> = (data, next) => {
@@ -21,16 +22,12 @@ const initSocketListeners = () => {
     };
 
     on(socket, ClientEvents.DISCONNECT, async () => {
-      // console.log('socket disconnected!!!!');
-
       for (const [userId, currentSocket] of usersToSockets) {
         if (currentSocket.id === socket.id) {
           // usersToSockets.delete(userId);
 
           try {
-            console.log("Before!!!!!!!!!!!");
             await disconnectFromGame(userId);
-            console.log("AFTERRRRRRRRRRRRRRRRRRRRRRRRR");
           } catch (e) {
             console.log(e);
           }
@@ -39,15 +36,14 @@ const initSocketListeners = () => {
     });
 
     on(socket, ClientEvents.LEAVE_ROOM, (data) => {
-      console.log('socket disconnected!!!!');
-      // ToDo: update the game to disconnected
+      // ToDo: Update the game to disconnected
     });
 
-    on<CreateRoomArgs>(socket, ClientEvents.CreateRoom, isLoggedIn, pushToUsers, createRoom);
+    on<CreateRoomArgs>(socket, ClientEvents.CREATE_ROOM, isLoggedIn, pushToUsers, createRoom);
 
     on<JoinRoomArgs>(socket, ClientEvents.JOINED, isLoggedIn, pushToUsers, joinRoom);
 
-    on<PlayerMoveArgs>(socket, ClientEvents.PlayerMove, isLoggedIn, pushToUsers, playerMove);
+    on<PlayerMoveArgs>(socket, ClientEvents.PLAYER_MOVE, isLoggedIn, pushToUsers, playerMove);
   });
 };
 

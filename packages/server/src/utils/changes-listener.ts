@@ -1,7 +1,8 @@
-import GameModel, {IGame} from '../models/Game';
+import GameModel from '../models/Game';
 import BsonObjectId from 'bson-objectid';
 import EventEmitter from 'eventemitter3';
 import {ChangeEventUpdate, ChangeEventCR} from 'mongodb';
+import {IGame} from 'reversi-types';
 
 const dbEventEmitter = new EventEmitter();
 

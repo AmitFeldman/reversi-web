@@ -3,10 +3,9 @@ import UserControls from '../UserControls/UserControls';
 import {useAuth} from '../../context/AuthContext';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {AppState} from '../../context/AppContext';
-import {DiscType} from '../Disc/Disc';
 import InGameHud from '../InGameHUD/InGameHUD';
-import {emitEvent, onSocketEvent} from '../../utils/socket-client';
-import {ClientEvents, ServerEvents} from 'reversi-types';
+import {PlayerColor} from 'reversi-types';
+import {emitCreateRoom, emitJoinedRoom} from '../../utils/client-events';
 
 const DEFAULT_USERNAME = 'Guest';
 
@@ -16,7 +15,9 @@ interface HeadsUpDisplayProps {
   cameraControls: undefined | OrbitControls;
   scoreBlack: number;
   scoreWhite: number;
-  turn: DiscType;
+  turn: PlayerColor | undefined;
+  roomId: string;
+  setRoomId: (newRoomId: string) => void;
 }
 
 const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
@@ -26,14 +27,10 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
   scoreBlack,
   scoreWhite,
   turn,
+  roomId,
+  setRoomId,
 }) => {
   const {user, isUserLoggedIn} = useAuth();
-  const [roomId, setRoomId] = React.useState<string>('');
-
-  onSocketEvent(ServerEvents.CreatedRoom, (roomId: string) => {
-    console.log(roomId);
-    emitEvent(ClientEvents.JOINED, {token: user?._id, roomId});
-  });
 
   return (
     <>
@@ -65,7 +62,10 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
             <p
               className="text-3xl"
               onClick={() => {
-                emitEvent(ClientEvents.CreateRoom, {token: user?._id, gameType: 'NORMAL'});
+                emitCreateRoom({
+                  token: user?._id,
+                  gameType: 'AI_EASY',
+                });
                 setAppState(AppState.IN_GAME);
               }}>
               Play
@@ -73,7 +73,7 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
             <p
               className="text-3xl"
               onClick={() => {
-                emitEvent(ClientEvents.JOINED, {token: user?._id, roomId});
+                emitJoinedRoom({token: user?._id, roomId});
                 setAppState(AppState.IN_GAME);
               }}>
               Join Game
