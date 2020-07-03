@@ -5,6 +5,8 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {AppState} from '../../context/AppContext';
 import {DiscType} from '../Disc/Disc';
 import InGameHud from '../InGameHUD/InGameHUD';
+import Modal from 'react-modal';
+import Menu from '../Menu/Menu';
 
 const DEFAULT_USERNAME = 'Guest';
 
@@ -26,6 +28,12 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
   turn,
 }) => {
   const {user, isUserLoggedIn} = useAuth();
+  const [showMenu, setShowMenu] = React.useState<boolean>(false);
+
+  const beginGame = () => {
+    setAppState(AppState.IN_GAME);
+    setShowMenu(false);
+  };
 
   return (
     <>
@@ -52,16 +60,27 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
             <UserControls />
           </div>
 
-          <div className="absolute top-0 left-0 text-white p-8">
+          <div className="absolute top-0 left-0 text-white p-8 pl-12">
             <p className="text-6xl">Reversi</p>
             <p
-              className="text-3xl"
-              onClick={() => setAppState(AppState.IN_GAME)}>
+              className="text-3xl cursor-pointer hover:text-black"
+              onClick={
+                () => setShowMenu(true)
+                // setAppState(AppState.IN_GAME)
+              }>
               Play
             </p>
           </div>
         </>
       )}
+
+      <Modal
+        className="absolute top-0 bg-white shadow-md rounded px-8 pb-8 pt-3 float-left m-5"
+        overlayClassName=""
+        isOpen={showMenu}
+        onRequestClose={() => setShowMenu(false)}>
+        <Menu beginGame={beginGame} />
+      </Modal>
     </>
   );
 };
