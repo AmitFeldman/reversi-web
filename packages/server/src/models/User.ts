@@ -24,9 +24,10 @@ const UserSchema = new Schema({
   date: {
     type: Date,
     default: Date.now,
+    immutable: true,
   },
 });
 
-const User = model<User, Model<User>>('users', UserSchema);
+const UserModel = model<User, Model<User>>('users', UserSchema);
 
-export default User;
+export default UserModel;

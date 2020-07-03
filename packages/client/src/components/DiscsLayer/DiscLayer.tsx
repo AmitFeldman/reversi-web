@@ -1,11 +1,11 @@
 import * as React from 'react';
 import Disc from '../Disc/Disc';
 import {BOARD_SIZE, CENTER_POSITION} from '../../constants/game-constants';
-import {CellState} from '../Cell/Cell';
 import {Vector3} from 'three';
+import {Cell} from 'reversi-types';
 
 interface DiscLayerProps {
-  cells: CellState[];
+  cells: Cell[];
 }
 
 const DiscLayer: React.FC<DiscLayerProps> = ({cells}) => {
@@ -15,7 +15,7 @@ const DiscLayer: React.FC<DiscLayerProps> = ({cells}) => {
     <group>
       {cells.map(
         (cellState, index) =>
-          cellState !== CellState.EMPTY && (
+          cellState !== Cell.EMPTY && (
             <Disc
               key={index}
               type={cellState}

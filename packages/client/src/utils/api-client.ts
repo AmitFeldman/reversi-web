@@ -12,10 +12,6 @@ const DEFAULT_HEADERS: RequestInit['headers'] = {
   Accept: 'application/json',
 };
 
-interface Error {
-  error: string;
-}
-
 interface RequestConfig<B> extends Omit<RequestInit, 'body'> {
   body?: B;
 }

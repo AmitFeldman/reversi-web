@@ -13,11 +13,13 @@
     "@types/react-icons": "^3.0.0",
     "@types/react-modal": "^3.10.5",
     "@types/react-tooltip": "^4.2.4",
+    "@types/socket.io-client": "^1.4.33",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-icons": "^3.10.0",
     "react-modal": "^3.11.2",
     "react-scripts": "3.4.1",
+    "socket.io-client": "^2.3.0",
     "react-three-fiber": "^4.2.4",
     "react-tooltip": "^4.2.6",
     "tailwindcss": "^1.4.6",
@@ -25,10 +27,11 @@
     "typescript": "^3.7.5"
   },
   "scripts": {
-    "start": "npm run tailwind && react-scripts start",
-    "tailwind": "tailwind build src/tailwind.css -c tailwind.config.js -o src/index.css",
-    "build": "npm run tailwind && react-scripts build",
-    "test": "react-scripts test",
+    "start": "npm run build:tailwind && react-app-rewired start",
+    "dev": "react-app-rewired start",
+    "build": "npm run build:tailwind && react-app-rewired build",
+    "build:tailwind": "tailwind build src/tailwind.css -c tailwind.config.js -o src/index.css",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -46,5 +49,8 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "react-app-rewire-alias": "^0.1.6",
+    "react-app-rewired": "^2.1.6"
+  }
 }
