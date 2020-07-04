@@ -3,8 +3,9 @@ import UserControls from '../UserControls/UserControls';
 import {useAuth} from '../../context/AuthContext';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {AppState} from '../../context/AppContext';
-import {DiscType} from '../Disc/Disc';
 import InGameHud from '../InGameHUD/InGameHUD';
+import {PlayerColor} from 'reversi-types';
+import {emitCreateRoom, emitJoinedRoom} from '../../utils/client-events';
 
 const DEFAULT_USERNAME = 'Guest';
 
@@ -14,7 +15,9 @@ interface HeadsUpDisplayProps {
   cameraControls: undefined | OrbitControls;
   scoreBlack: number;
   scoreWhite: number;
-  turn: DiscType;
+  turn: PlayerColor | undefined;
+  roomId: string;
+  setRoomId: (newRoomId: string) => void;
 }
 
 const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
@@ -24,6 +27,8 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
   scoreBlack,
   scoreWhite,
   turn,
+  roomId,
+  setRoomId,
 }) => {
   const {user, isUserLoggedIn} = useAuth();
 
@@ -56,9 +61,28 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
             <p className="text-6xl">Reversi</p>
             <p
               className="text-3xl"
-              onClick={() => setAppState(AppState.IN_GAME)}>
+              onClick={() => {
+                emitCreateRoom({
+                  token: user?._id,
+                  gameType: 'AI_EASY',
+                });
+                setAppState(AppState.IN_GAME);
+              }}>
               Play
             </p>
+            <p
+              className="text-3xl"
+              onClick={() => {
+                emitJoinedRoom({token: user?._id, roomId});
+                setAppState(AppState.IN_GAME);
+              }}>
+              Join Game
+            </p>
+            <input
+              className="text-black"
+              onChange={(e) => setRoomId(e.target.value)}
+              value={roomId}
+            />
           </div>
         </>
       )}

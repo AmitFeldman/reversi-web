@@ -5,12 +5,6 @@ import {PositionArray} from '../../constants/game-constants';
 const CELL_COLOR = 0x267347;
 const CELL_HOVER_COLOR = 0x3cb371;
 
-export enum CellState {
-  BLACK,
-  WHITE,
-  EMPTY,
-}
-
 interface CellProps {
   id: number;
   position: PositionArray;

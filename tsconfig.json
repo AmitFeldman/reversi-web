@@ -14,9 +14,10 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "sourceMap": true,
-    "baseUrl": ".",
+    "baseUrl": "./packages",
+    "downlevelIteration": true,
     "paths": {
-      "reversi-types": ["packages/reversi-types"]
+      "reversi-types": ["reversi-types/src"]
     }
   },
   "exclude": ["node_modules", "dist"]

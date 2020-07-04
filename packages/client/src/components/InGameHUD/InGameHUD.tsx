@@ -3,11 +3,10 @@ import IconButton from '../IconButton/IconButton';
 import {TiArrowBack} from 'react-icons/ti';
 import {IoMdReverseCamera} from 'react-icons/io';
 import ScoreCard from '../ScoreCard/ScoreCard';
-import {CellState} from '../Cell/Cell';
-import {DiscType} from '../Disc/Disc';
+import {Cell, PlayerColor} from 'reversi-types';
 
 interface InGameHUDProps {
-  turn: DiscType;
+  turn: PlayerColor | undefined;
   scoreWhite: number;
   scoreBlack: number;
   onResetCameraClick: () => void;
@@ -35,15 +34,15 @@ const InGameHud: React.FC<InGameHUDProps> = ({
 
       <ScoreCard
         className="absolute top-0 left-25"
-        playerType={CellState.WHITE}
-        border={turn === CellState.WHITE}
+        playerType={Cell.WHITE}
+        border={turn === Cell.WHITE}
         score={scoreWhite}
       />
 
       <ScoreCard
         className="absolute top-0 right-25"
-        playerType={CellState.BLACK}
-        border={turn === CellState.BLACK}
+        playerType={Cell.BLACK}
+        border={turn === Cell.BLACK}
         score={scoreBlack}
       />
     </div>

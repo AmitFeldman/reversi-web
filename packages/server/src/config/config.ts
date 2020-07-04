@@ -2,10 +2,12 @@ import secrets from './secrets';
 
 interface ExpressConfig {
   serverPort: number;
+  socketPort: number;
 }
 
 const express: ExpressConfig = {
   serverPort: 8080,
+  socketPort: 7000
 };
 
 interface MongoConfig {

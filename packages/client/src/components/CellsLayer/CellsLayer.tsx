@@ -1,5 +1,6 @@
 import * as React from 'react';
-import Cell, {CellState} from '../Cell/Cell';
+import Cell from '../Cell/Cell';
+import {Cell as CellType} from 'reversi-types';
 import {Vector3} from 'three';
 import {
   BOARD_HEIGHT,
@@ -9,7 +10,7 @@ import {
 } from '../../constants/game-constants';
 
 interface CellLayerProps {
-  cells: CellState[];
+  cells: CellType[];
   onCellClick?: (index: number) => void;
   disabled?: boolean;
 }
@@ -28,7 +29,7 @@ const CellLayer: React.FC<CellLayerProps> = ({
           id={index}
           key={index}
           onClick={() => onCellClick(index)}
-          clickable={!disabled && cell === CellState.EMPTY}
+          clickable={!disabled && cell === CellType.EMPTY}
           position={[
             vector.x + (index % 8) - BOARD_SIZE / 2 + CELL_SIZE / 2,
             vector.y,
