@@ -1,7 +1,8 @@
 import * as React from 'react';
 import {PositionArray} from '../../constants/game-constants';
 
-const CELL_COLOR = 0x2e8b57;
+// const CELL_COLOR = 0x2e8b57;
+const CELL_COLOR = 0x267347;
 const CELL_HOVER_COLOR = 0x3cb371;
 
 interface CellProps {
