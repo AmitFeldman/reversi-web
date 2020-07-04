@@ -5,7 +5,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {AppState} from '../../context/AppContext';
 import InGameHud from '../InGameHUD/InGameHUD';
 import {PlayerColor} from 'reversi-types';
-import {emitCreateRoom, emitJoinedRoom} from '../../utils/client-events';
+import {createRoom, joinRoom} from '../../utils/socket/game-api';
 
 const DEFAULT_USERNAME = 'Guest';
 
@@ -62,7 +62,7 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
             <p
               className="text-3xl"
               onClick={() => {
-                emitCreateRoom({
+                createRoom({
                   token: user?._id,
                   gameType: 'AI_EASY',
                 });
@@ -73,7 +73,7 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
             <p
               className="text-3xl"
               onClick={() => {
-                emitJoinedRoom({token: user?._id, roomId});
+                joinRoom({token: user?._id, roomId});
                 setAppState(AppState.IN_GAME);
               }}>
               Join Game

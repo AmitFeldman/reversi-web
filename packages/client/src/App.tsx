@@ -10,8 +10,12 @@ import CellLayer from './components/CellsLayer/CellsLayer';
 import DiscLayer from './components/DiscsLayer/DiscLayer';
 import {useAuth} from './context/AuthContext';
 import {Cell, Board as IBoard, PlayerColor} from 'reversi-types';
-import {onGameUpdated, onRoomCreated} from './utils/server-events';
-import {emitJoinedRoom, emitPlayerMove} from './utils/client-events';
+import {
+  joinRoom,
+  playerMove,
+  onGameUpdated,
+  onRoomCreated,
+} from './utils/socket/game-api';
 
 function App() {
   const {user} = useAuth();
@@ -26,7 +30,7 @@ function App() {
   React.useEffect(() => {
     const cancelOnRoomCreated = onRoomCreated((newRoomId) => {
       setRoomId(newRoomId);
-      emitJoinedRoom({token: user?._id, roomId: newRoomId});
+      joinRoom({token: user?._id, roomId: newRoomId});
     });
 
     const cancelOnGameUpdated = onGameUpdated(({_id, board, turn}) => {
@@ -63,7 +67,7 @@ function App() {
           disabled={state === AppState.MAIN_MENU}
           cells={board}
           onCellClick={(index) =>
-            emitPlayerMove({
+            playerMove({
               token: user?._id,
               roomId,
               moveId: index,

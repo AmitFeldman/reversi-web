@@ -1,4 +1,4 @@
-import {getToken} from './auth-client';
+import {getToken} from '../auth-client';
 
 const PROTOCOL = 'http';
 const DOMAIN_NAME = 'localhost';
