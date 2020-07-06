@@ -2,7 +2,7 @@ import * as React from 'react';
 import UserControls from '../UserControls/UserControls';
 import {useAuth} from '../../context/AuthContext';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
-import {AppState} from '../../context/AppContext';
+import {AppState, useAppData} from '../../context/AppContext';
 import InGameHud from '../InGameHUD/InGameHUD';
 import {PlayerColor} from 'reversi-types';
 import {createRoom, joinRoom} from '../../utils/socket/game-api';
@@ -10,8 +10,6 @@ import {createRoom, joinRoom} from '../../utils/socket/game-api';
 const DEFAULT_USERNAME = 'Guest';
 
 interface HeadsUpDisplayProps {
-  appState: AppState;
-  setAppState: (state: AppState) => void;
   cameraControls: undefined | OrbitControls;
   scoreBlack: number;
   scoreWhite: number;
@@ -21,8 +19,6 @@ interface HeadsUpDisplayProps {
 }
 
 const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
-  appState,
-  setAppState,
   cameraControls,
   scoreBlack,
   scoreWhite,
@@ -31,12 +27,13 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
   setRoomId,
 }) => {
   const {user, isUserLoggedIn} = useAuth();
+  const {appState, setAppState} = useAppData();
 
   return (
     <>
       <div className="absolute right-0 top-0 p-2">
         <p className="text-white">
-          {appState === AppState.MAIN_MENU ? 'Welcome' : 'Good luck'},{' '}
+          {appState === AppState.MAIN_MENU ? 'Login or Register to Play' : 'Good luck'},{' '}
           {isUserLoggedIn() ? user?.username : DEFAULT_USERNAME}!
         </p>
       </div>

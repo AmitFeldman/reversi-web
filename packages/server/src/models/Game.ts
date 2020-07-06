@@ -28,7 +28,7 @@ const PlayerSchema = new Schema(
   {_id: false}
 );
 
-const INITIAL_BOARD = new Array(64).fill(0);
+const INITIAL_BOARD = new Array(64).fill(Cell.EMPTY);
 INITIAL_BOARD[27] = INITIAL_BOARD[36] = Cell.BLACK;
 INITIAL_BOARD[28] = INITIAL_BOARD[35] = Cell.WHITE;
 

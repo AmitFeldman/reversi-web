@@ -2,25 +2,30 @@ import React from 'react';
 import Scene from './components/Scene/Scene';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import CameraControls from './components/Camera/Camera';
-import {AppState} from './context/AppContext';
+import {AppState, useAppData} from './context/AppContext';
 import Board from './components/Board/Board';
 import Modal from 'react-modal';
 import HeadsUpDisplay from './components/HeadsUpDisplay/HeadsUpDisplay';
 import CellLayer from './components/CellsLayer/CellsLayer';
 import DiscLayer from './components/DiscsLayer/DiscLayer';
 import {useAuth} from './context/AuthContext';
-import {Cell, Board as IBoard, PlayerColor} from 'reversi-types';
+import {Board as IBoard, Cell, PlayerColor} from 'reversi-types';
 import {
   joinRoom,
-  playerMove,
   onGameUpdated,
   onRoomCreated,
+  playerMove,
 } from './utils/socket/game-api';
 
+const INITIAL_BOARD = new Array<Cell>(64).fill(Cell.EMPTY);
+INITIAL_BOARD[27] = INITIAL_BOARD[36] = Cell.BLACK;
+INITIAL_BOARD[28] = INITIAL_BOARD[35] = Cell.WHITE;
+
 function App() {
+  const {appState} = useAppData();
+
   const {user} = useAuth();
   const controls = React.useRef<OrbitControls>();
-  const [state, setState] = React.useState<AppState>(AppState.MAIN_MENU);
   const [turn, setTurn] = React.useState<PlayerColor | undefined>();
   const [roomId, setRoomId] = React.useState<string>('');
   const [board, setBoard] = React.useState<IBoard>(
@@ -47,10 +52,10 @@ function App() {
 
   // Reset Camera when going into game
   React.useEffect(() => {
-    if (state === AppState.IN_GAME) {
+    if (appState === AppState.IN_GAME) {
       controls.current && controls.current.reset();
     }
-  }, [state]);
+  }, [appState]);
 
   // Setup for react-modal
   React.useEffect(() => {
@@ -60,12 +65,15 @@ function App() {
   return (
     <>
       <Scene>
-        <CameraControls controls={controls} state={state} />
+        <CameraControls
+          controls={controls}
+          enabled={appState === AppState.IN_GAME}
+        />
         <Board />
 
         <CellLayer
-          disabled={state === AppState.MAIN_MENU}
-          cells={board}
+          disabled={appState === AppState.MAIN_MENU}
+          cells={appState === AppState.MAIN_MENU ? INITIAL_BOARD : board}
           onCellClick={(index) =>
             playerMove({
               token: user?._id,
@@ -74,15 +82,13 @@ function App() {
             })
           }
         />
-        <DiscLayer cells={board} />
+        <DiscLayer cells={appState === AppState.MAIN_MENU ? INITIAL_BOARD : board} />
       </Scene>
 
       <HeadsUpDisplay
         scoreBlack={board.filter((state) => state === Cell.BLACK).length}
         scoreWhite={board.filter((state) => state === Cell.WHITE).length}
         turn={turn}
-        appState={state}
-        setAppState={(state) => setState(state)}
         cameraControls={controls.current}
         roomId={roomId}
         setRoomId={setRoomId}
