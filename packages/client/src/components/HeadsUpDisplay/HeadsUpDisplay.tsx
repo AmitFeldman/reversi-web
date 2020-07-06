@@ -5,8 +5,8 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {AppState} from '../../context/AppContext';
 import InGameHud from '../InGameHUD/InGameHUD';
 import Modal from 'react-modal';
-import Menu from '../Menu/Menu';
-import {PlayerColor} from 'reversi-types';
+import PlayMenu from '../PlayMenu/PlayMenu';
+import {PlayerColor, GameType} from 'reversi-types';
 import {emitCreateRoom, emitJoinedRoom} from '../../utils/client-events';
 
 const DEFAULT_USERNAME = 'Guest';
@@ -35,7 +35,25 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
   const {user, isUserLoggedIn} = useAuth();
   const [showMenu, setShowMenu] = React.useState<boolean>(false);
 
-  const beginGame = () => {
+  const beginGame = (gameType: GameType) => {
+    switch (gameType) {
+      case 'PRIVATE_ROOM':
+        emitJoinedRoom({token: user?._id, roomId});
+        break;
+
+      case 'AI_EASY':
+      case 'AI_MEDIUM':
+      case 'AI_HARD':
+        emitCreateRoom({
+          token: user?._id,
+          gameType: gameType,
+        });
+        break;
+
+      case 'LOCAL':
+        break;
+    }
+
     setAppState(AppState.IN_GAME);
     setShowMenu(false);
   };
@@ -70,16 +88,16 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
             <p
               className="text-3xl cursor-pointer hover:text-black"
               onClick={() => {
-                emitCreateRoom({
-                  token: user?._id,
-                  gameType: 'AI_EASY',
-                });
+                // emitCreateRoom({
+                //   token: user?._id,
+                //   gameType: 'AI_EASY',
+                // });
                 // setAppState(AppState.IN_GAME);
                 setShowMenu(true);
               }}>
               Play
             </p>
-            <p
+            {/* <p
               className="text-3xl"
               onClick={() => {
                 emitJoinedRoom({token: user?._id, roomId});
@@ -91,17 +109,18 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
               className="text-black"
               onChange={(e) => setRoomId(e.target.value)}
               value={roomId}
-            />
+            /> */}
           </div>
         </>
       )}
 
       <Modal
-        className="absolute top-0 bg-white shadow-md rounded px-8 pb-8 pt-3 float-left m-5"
+        className="absolute top-0 bg-white shadow-md rounded px-8 pb-8 pt-3 float-left m-5 outline-none"
         overlayClassName=""
         isOpen={showMenu}
         onRequestClose={() => setShowMenu(false)}>
-        <Menu beginGame={beginGame} />
+        <p className="text-6xl text-black mb-4">Reversi</p>
+        <PlayMenu beginGame={beginGame} roomId={roomId} setRoomId={setRoomId} />
       </Modal>
     </>
   );
