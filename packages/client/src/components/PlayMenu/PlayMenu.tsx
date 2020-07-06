@@ -11,17 +11,21 @@ interface PlayMenuProps {
   setRoomId: (newRoomId: string) => void;
 }
 
+interface DifficultyOption {
+  value: GameType;
+  label: string;
+}
+
+const difficultyOptions: DifficultyOption[] = [
+  {value: 'AI_EASY', label: 'Easy'},
+  {value: 'AI_MEDIUM', label: 'Medium'},
+  {value: 'AI_HARD', label: 'Hard'},
+];
+
 const PlayMenu: React.FC<PlayMenuProps> = ({beginGame, roomId, setRoomId}) => {
-  // const [roomId, setRoomId] = React.useState<string>('');
   const [difficulty, setDifficulty] = React.useState<GameType>('AI_EASY');
   const [player1, setPlayer1] = React.useState<string>('');
   const [player2, setPlayer2] = React.useState<string>('');
-
-  const difficultyOptions: {value: GameType; label: string}[] = [
-    {value: 'AI_EASY', label: 'Easy'},
-    {value: 'AI_MEDIUM', label: 'Medium'},
-    {value: 'AI_HARD', label: 'Hard'},
-  ];
 
   const tabsList = [
     {
@@ -83,13 +87,11 @@ const PlayMenu: React.FC<PlayMenuProps> = ({beginGame, roomId, setRoomId}) => {
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                 setDifficulty(e.currentTarget.value as GameType);
               }}>
-              {difficultyOptions.map(({value, label}, index) => {
-                return (
-                  <option key={index} value={value}>
-                    {label}
-                  </option>
-                );
-              })}
+              {difficultyOptions.map(({label, value}, index) => (
+                <option key={index} value={value}>
+                  {label}
+                </option>
+              ))}
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
               <BsChevronDown />
@@ -102,7 +104,7 @@ const PlayMenu: React.FC<PlayMenuProps> = ({beginGame, roomId, setRoomId}) => {
     },
   ];
 
-  return <Tabs tabsList={tabsList} />;
+  return <Tabs tabs={tabsList} />;
 };
 
 export default PlayMenu;
