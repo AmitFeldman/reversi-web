@@ -3,7 +3,6 @@ import * as React from 'react';
 import {extend, useFrame, useThree} from 'react-three-fiber';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import * as THREE from 'three';
-import {AppState} from '../../context/AppContext';
 
 // Extend will make OrbitControls available as a JSX element called orbitControls for us to use.
 extend({OrbitControls});
