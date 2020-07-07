@@ -2,6 +2,7 @@ import * as React from 'react';
 import IconButton from '../IconButton/IconButton';
 import {TiArrowBack} from 'react-icons/ti';
 import {IoMdReverseCamera} from 'react-icons/io';
+import {FiArrowDownCircle} from 'react-icons/fi';
 import ScoreCard from '../ScoreCard/ScoreCard';
 import {Cell, PlayerColor} from 'reversi-types';
 import {useCamera} from '../../context/CameraContext';
@@ -36,8 +37,8 @@ const InGameHud: React.FC<InGameHUDProps> = ({
 
         <IconButton
           onClick={() => setTopDown((td) => !td)}
-          tooltipText="Reset Camera">
-          <IoMdReverseCamera />
+          tooltipText="Toggle Top Down Camera">
+          <FiArrowDownCircle />
         </IconButton>
       </div>
 
