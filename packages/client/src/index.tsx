@@ -5,14 +5,23 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import {AuthProvider} from './context/AuthContext';
 import {AppDataProvider} from './context/AppContext';
+import {OptionsProvider} from './context/OptionsContext';
+
+const ContextProviders: React.FC = ({children}) => {
+  return (
+    <AuthProvider>
+      <AppDataProvider>
+        <OptionsProvider>{children}</OptionsProvider>
+      </AppDataProvider>
+    </AuthProvider>
+  );
+};
 
 ReactDOM.render(
   <React.StrictMode>
-    <AuthProvider>
-      <AppDataProvider>
-        <App />
-      </AppDataProvider>
-    </AuthProvider>
+    <ContextProviders>
+      <App />
+    </ContextProviders>
   </React.StrictMode>,
   document.getElementById('root')
 );

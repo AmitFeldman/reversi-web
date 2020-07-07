@@ -16,6 +16,7 @@ import {
   onRoomCreated,
   playerMove,
 } from './utils/socket/game-api';
+import {useOptions} from './context/OptionsContext';
 
 const INITIAL_BOARD = new Array<Cell>(64).fill(Cell.EMPTY);
 INITIAL_BOARD[27] = INITIAL_BOARD[36] = Cell.BLACK;
@@ -23,9 +24,9 @@ INITIAL_BOARD[28] = INITIAL_BOARD[35] = Cell.WHITE;
 
 function App() {
   const {appState} = useAppData();
+  const {resetCamera, controls} = useOptions();
 
   const {user} = useAuth();
-  const controls = React.useRef<OrbitControls>();
   const [turn, setTurn] = React.useState<PlayerColor | undefined>();
   const [roomId, setRoomId] = React.useState<string>('');
   const [board, setBoard] = React.useState<IBoard>(
@@ -53,7 +54,7 @@ function App() {
   // Reset Camera when going into game
   React.useEffect(() => {
     if (appState === AppState.IN_GAME) {
-      controls.current && controls.current.reset();
+      resetCamera();
     }
   }, [appState]);
 
@@ -66,8 +67,8 @@ function App() {
     <>
       <Scene>
         <CameraControls
-          controls={controls}
           enabled={appState === AppState.IN_GAME}
+          controls={controls}
         />
         <Board />
 
@@ -82,14 +83,15 @@ function App() {
             })
           }
         />
-        <DiscLayer cells={appState === AppState.MAIN_MENU ? INITIAL_BOARD : board} />
+        <DiscLayer
+          cells={appState === AppState.MAIN_MENU ? INITIAL_BOARD : board}
+        />
       </Scene>
 
       <HeadsUpDisplay
         scoreBlack={board.filter((state) => state === Cell.BLACK).length}
         scoreWhite={board.filter((state) => state === Cell.WHITE).length}
         turn={turn}
-        cameraControls={controls.current}
         roomId={roomId}
         setRoomId={setRoomId}
       />
