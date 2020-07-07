@@ -8,17 +8,13 @@ import users from './routes/api/users';
 import {parseToken} from './middlewares/auth';
 import {initSocketIO, on} from './utils/socket-service';
 import {initChangesListener} from './utils/changes-listener';
-import {
-  createPushSocketMiddleware,
-  initSocketManager,
-} from './services/socket-manager';
+import {initSocketManager} from './services/socket-manager';
 import {
   ClientEvents,
   CreateRoomArgs,
   JoinRoomArgs,
   PlayerMoveArgs,
 } from 'reversi-types';
-import {isLoggedIn} from './middlewares/socket-auth';
 import {createRoom, joinRoom, playerMove} from './utils/room';
 
 const app = express();
@@ -66,11 +62,21 @@ const server = app.listen(serverPort, () => {
 // Init socket.io
 initSocketIO(app);
 initSocketManager((socket) => {
-  const pushToUsers = createPushSocketMiddleware(socket);
-
-  const cancelOnCreateRoom = on<CreateRoomArgs>(socket, ClientEvents.CREATE_ROOM, isLoggedIn, pushToUsers, createRoom);
-  const cancelOnJoinRoom = on<JoinRoomArgs>(socket, ClientEvents.JOINED, isLoggedIn, pushToUsers, joinRoom);
-  const cancelOnPlayerMove = on<PlayerMoveArgs>(socket, ClientEvents.PLAYER_MOVE, isLoggedIn, pushToUsers, playerMove);
+  const cancelOnCreateRoom = on<CreateRoomArgs>(
+    socket,
+    ClientEvents.CREATE_ROOM,
+    createRoom
+  );
+  const cancelOnJoinRoom = on<JoinRoomArgs>(
+    socket,
+    ClientEvents.JOINED,
+    joinRoom
+  );
+  const cancelOnPlayerMove = on<PlayerMoveArgs>(
+    socket,
+    ClientEvents.PLAYER_MOVE,
+    playerMove
+  );
 
   return () => {
     cancelOnCreateRoom();
@@ -78,4 +84,3 @@ initSocketManager((socket) => {
     cancelOnPlayerMove();
   };
 });
-

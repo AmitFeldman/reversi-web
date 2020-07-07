@@ -4,10 +4,12 @@ import {
   setToken,
   getUser,
   getLocalUser,
+  getToken,
 } from '../utils/auth-client';
-import * as usersApi from '../utils/users-api';
-import {LoginBody, RegisterBody} from '../utils/users-api';
+import * as usersApi from '../utils/http/users-api';
+import {LoginBody, RegisterBody} from '../utils/http/users-api';
 import {User} from 'reversi-types';
+import {authConnect, authDisconnect} from '../utils/socket/connect-api';
 
 type OptionalUser = User | null;
 
@@ -45,13 +47,18 @@ const AuthContext = createContext<AuthContextData>({
   logout: () => Promise.resolve(),
 });
 
-const AuthProvider: FC<any> = props => {
+const AuthProvider: FC<any> = (props) => {
   const [user, setUser] = useState<OptionalUser>(getLocalUser());
   const userStatus = getUserStatus(user);
 
   const reloadUser = () => {
-    getUser().then(user => {
+    getUser().then((user) => {
       setUser(user);
+
+      // Auth connect user to server
+      if (user) {
+        authConnect({token: user._id});
+      }
     });
   };
 
@@ -71,7 +78,12 @@ const AuthProvider: FC<any> = props => {
       .then(setToken)
       .then(reloadUser);
 
-  const logout = () => removeToken().then(reloadUser);
+  const logout = () => {
+    const token = getToken();
+    token && authDisconnect({token});
+
+    removeToken().then(reloadUser);
+  };
 
   return (
     <AuthContext.Provider

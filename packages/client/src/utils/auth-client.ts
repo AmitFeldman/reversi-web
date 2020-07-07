@@ -1,4 +1,4 @@
-import {getMe} from './users-api';
+import {getMe} from './http/users-api';
 import {User} from 'reversi-types';
 
 const LOCAL_STORAGE_KEY = '__auth_token__';

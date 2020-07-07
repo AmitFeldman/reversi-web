@@ -22,7 +22,8 @@ const initSocketIO = (app: Express) => {
   onConnect((socket) => {
     console.log(`Socket connected: ${socket.id}`);
 
-    socket.on(DISCONNECT_EVENT, (reason) => {
+    const cancelOnDisconnect = onDisconnect(socket, (reason) => {
+      cancelOnDisconnect();
       console.log(`Socket disconnected: ${socket.id} | Reason: ${reason}`);
     });
   });
@@ -32,8 +33,10 @@ const onConnect = (listener: (socket: Socket) => void) => {
   io.on(CONNECT_EVENT, listener);
 };
 
-const onDisconnect = (socket: Socket, callback: () => void) => {
+const onDisconnect = (socket: Socket, callback: (reason: string) => void) => {
   socket.on(DISCONNECT_EVENT, callback);
+
+  return () => socket.off(DISCONNECT_EVENT, callback);
 };
 
 // Emit event only to sockets connected to room
@@ -102,7 +105,7 @@ export {
   emitEventToAllSockets,
   emitEventToSocket,
   emitEventToOtherClientsInRoom,
-  onDisconnect,
   joinRoom,
   on,
+  onDisconnect
 };

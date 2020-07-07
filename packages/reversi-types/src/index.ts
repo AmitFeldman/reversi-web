@@ -20,7 +20,8 @@ export enum ClientEvents {
   JOINED = 'JOINED',
   PLAYER_MOVE = 'PLAYER_MOVE',
   LEAVE_ROOM = 'LEAVE_ROOM',
-  DISCONNECT = 'DISCONNECT',
+  AUTH_CONNECT = 'AUTH_CONNECT',
+  AUTH_DISCONNECT = 'AUTH_DISCONNECT',
 }
 
 // ToDo: change to player status
