@@ -1,24 +1,23 @@
 import * as React from 'react';
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
 interface OptionsContextData {
-  controls: React.MutableRefObject<OrbitControls | undefined>;
-  resetCamera: () => void;
+  topDown: boolean;
+  setTopDown: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const OptionsContext = React.createContext<OptionsContextData>({
-  controls: {current: undefined},
-  resetCamera: () => {},
+  topDown: false,
+  setTopDown: () => {},
 });
 
 const OptionsProvider: React.FC = ({children}) => {
-  const controls = React.useRef<OrbitControls>();
+  const [topDown, setTopDown] = React.useState<boolean>(false);
 
   return (
     <OptionsContext.Provider
       value={{
-        controls,
-        resetCamera: () => controls.current && controls.current.reset(),
+        topDown,
+        setTopDown,
       }}>
       {children}
     </OptionsContext.Provider>

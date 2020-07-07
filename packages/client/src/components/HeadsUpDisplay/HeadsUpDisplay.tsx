@@ -1,14 +1,12 @@
 import * as React from 'react';
 import UserControls from '../UserControls/UserControls';
 import {useAuth} from '../../context/AuthContext';
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {AppState, useAppData} from '../../context/AppContext';
 import InGameHud from '../InGameHUD/InGameHUD';
 import {createRoom} from '../../utils/socket/game-api';
 import Modal from 'react-modal';
 import PlayMenu from '../PlayMenu/PlayMenu';
 import {PlayerColor, GameType} from 'reversi-types';
-import {useOptions} from '../../context/OptionsContext';
 
 const DEFAULT_USERNAME = 'Guest';
 
@@ -30,7 +28,6 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
   const {user, isUserLoggedIn} = useAuth();
   const {appState, setAppState} = useAppData();
   const [showMenu, setShowMenu] = React.useState<boolean>(false);
-  const {resetCamera} = useOptions();
 
   const beginGame = (gameType: GameType) => {
     switch (gameType) {
@@ -68,7 +65,6 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
           turn={turn}
           scoreWhite={scoreWhite}
           scoreBlack={scoreBlack}
-          onResetCameraClick={() => resetCamera()}
           onLeaveGame={() => setAppState(AppState.MAIN_MENU)}
         />
       )}

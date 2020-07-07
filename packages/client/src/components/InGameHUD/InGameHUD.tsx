@@ -4,22 +4,25 @@ import {TiArrowBack} from 'react-icons/ti';
 import {IoMdReverseCamera} from 'react-icons/io';
 import ScoreCard from '../ScoreCard/ScoreCard';
 import {Cell, PlayerColor} from 'reversi-types';
+import {useCamera} from '../../context/CameraContext';
+import {useOptions} from '../../context/OptionsContext';
 
 interface InGameHUDProps {
   turn: PlayerColor | undefined;
   scoreWhite: number;
   scoreBlack: number;
-  onResetCameraClick: () => void;
   onLeaveGame: () => void;
 }
 
 const InGameHud: React.FC<InGameHUDProps> = ({
   onLeaveGame,
-  onResetCameraClick,
   turn,
   scoreBlack,
   scoreWhite,
 }) => {
+  const {resetCamera} = useCamera();
+  const {setTopDown} = useOptions();
+
   return (
     <div>
       <div className="absolute top-0 left-0">
@@ -27,7 +30,13 @@ const InGameHud: React.FC<InGameHUDProps> = ({
           <TiArrowBack />
         </IconButton>
 
-        <IconButton onClick={onResetCameraClick} tooltipText="Reset Camera">
+        <IconButton onClick={resetCamera} tooltipText="Reset Camera">
+          <IoMdReverseCamera />
+        </IconButton>
+
+        <IconButton
+          onClick={() => setTopDown((td) => !td)}
+          tooltipText="Reset Camera">
           <IoMdReverseCamera />
         </IconButton>
       </div>

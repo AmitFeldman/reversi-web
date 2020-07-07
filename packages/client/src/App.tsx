@@ -1,6 +1,5 @@
 import React from 'react';
 import Scene from './components/Scene/Scene';
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import CameraControls from './components/Camera/Camera';
 import {AppState, useAppData} from './context/AppContext';
 import Board from './components/Board/Board';
@@ -16,6 +15,7 @@ import {
   onRoomCreated,
   playerMove,
 } from './utils/socket/game-api';
+import {useCamera} from './context/CameraContext';
 import {useOptions} from './context/OptionsContext';
 
 const INITIAL_BOARD = new Array<Cell>(64).fill(Cell.EMPTY);
@@ -24,9 +24,10 @@ INITIAL_BOARD[28] = INITIAL_BOARD[35] = Cell.WHITE;
 
 function App() {
   const {appState} = useAppData();
-  const {resetCamera, controls} = useOptions();
-
+  const {controls} = useCamera();
+  const {topDown} = useOptions();
   const {user} = useAuth();
+
   const [turn, setTurn] = React.useState<PlayerColor | undefined>();
   const [roomId, setRoomId] = React.useState<string>('');
   const [board, setBoard] = React.useState<IBoard>(
@@ -51,13 +52,6 @@ function App() {
     };
   }, []);
 
-  // Reset Camera when going into game
-  React.useEffect(() => {
-    if (appState === AppState.IN_GAME) {
-      resetCamera();
-    }
-  }, [appState]);
-
   // Setup for react-modal
   React.useEffect(() => {
     Modal.setAppElement('#root');
@@ -67,8 +61,10 @@ function App() {
     <>
       <Scene>
         <CameraControls
-          enabled={appState === AppState.IN_GAME}
           controls={controls}
+          enabled={appState === AppState.IN_GAME && !topDown}
+          autoRotate={appState !== AppState.IN_GAME}
+          topDown={appState == AppState.IN_GAME ? topDown : false}
         />
         <Board />
 

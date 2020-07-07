@@ -6,12 +6,15 @@ import * as serviceWorker from './serviceWorker';
 import {AuthProvider} from './context/AuthContext';
 import {AppDataProvider} from './context/AppContext';
 import {OptionsProvider} from './context/OptionsContext';
+import {CameraProvider} from './context/CameraContext';
 
 const ContextProviders: React.FC = ({children}) => {
   return (
     <AuthProvider>
       <AppDataProvider>
-        <OptionsProvider>{children}</OptionsProvider>
+        <CameraProvider>
+          <OptionsProvider>{children}</OptionsProvider>
+        </CameraProvider>
       </AppDataProvider>
     </AuthProvider>
   );
