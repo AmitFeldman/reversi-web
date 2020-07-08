@@ -43,7 +43,7 @@ const CameraControls: React.FC<CameraControlsProps> = ({
     if (controls.current) {
       controls.current.reset();
     }
-  }, [topDown, autoRotate, enabled]);
+  }, [controls, topDown, autoRotate, enabled]);
 
   return (
     // @ts-ignore
@@ -56,7 +56,7 @@ const CameraControls: React.FC<CameraControlsProps> = ({
       autoRotateSpeed={AUTO_ROTATE_SPEED}
       mouseButtons={{RIGHT: THREE.MOUSE.ROTATE}}
       enableKeys={false}
-      enableDamping={true}
+      enableDamping={enabled}
       dampingFactor={0.1}
       minDistance={MIN_DISTANCE}
       maxDistance={MAX_DISTANCE}

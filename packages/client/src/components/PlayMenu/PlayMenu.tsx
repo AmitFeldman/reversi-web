@@ -7,8 +7,6 @@ import {GameType} from 'reversi-types';
 
 interface PlayMenuProps {
   beginGame: (gameType: GameType) => void;
-  roomId: string;
-  setRoomId: (newRoomId: string) => void;
 }
 
 interface DifficultyOption {
@@ -22,8 +20,9 @@ const difficultyOptions: DifficultyOption[] = [
   {value: 'AI_HARD', label: 'Hard'},
 ];
 
-const PlayMenu: React.FC<PlayMenuProps> = ({beginGame, roomId, setRoomId}) => {
+const PlayMenu: React.FC<PlayMenuProps> = ({beginGame}) => {
   const [difficulty, setDifficulty] = React.useState<GameType>('AI_EASY');
+  const [roomId, setRoomId] = React.useState<string>('');
   const [player1, setPlayer1] = React.useState<string>('');
   const [player2, setPlayer2] = React.useState<string>('');
 

@@ -1,55 +1,23 @@
 import * as React from 'react';
 import UserControls from '../UserControls/UserControls';
 import {useAuth} from '../../context/AuthContext';
-import {AppState, useAppData} from '../../context/AppContext';
 import InGameHud from '../InGameHUD/InGameHUD';
-import {createRoom} from '../../utils/socket/game-api';
 import Modal from 'react-modal';
 import PlayMenu from '../PlayMenu/PlayMenu';
 import MenuButton from '../MenuButton/MenuButton';
-import {PlayerColor, GameType} from 'reversi-types';
 import {GrClose} from 'react-icons/gr';
+import {GameType} from 'reversi-types';
+import {useGameManager} from '../../context/GameManagerContext';
 
 const DEFAULT_USERNAME = 'Guest';
 
-interface HeadsUpDisplayProps {
-  scoreBlack: number;
-  scoreWhite: number;
-  turn: PlayerColor | undefined;
-  roomId: string;
-  setRoomId: (newRoomId: string) => void;
-}
-
-const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
-  scoreBlack,
-  scoreWhite,
-  turn,
-  roomId,
-  setRoomId,
-}) => {
+const HeadsUpDisplay: React.FC = () => {
   const {user, isUserLoggedIn} = useAuth();
-  const {appState, setAppState} = useAppData();
+  const {inGame, startGame} = useGameManager();
   const [showModal, setShowModal] = React.useState<boolean>(false);
 
   const beginGame = (gameType: GameType) => {
-    switch (gameType) {
-      case 'PRIVATE_ROOM':
-        break;
-
-      case 'AI_EASY':
-      case 'AI_MEDIUM':
-      case 'AI_HARD':
-        createRoom({
-          token: user?._id,
-          gameType: gameType,
-        });
-        break;
-
-      case 'LOCAL':
-        break;
-    }
-
-    setAppState(AppState.IN_GAME);
+    startGame(gameType);
     setShowModal(false);
   };
 
@@ -62,16 +30,9 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
         </p>
       </div>
 
-      {appState === AppState.IN_GAME && (
-        <InGameHud
-          turn={turn}
-          scoreWhite={scoreWhite}
-          scoreBlack={scoreBlack}
-          onLeaveGame={() => setAppState(AppState.MAIN_MENU)}
-        />
-      )}
+      {inGame && <InGameHud />}
 
-      {appState === AppState.MAIN_MENU && (
+      {!inGame && (
         <>
           <div className="absolute right-0 top-0 pt-8">
             <UserControls />
@@ -92,7 +53,7 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
         onRequestClose={() => setShowModal(false)}>
         <GrClose className="float-right -mr-5" />
         <p className="text-6xl text-black mb-4">Reversi</p>
-        <PlayMenu beginGame={beginGame} roomId={roomId} setRoomId={setRoomId} />
+        <PlayMenu beginGame={beginGame} />
       </Modal>
     </>
   );
