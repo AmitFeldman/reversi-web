@@ -45,12 +45,18 @@ export type GameType =
   | 'LOCAL';
 
 export enum Cell {
-  EMPTY = 0,
-  WHITE = 1,
-  BLACK = 2,
+  OUTER = '?',
+  EMPTY = '0',
+  WHITE = '1',
+  BLACK = '2',
 }
 
 export type Board = Cell[];
+
+export interface Move {
+  row: number;
+  column: number;
+}
 
 export type PlayerColor = Cell.WHITE | Cell.BLACK;
 
@@ -73,6 +79,7 @@ export interface IGame extends BaseDocument {
   turn: PlayerColor | undefined;
   winner: PlayerColor | undefined;
   board: Board;
+  validMoves: Move[];
   createdBy: string;
 }
 
@@ -100,7 +107,7 @@ export interface JoinRoomArgs extends BaseArgs {
 
 export interface PlayerMoveArgs extends BaseArgs {
   roomId: string;
-  moveId: number;
+  move: Move;
 }
 
 export enum ServerEvents {

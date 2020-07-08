@@ -9,11 +9,12 @@ import DiscLayer from './components/DiscsLayer/DiscLayer';
 import {useCamera} from './context/CameraContext';
 import {useOptions} from './context/OptionsContext';
 import {useGameManager} from './context/GameManagerContext';
+import {Cell} from 'reversi-types';
 
 function App() {
-  const {inGame, board, playerMove} = useGameManager();
+  const {inGame, board, playerMove, validMoves, turn} = useGameManager();
   const {controls} = useCamera();
-  const {topDown} = useOptions();
+  const {topDown, showValidMoves} = useOptions();
 
   // Setup for react-modal
   React.useEffect(() => {
@@ -32,9 +33,11 @@ function App() {
         <Board />
 
         <CellLayer
-          disabled={!inGame}
+          disabled={!inGame && turn === Cell.WHITE}
           cells={board}
-          onCellClick={(index) => playerMove(index)}
+          showValidMoves={showValidMoves && turn === Cell.WHITE}
+          validMoves={validMoves}
+          onCellClick={(r, c) => playerMove(r, c)}
         />
         <DiscLayer cells={board} />
       </Scene>

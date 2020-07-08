@@ -3,6 +3,7 @@ import Disc from '../Disc/Disc';
 import {BOARD_SIZE, CENTER_POSITION} from '../../constants/game-constants';
 import {Vector3} from 'three';
 import {Cell} from 'reversi-types';
+import {mapOverBoard} from '../../utils/board-helper';
 
 interface DiscLayerProps {
   cells: Cell[];
@@ -13,16 +14,18 @@ const DiscLayer: React.FC<DiscLayerProps> = ({cells}) => {
 
   return (
     <group>
-      {cells.map(
-        (cellState, index) =>
-          cellState !== Cell.EMPTY && (
+      {mapOverBoard(
+        cells,
+        (cell, row, column, index) =>
+          cell !== Cell.EMPTY &&
+          cell !== Cell.OUTER && (
             <Disc
               key={index}
-              type={cellState}
+              type={cell}
               position={[
-                vector.x + (index % 8) - BOARD_SIZE / 2 + 0.5,
+                vector.x + column - 1 - BOARD_SIZE / 2 + 0.5,
                 vector.y,
-                vector.z + Math.floor(index / 8) - BOARD_SIZE / 2 + 0.5,
+                vector.z + row - 1 - BOARD_SIZE / 2 + 0.5,
               ]}
             />
           )

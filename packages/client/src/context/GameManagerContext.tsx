@@ -7,18 +7,19 @@ import {
   playerMove,
 } from '../utils/socket/game-api';
 import {useAuth} from './AuthContext';
-import {Board as IBoard, GameType, PlayerColor} from 'reversi-types';
-import {getInitialBoard} from '../utils/game-helper';
+import {Board as IBoard, GameType, Move, PlayerColor} from 'reversi-types';
+import {getInitialBoard} from '../utils/board-helper';
 
 interface GameManagerContextData {
   inGame: boolean;
   gameId: string | undefined;
   turn: PlayerColor | undefined;
   board: IBoard;
+  validMoves: Move[];
   startGame: (gameType: GameType) => void;
   leaveGame: () => void;
   getScore: (playerColor: PlayerColor) => number;
-  playerMove: (boardIndex: number) => void;
+  playerMove: (row: number, column: number) => void;
 }
 
 const GameManagerContext = React.createContext<GameManagerContextData>({
@@ -26,6 +27,7 @@ const GameManagerContext = React.createContext<GameManagerContextData>({
   gameId: undefined,
   turn: undefined,
   board: getInitialBoard(),
+  validMoves: [],
   startGame: () => {},
   leaveGame: () => {},
   getScore: () => 0,
@@ -40,6 +42,7 @@ const GameManagerProvider: React.FC = ({children}) => {
   const [gameId, setGameId] = React.useState<string | undefined>();
   const [turn, setTurn] = React.useState<PlayerColor | undefined>();
   const [board, setBoard] = React.useState<IBoard>(getInitialBoard());
+  const [validMoves, setValidMoves] = React.useState<Move[]>([]);
 
   React.useEffect(() => {
     const cancelOnRoomCreated = onRoomCreated((newRoomId) => {
@@ -56,10 +59,13 @@ const GameManagerProvider: React.FC = ({children}) => {
 
   React.useEffect(() => {
     if (inGame) {
-      const cancelOnGameUpdated = onGameUpdated(({_id, board, turn}) => {
-        setBoard(board);
-        setTurn(turn);
-      });
+      const cancelOnGameUpdated = onGameUpdated(
+        ({_id, board, turn, validMoves}) => {
+          setBoard(board);
+          setTurn(turn);
+          setValidMoves(validMoves);
+        }
+      );
 
       return () => {
         cancelOnGameUpdated();
@@ -68,6 +74,7 @@ const GameManagerProvider: React.FC = ({children}) => {
       setGameId(undefined);
       setTurn(undefined);
       setBoard(getInitialBoard());
+      setValidMoves([]);
     }
   }, [inGame]);
 
@@ -77,6 +84,7 @@ const GameManagerProvider: React.FC = ({children}) => {
         inGame,
         gameId,
         board,
+        validMoves,
         turn,
         startGame: (gameType) => {
           switch (gameType) {
@@ -98,12 +106,15 @@ const GameManagerProvider: React.FC = ({children}) => {
         },
         leaveGame: () => setInGame(false),
         getScore: (color) => board.filter((c) => c === color).length,
-        playerMove: (index) => {
+        playerMove: (row, column) => {
           gameId &&
             playerMove({
               token: user?._id,
               roomId: gameId,
-              moveId: index,
+              move: {
+                row,
+                column,
+              },
             });
         },
       }}>

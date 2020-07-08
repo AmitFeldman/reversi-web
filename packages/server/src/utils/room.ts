@@ -1,5 +1,6 @@
 import GameModel from '../models/Game';
 import {
+  Board,
   Cell,
   CreateRoomArgs,
   IGame,
@@ -12,6 +13,8 @@ import mongoose from 'mongoose';
 import {emitEventToSocket} from './socket-service';
 import {getSocketByUserId} from '../services/socket-manager';
 import {ChangeEventCR, ChangeEventUpdate} from 'mongodb';
+import {getLegalMoves, isLegal, isValid, makeMove} from './game-rules';
+import {ai_play, AiBody, gameTypesToStrategy} from './ai/ai-api';
 
 const createRoom = async (data: CreateRoomArgs) => {
   try {
@@ -55,52 +58,65 @@ const joinRoom = async (data: JoinRoomArgs) => {
   }
 };
 
-const playerMove = async (data: PlayerMoveArgs) => {
-  const game = await GameModel.findById(data.roomId);
+const playerMove = async ({
+  roomId,
+  move: {row, column},
+  user,
+}: PlayerMoveArgs) => {
+  const game = await GameModel.findById(roomId);
   const whitePlayerId = game?.whitePlayer?.userId?.toString();
   const blackPlayerId = game?.blackPlayer?.userId?.toString();
+  const index = Number(`${row}${column}`);
+  const currentTurn = game?.turn as Cell;
+  const board = game?.board as Board;
 
-  const newBoard = game ? [...game.board] : [];
-
-  if (
-    !game?.whitePlayer?.isCPU &&
-    (data?.user?.id === whitePlayerId || data?.user?._id === whitePlayerId) &&
-    game &&
-    game.turn === Cell.WHITE
-  ) {
-    newBoard[data.moveId] = Cell.WHITE;
-    game.board = newBoard;
-    game.turn = Cell.BLACK;
-  } else if (
-    (data?.user?.id === blackPlayerId || data?.user?._id === blackPlayerId) &&
-    game &&
-    game.turn === Cell.BLACK
-  ) {
-    newBoard[data.moveId] = Cell.BLACK;
-    game.board = newBoard;
-    game.turn = Cell.WHITE;
-  }
-
-  await game?.save();
-
-  if (game?.type.includes('AI')) {
-    await aiMove(data);
-  }
-};
-
-const aiMove = async (data: PlayerMoveArgs) => {
-  const game = await GameModel.findById(data.roomId);
-  const newBoard = game ? [...game.board] : [];
-
-  setTimeout(async () => {
-    if (game) {
-      newBoard[data.moveId - 8] = Cell.BLACK;
-      game.board = newBoard;
+  if (isValid(index) && isLegal(index, currentTurn, board)) {
+    if (
+      !game?.whitePlayer?.isCPU &&
+      (user?.id === whitePlayerId || user?._id === whitePlayerId) &&
+      game &&
+      game.turn === Cell.WHITE
+    ) {
+      game.board = makeMove(index, Cell.WHITE, game.board);
+      game.turn = Cell.BLACK;
+    } else if (
+      (user?.id === blackPlayerId || user?._id === blackPlayerId) &&
+      game &&
+      game.turn === Cell.BLACK
+    ) {
+      game.board = makeMove(index, Cell.BLACK, game.board);
       game.turn = Cell.WHITE;
     }
 
+    if (game?.turn && game?.board) {
+      game.validMoves = getLegalMoves(game.turn, game.board);
+    }
+
     await game?.save();
-  }, 1500);
+
+    if (game?.type.includes('AI')) {
+      const strategy = gameTypesToStrategy.get(game.type);
+
+      await aiMove(game, {
+        board: game.board,
+        color: game.turn as Cell,
+        strategy,
+      });
+
+      if (game?.turn && game?.board) {
+        game.validMoves = getLegalMoves(game.turn, game.board);
+      }
+
+      await setTimeout(() => game.save(), 1000);
+    }
+  }
+};
+
+const aiMove = async (game: IGame, data: AiBody) => {
+  const aiMoveIndex = await ai_play(data);
+
+  game.board = makeMove(aiMoveIndex, data.color, game.board);
+  game.turn = data.color === Cell.WHITE ? Cell.BLACK : Cell.WHITE;
 };
 
 const disconnectFromGame = async (id: string) => {
