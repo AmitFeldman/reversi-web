@@ -23,7 +23,8 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
         border ? 'border-4 rounded-md border-purple-500 p-2' : ''
       }`}>
       <p className="text-xl">
-        White Player <FaCircle className="float-left m-2" />
+        {playerType === Cell.BLACK ? 'Black' : 'White'} Player{' '}
+        <FaCircle className="float-left m-2" />
       </p>
       <p className="text-6xl">{score}</p>
     </div>

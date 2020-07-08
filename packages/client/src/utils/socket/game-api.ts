@@ -9,7 +9,7 @@ import {emitEvent, EventCallback, onEvent} from './socket-client';
 const createRoom = (args: CreateRoomArgs) =>
   emitEvent<CreateRoomArgs>(ClientEvents.CREATE_ROOM, args);
 
-const joinRoom = (args: JoinRoomArgs) =>
+const joinedRoom = (args: JoinRoomArgs) =>
   emitEvent<JoinRoomArgs>(ClientEvents.JOINED, args);
 
 const playerMove = (args: PlayerMoveArgs) =>
@@ -21,4 +21,4 @@ const onRoomCreated = (callback: EventCallback<string>) =>
 const onGameUpdated = (callback: EventCallback<IGame>) =>
   onEvent<IGame>(ServerEvents.GameUpdated, callback);
 
-export {createRoom, joinRoom, playerMove, onRoomCreated, onGameUpdated};
+export {createRoom, joinedRoom, playerMove, onRoomCreated, onGameUpdated};
