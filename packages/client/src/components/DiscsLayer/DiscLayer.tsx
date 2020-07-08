@@ -15,7 +15,7 @@ const DiscLayer: React.FC<DiscLayerProps> = ({cells}) => {
     <group>
       {cells.map(
         (cellState, index) =>
-          cellState !== Cell.EMPTY && (
+          cellState !== Cell.EMPTY && cellState !== Cell.OUTER && (
             <Disc
               key={index}
               type={cellState}

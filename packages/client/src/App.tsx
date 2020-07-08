@@ -40,7 +40,7 @@ function App() {
 
     const cancelOnGameUpdated = onGameUpdated(({_id, board, turn}) => {
       setRoomId(_id);
-      setBoard(board);
+      setBoard(board.filter((value, index) => index >= 11 && index <= 89 && index % 10 >= 1 && index % 10 <= 8));
       setTurn(turn);
     });
 

@@ -1,17 +1,10 @@
 import GameModel from '../models/Game';
-import {
-  Cell,
-  CreateRoomArgs,
-  IGame,
-  JoinRoomArgs,
-  PlayerMoveArgs,
-  PlayerStatus,
-  ServerEvents,
-} from 'reversi-types';
+import {Cell, CreateRoomArgs, IGame, JoinRoomArgs, PlayerMoveArgs, PlayerStatus, ServerEvents} from 'reversi-types';
 import mongoose from 'mongoose';
 import {emitEventToSocket} from './socket-service';
 import {getSocketByUserId} from '../services/socket-manager';
 import {ChangeEventCR, ChangeEventUpdate} from 'mongodb';
+import {makeMove} from './game-rules';
 
 const createRoom = async (data: CreateRoomArgs) => {
   try {
@@ -59,8 +52,7 @@ const playerMove = async (data: PlayerMoveArgs) => {
   const game = await GameModel.findById(data.roomId);
   const whitePlayerId = game?.whitePlayer?.userId?.toString();
   const blackPlayerId = game?.blackPlayer?.userId?.toString();
-
-  const newBoard = game ? [...game.board] : [];
+  const move = data.moveId + 21;
 
   if (
     !game?.whitePlayer?.isCPU &&
@@ -68,24 +60,23 @@ const playerMove = async (data: PlayerMoveArgs) => {
     game &&
     game.turn === Cell.WHITE
   ) {
-    newBoard[data.moveId] = Cell.WHITE;
-    game.board = newBoard;
+    // newBoard[data.moveId] = Cell.WHITE;
+    game.board = makeMove(move, Cell.WHITE, game.board);
     game.turn = Cell.BLACK;
   } else if (
     (data?.user?.id === blackPlayerId || data?.user?._id === blackPlayerId) &&
     game &&
     game.turn === Cell.BLACK
   ) {
-    newBoard[data.moveId] = Cell.BLACK;
-    game.board = newBoard;
+    game.board = makeMove(move, Cell.BLACK, game.board);
     game.turn = Cell.WHITE;
   }
 
   await game?.save();
 
-  if (game?.type.includes('AI')) {
-    await aiMove(data);
-  }
+  // if (game?.type.includes('AI')) {
+  //   await aiMove(data);
+  // }
 };
 
 const aiMove = async (data: PlayerMoveArgs) => {

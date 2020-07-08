@@ -45,9 +45,10 @@ export type GameType =
   | 'LOCAL';
 
 export enum Cell {
-  EMPTY = 0,
-  WHITE = 1,
-  BLACK = 2,
+  OUTER = "?",
+  EMPTY = "0",
+  WHITE = "1",
+  BLACK = "2",
 }
 
 export type Board = Cell[];
