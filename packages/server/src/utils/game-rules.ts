@@ -54,7 +54,7 @@ function isLegal(move: number, playerColor: Cell, board: Board): boolean {
 }
 
 function isValid(move: number) {
-  return Number.isInteger(move) && move >= 11 && move <= 89;
+  return Number.isInteger(move) && move >= 11 && move <= 88;
 }
 
 function makeFlips(

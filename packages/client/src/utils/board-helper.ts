@@ -14,7 +14,7 @@ const getInitialBoard = (): Board => {
       return Cell.WHITE;
     }
 
-    if (index >= 11 && index <= 89 && index % 10 >= 1 && index % 10 <= 8) {
+    if (index >= 11 && index <= 88 && index % 10 >= 1 && index % 10 <= 8) {
       return Cell.EMPTY;
     }
 

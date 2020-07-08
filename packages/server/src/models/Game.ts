@@ -4,7 +4,7 @@ import {getLegalMoves} from '../utils/game-rules';
 
 export const INITIAL_BOARD = new Array(100).fill(Cell.OUTER);
 INITIAL_BOARD.forEach((value, index) =>
-  index >= 11 && index <= 89 && index % 10 >= 1 && index % 10 <= 8
+  index >= 11 && index <= 88 && index % 10 >= 1 && index % 10 <= 8
     ? (INITIAL_BOARD[index] = Cell.EMPTY)
     : Cell.OUTER
 );
