@@ -85,5 +85,7 @@ function makeMove(move: number, playerColor: Cell, board: Board) {
 }
 
 export {
-  makeMove
+  makeMove,
+  isValid,
+  isLegal
 }
