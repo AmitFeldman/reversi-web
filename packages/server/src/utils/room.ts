@@ -13,7 +13,7 @@ import mongoose from 'mongoose';
 import {emitEventToSocket} from './socket-service';
 import {getSocketByUserId} from '../services/socket-manager';
 import {ChangeEventCR, ChangeEventUpdate} from 'mongodb';
-import {isLegal, isValid, makeMove} from './game-rules';
+import {getLegalMoves, isLegal, isValid, makeMove} from './game-rules';
 import {ai_play, AiBody, gameTypesToStrategy} from './ai/ai-api';
 
 const createRoom = async (data: CreateRoomArgs) => {
@@ -88,12 +88,26 @@ const playerMove = async ({
       game.turn = Cell.WHITE;
     }
 
+    if (game?.turn && game?.board) {
+      game.validMoves = getLegalMoves(game.turn, game.board);
+    }
+
     await game?.save();
 
     if (game?.type.includes('AI')) {
       const strategy = gameTypesToStrategy.get(game.type);
 
-      await aiMove(game,{board: game.board, color: game.turn as Cell, strategy});
+      await aiMove(game, {
+        board: game.board,
+        color: game.turn as Cell,
+        strategy,
+      });
+
+      if (game?.turn && game?.board) {
+        game.validMoves = getLegalMoves(game.turn, game.board);
+      }
+
+      await game.save();
     }
   }
 };
@@ -103,8 +117,6 @@ const aiMove = async (game: IGame, data: AiBody) => {
 
   game.board = makeMove(aiMoveIndex, data.color, game.board);
   game.turn = data.color === Cell.WHITE ? Cell.BLACK : Cell.WHITE;
-
-  await game.save();
 };
 
 const disconnectFromGame = async (id: string) => {

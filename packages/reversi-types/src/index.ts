@@ -79,6 +79,7 @@ export interface IGame extends BaseDocument {
   turn: PlayerColor | undefined;
   winner: PlayerColor | undefined;
   board: Board;
+  validMoves: Move[];
   createdBy: string;
 }
 

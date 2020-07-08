@@ -59,11 +59,13 @@ const GameManagerProvider: React.FC = ({children}) => {
 
   React.useEffect(() => {
     if (inGame) {
-      const cancelOnGameUpdated = onGameUpdated(({_id, board, turn}) => {
-        setBoard(board);
-        setTurn(turn);
-        setValidMoves([{row: 1, column: 1}]);
-      });
+      const cancelOnGameUpdated = onGameUpdated(
+        ({_id, board, turn, validMoves}) => {
+          setBoard(board);
+          setTurn(turn);
+          setValidMoves(validMoves);
+        }
+      );
 
       return () => {
         cancelOnGameUpdated();

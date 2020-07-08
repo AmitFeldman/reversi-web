@@ -1,4 +1,4 @@
-import {Board, Cell} from 'reversi-types';
+import {Board, Cell, Move, PlayerColor} from 'reversi-types';
 
 enum DIRECTIONS {
   UP = -10,
@@ -12,7 +12,9 @@ enum DIRECTIONS {
 }
 
 function directionsToNumberArray() {
-  return Object.keys(DIRECTIONS).filter((item) => !isNaN(Number(item))).map((item) => +item)
+  return Object.keys(DIRECTIONS)
+    .filter((item) => !isNaN(Number(item)))
+    .map((item) => +item);
 }
 
 /**
@@ -42,7 +44,7 @@ function findBracket(
   return board[bracket] === playerColor ? bracket : undefined;
 }
 
-function isLegal(move: number, playerColor: Cell, board: Board) {
+function isLegal(move: number, playerColor: Cell, board: Board): boolean {
   return (
     board[move] === Cell.EMPTY &&
     directionsToNumberArray().some((direction) =>
@@ -55,8 +57,18 @@ function isValid(move: number) {
   return Number.isInteger(move) && move >= 11 && move <= 89;
 }
 
-function makeFlips(move: number, playerColor: Cell, board: Board, direction: DIRECTIONS) {
-  const bracket: number | undefined = findBracket(move, playerColor, board, direction);
+function makeFlips(
+  move: number,
+  playerColor: Cell,
+  board: Board,
+  direction: DIRECTIONS
+) {
+  const bracket: number | undefined = findBracket(
+    move,
+    playerColor,
+    board,
+    direction
+  );
 
   if (!bracket) {
     return;
@@ -81,11 +93,14 @@ function makeMove(move: number, playerColor: Cell, board: Board) {
     });
   }
 
-  return newBoard
+  return newBoard;
 }
 
-export {
-  makeMove,
-  isValid,
-  isLegal
-}
+const getLegalMoves = (player: PlayerColor, board: Board): Move[] => {
+  return Array.from(Array(78).keys())
+    .map((v) => v + 11)
+    .filter((v) => isLegal(v, player, board))
+    .map((v) => ({row: Math.floor(v / 10), column: v % 10}));
+};
+
+export {makeMove, isValid, isLegal, getLegalMoves};
