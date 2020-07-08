@@ -12,6 +12,7 @@ const Login: React.FC<LoginProps> = ({onLogin = () => {}}) => {
 
   const [username, setUsername] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
+  const [error, setError] = React.useState<string>('');
 
   const loginUser = () => {
     login({username, password})
@@ -20,11 +21,13 @@ const Login: React.FC<LoginProps> = ({onLogin = () => {}}) => {
       })
       .catch((err) => {
         console.log('ERROR: Login Failed, err');
+        setError(err.msg);
       });
   };
 
   return (
     <>
+      <p className="text-4xl text-center text-black mb-4">Login</p>
       <LabeledInput
         label="Username"
         value={username}
@@ -36,12 +39,15 @@ const Login: React.FC<LoginProps> = ({onLogin = () => {}}) => {
       <LabeledInput
         label="Password"
         value={password}
+        type="password"
         onValueChange={(e: React.FormEvent<HTMLInputElement>) => {
           setPassword(e.currentTarget.value);
         }}
       />
 
-      <Button onClick={loginUser}>Login</Button>
+      <p className="text-red-500 text-xs italic">Please choose a password.</p>
+
+      <Button onClick={loginUser}>Submit</Button>
     </>
   );
 };

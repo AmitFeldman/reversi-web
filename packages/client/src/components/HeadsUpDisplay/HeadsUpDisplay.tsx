@@ -41,7 +41,7 @@ const HeadsUpDisplay: React.FC = () => {
           <div className="absolute top-0 left-0 text-white p-8 pl-12">
             <p className="text-6xl mb-2">Reversi</p>
             <MenuButton text="Play" onClick={() => setShowModal(true)} />
-            <MenuButton text="LeaderBoard" />
+            <MenuButton text="Leaderboard" />
           </div>
         </>
       )}
@@ -51,7 +51,10 @@ const HeadsUpDisplay: React.FC = () => {
         overlayClassName=""
         isOpen={showModal}
         onRequestClose={() => setShowModal(false)}>
-        <GrClose className="float-right -mr-5" />
+        <GrClose
+          className="float-right -mr-5 cursor-pointer"
+          onClick={() => setShowModal(false)}
+        />
         <p className="text-6xl text-black mb-4">Reversi</p>
         <PlayMenu beginGame={beginGame} />
       </Modal>

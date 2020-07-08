@@ -1,11 +1,6 @@
 import {Router} from 'express';
 import User from '../../models/User';
-
-const Errors = {
-  USER_NOT_FOUND: 1,
-  USERNAME_EXIST: 2,
-  EMAIL_EXIST: 3,
-};
+import {Errors} from 'reversi-types';
 
 const router = Router();
 
@@ -48,8 +43,8 @@ router.post('/register', async (req, res) => {
 
   newUser
     .save()
-    .then(user => res.json(user))
-    .catch(err => console.log(err.message));
+    .then((user) => res.json(user))
+    .catch((err) => console.log(err.message));
 });
 
 // POST api/users/login
@@ -59,7 +54,7 @@ router.post('/login', (req, res) => {
   if (!username || !password)
     return res.status(400).send({error: {msg: 'Not all information sent'}});
 
-  User.findOne({username, password}).then(user => {
+  User.findOne({username, password}).then((user) => {
     if (!user) {
       return res
         .status(404)

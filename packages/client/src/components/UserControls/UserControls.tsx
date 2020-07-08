@@ -2,6 +2,7 @@ import * as React from 'react';
 import IconButton from '../IconButton/IconButton';
 import {AiOutlineLogin, AiOutlineLogout} from 'react-icons/ai';
 import {MdCreate} from 'react-icons/md';
+import {GrClose} from 'react-icons/gr';
 import {useAuth} from '../../context/AuthContext';
 import Modal from 'react-modal';
 import Login from '../Login/Login';
@@ -45,10 +46,14 @@ const UserControls: React.FC = () => {
       )}
 
       <Modal
-        className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 float-right m-5 outline-none"
+        className="bg-white shadow-md rounded px-8 pt-3 pb-8 mb-4 float-right m-5 outline-none"
         overlayClassName=""
         isOpen={modalContent !== 'none'}
         onRequestClose={closeModal}>
+        <GrClose
+          className="float-right -mr-5 cursor-pointer"
+          onClick={closeModal}
+        />
         {modalContent === 'login' ? (
           <Login onLogin={closeModal} />
         ) : (

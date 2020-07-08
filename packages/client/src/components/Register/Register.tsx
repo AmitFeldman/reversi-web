@@ -26,6 +26,7 @@ const Register: React.FC<RegisterProps> = ({onRegister = () => {}}) => {
 
   return (
     <>
+      <p className="text-4xl text-center text-black mb-4">Register</p>
       <LabeledInput
         label="Username"
         value={username}
@@ -50,7 +51,7 @@ const Register: React.FC<RegisterProps> = ({onRegister = () => {}}) => {
         }}
       />
 
-      <Button onClick={registerUser}>Register</Button>
+      <Button onClick={registerUser}>Submit</Button>
     </>
   );
 };
