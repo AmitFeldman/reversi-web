@@ -3,7 +3,7 @@ import {PositionArray} from '../../constants/game-constants';
 
 // const CELL_COLOR = 0x2e8b57;
 const CELL_COLOR = 0x267347;
-const CELL_HOVER_COLOR = 0x3cb371;
+const CELL_HOVER_COLOR = 0x37A150;
 const CELL_HIGHLIGHT_COLOR = 0x37a164;
 
 interface CellProps {
