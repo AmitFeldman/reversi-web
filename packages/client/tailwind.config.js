@@ -6,7 +6,11 @@ module.exports = {
       auto: 'auto',
       '25': '25vw',
     },
-    extend: {},
+    extend: {
+      width: {
+        fitcontent: 'fit-content',
+      },
+    },
   },
   variants: {},
   plugins: [],

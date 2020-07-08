@@ -6,7 +6,9 @@ import InGameHud from '../InGameHUD/InGameHUD';
 import {createRoom} from '../../utils/socket/game-api';
 import Modal from 'react-modal';
 import PlayMenu from '../PlayMenu/PlayMenu';
+import MenuButton from '../MenuButton/MenuButton';
 import {PlayerColor, GameType} from 'reversi-types';
+import {GrClose} from 'react-icons/gr';
 
 const DEFAULT_USERNAME = 'Guest';
 
@@ -27,7 +29,7 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
 }) => {
   const {user, isUserLoggedIn} = useAuth();
   const {appState, setAppState} = useAppData();
-  const [showMenu, setShowMenu] = React.useState<boolean>(false);
+  const [showModal, setShowModal] = React.useState<boolean>(false);
 
   const beginGame = (gameType: GameType) => {
     switch (gameType) {
@@ -48,7 +50,7 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
     }
 
     setAppState(AppState.IN_GAME);
-    setShowMenu(false);
+    setShowModal(false);
   };
 
   return (
@@ -76,12 +78,9 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
           </div>
 
           <div className="absolute top-0 left-0 text-white p-8 pl-12">
-            <p className="text-6xl">Reversi</p>
-            <p
-              className="text-3xl cursor-pointer hover:text-black"
-              onClick={() => setShowMenu(true)}>
-              Play
-            </p>
+            <p className="text-6xl mb-2">Reversi</p>
+            <MenuButton text="Play" onClick={() => setShowModal(true)} />
+            <MenuButton text="LeaderBoard" />
           </div>
         </>
       )}
@@ -89,8 +88,9 @@ const HeadsUpDisplay: React.FC<HeadsUpDisplayProps> = ({
       <Modal
         className="absolute top-0 bg-white shadow-md rounded px-8 pb-8 pt-3 float-left m-5 outline-none"
         overlayClassName=""
-        isOpen={showMenu}
-        onRequestClose={() => setShowMenu(false)}>
+        isOpen={showModal}
+        onRequestClose={() => setShowModal(false)}>
+        <GrClose className="float-right -mr-5" />
         <p className="text-6xl text-black mb-4">Reversi</p>
         <PlayMenu beginGame={beginGame} roomId={roomId} setRoomId={setRoomId} />
       </Modal>
