@@ -1,5 +1,13 @@
 import GameModel from '../models/Game';
-import {Cell, CreateRoomArgs, IGame, JoinRoomArgs, PlayerMoveArgs, PlayerStatus, ServerEvents} from 'reversi-types';
+import {
+  Cell,
+  CreateRoomArgs,
+  IGame,
+  JoinRoomArgs,
+  PlayerMoveArgs,
+  PlayerStatus,
+  ServerEvents,
+} from 'reversi-types';
 import mongoose from 'mongoose';
 import {emitEventToSocket} from './socket-service';
 import {getSocketByUserId} from '../services/socket-manager';
@@ -48,7 +56,11 @@ const joinRoom = async (data: JoinRoomArgs) => {
   }
 };
 
-const playerMove = async ({roomId, row, column, user}: PlayerMoveArgs) => {
+const playerMove = async ({
+  roomId,
+  move: {row, column},
+  user,
+}: PlayerMoveArgs) => {
   const game = await GameModel.findById(roomId);
   const whitePlayerId = game?.whitePlayer?.userId?.toString();
   const blackPlayerId = game?.blackPlayer?.userId?.toString();
@@ -79,7 +91,7 @@ const playerMove = async ({roomId, row, column, user}: PlayerMoveArgs) => {
   // }
 };
 
-const aiMove = async ({roomId, row, column}: PlayerMoveArgs) => {
+const aiMove = async ({roomId, move: {row, column}}: PlayerMoveArgs) => {
   const game = await GameModel.findById(roomId);
   const newBoard = game ? [...game.board] : [];
   const index = Number(`${row}${column}`);

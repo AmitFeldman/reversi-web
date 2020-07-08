@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Cell from '../Cell/Cell';
-import {Cell as CellType} from 'reversi-types';
+import {Cell as CellType, Move} from 'reversi-types';
 import {Vector3} from 'three';
 import {
   BOARD_HEIGHT,
@@ -12,12 +12,16 @@ import {mapOverBoard} from '../../utils/board-helper';
 
 interface CellLayerProps {
   cells: CellType[];
+  validMoves: Move[];
+  showValidMoves: boolean;
   onCellClick?: (row: number, column: number) => void;
   disabled?: boolean;
 }
 
 const CellLayer: React.FC<CellLayerProps> = ({
   cells,
+  validMoves,
+  showValidMoves = false,
   onCellClick = () => {},
   disabled = false,
 }) => {
@@ -30,7 +34,13 @@ const CellLayer: React.FC<CellLayerProps> = ({
           id={index}
           key={index}
           onClick={() => onCellClick(row, column)}
-          clickable={!disabled && cell === CellType.EMPTY}
+          highlight={showValidMoves}
+          clickable={
+            !disabled &&
+            validMoves.some(
+              ({row: vr, column: vc}) => row === vr && column === vc
+            )
+          }
           position={[
             vector.x + column - 1 - BOARD_SIZE / 2 + CELL_SIZE / 2,
             vector.y,

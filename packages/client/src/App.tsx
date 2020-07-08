@@ -11,9 +11,9 @@ import {useOptions} from './context/OptionsContext';
 import {useGameManager} from './context/GameManagerContext';
 
 function App() {
-  const {inGame, board, playerMove} = useGameManager();
+  const {inGame, board, playerMove, validMoves} = useGameManager();
   const {controls} = useCamera();
-  const {topDown} = useOptions();
+  const {topDown, showValidMoves} = useOptions();
 
   // Setup for react-modal
   React.useEffect(() => {
@@ -34,6 +34,8 @@ function App() {
         <CellLayer
           disabled={!inGame}
           cells={board}
+          showValidMoves={showValidMoves}
+          validMoves={validMoves}
           onCellClick={(r, c) => playerMove(r, c)}
         />
         <DiscLayer cells={board} />

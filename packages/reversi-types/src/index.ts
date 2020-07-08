@@ -45,13 +45,18 @@ export type GameType =
   | 'LOCAL';
 
 export enum Cell {
-  OUTER = "?",
-  EMPTY = "0",
-  WHITE = "1",
-  BLACK = "2",
+  OUTER = '?',
+  EMPTY = '0',
+  WHITE = '1',
+  BLACK = '2',
 }
 
 export type Board = Cell[];
+
+export interface Move {
+  row: number;
+  column: number;
+}
 
 export type PlayerColor = Cell.WHITE | Cell.BLACK;
 
@@ -101,8 +106,7 @@ export interface JoinRoomArgs extends BaseArgs {
 
 export interface PlayerMoveArgs extends BaseArgs {
   roomId: string;
-  row: number;
-  column: number;
+  move: Move;
 }
 
 export enum ServerEvents {
