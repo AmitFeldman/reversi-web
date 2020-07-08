@@ -107,7 +107,7 @@ const playerMove = async ({
         game.validMoves = getLegalMoves(game.turn, game.board);
       }
 
-      await game.save();
+      await setTimeout(() => game.save(), 1000);
     }
   }
 };
