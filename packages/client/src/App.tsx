@@ -9,9 +9,10 @@ import DiscLayer from './components/DiscsLayer/DiscLayer';
 import {useCamera} from './context/CameraContext';
 import {useOptions} from './context/OptionsContext';
 import {useGameManager} from './context/GameManagerContext';
+import {Cell} from 'reversi-types';
 
 function App() {
-  const {inGame, board, playerMove, validMoves} = useGameManager();
+  const {inGame, board, playerMove, validMoves, turn} = useGameManager();
   const {controls} = useCamera();
   const {topDown, showValidMoves} = useOptions();
 
@@ -32,9 +33,9 @@ function App() {
         <Board />
 
         <CellLayer
-          disabled={!inGame}
+          disabled={!inGame && turn === Cell.WHITE}
           cells={board}
-          showValidMoves={showValidMoves}
+          showValidMoves={showValidMoves && turn === Cell.WHITE}
           validMoves={validMoves}
           onCellClick={(r, c) => playerMove(r, c)}
         />
