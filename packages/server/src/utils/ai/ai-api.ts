@@ -1,5 +1,5 @@
 
-import {Board, Cell, GameType, User} from 'reversi-types';
+import {Board, Cell, GameType} from 'reversi-types';
 import server from './server-api';
 
 export type Strategy = "random" | "max-diff" | "max-weighted-diff" | "minimax-diff" | "minimax-weighted-diff" | "ab-diff" | "ab-weighted-diff" | undefined;
