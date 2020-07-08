@@ -17,6 +17,8 @@ import {
 } from 'reversi-types';
 import {createRoom, joinRoom, playerMove} from './utils/room';
 
+console.log('starting reversi-web server...');
+
 const app = express();
 
 // Enabling CORS
