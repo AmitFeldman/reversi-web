@@ -8,7 +8,7 @@ import {
 } from '../utils/socket/game-api';
 import {useAuth} from './AuthContext';
 import {Board as IBoard, GameType, PlayerColor} from 'reversi-types';
-import {getInitialBoard} from '../utils/game-helper';
+import {getInitialBoard} from '../utils/board-helper';
 
 interface GameManagerContextData {
   inGame: boolean;
@@ -18,7 +18,7 @@ interface GameManagerContextData {
   startGame: (gameType: GameType) => void;
   leaveGame: () => void;
   getScore: (playerColor: PlayerColor) => number;
-  playerMove: (boardIndex: number) => void;
+  playerMove: (row: number, column: number) => void;
 }
 
 const GameManagerContext = React.createContext<GameManagerContextData>({
@@ -98,12 +98,13 @@ const GameManagerProvider: React.FC = ({children}) => {
         },
         leaveGame: () => setInGame(false),
         getScore: (color) => board.filter((c) => c === color).length,
-        playerMove: (index) => {
+        playerMove: (row, column) => {
           gameId &&
             playerMove({
               token: user?._id,
               roomId: gameId,
-              moveId: index,
+              row,
+              column,
             });
         },
       }}>

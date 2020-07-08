@@ -8,10 +8,11 @@ import {
   BOARD_SIZE,
   CELL_SIZE,
 } from '../../constants/game-constants';
+import {mapOverBoard} from '../../utils/board-helper';
 
 interface CellLayerProps {
   cells: CellType[];
-  onCellClick?: (index: number) => void;
+  onCellClick?: (row: number, column: number) => void;
   disabled?: boolean;
 }
 
@@ -24,16 +25,16 @@ const CellLayer: React.FC<CellLayerProps> = ({
 
   return (
     <group>
-      {cells.map((cell, index) => (
+      {mapOverBoard(cells, (cell, row, column, index) => (
         <Cell
           id={index}
           key={index}
-          onClick={() => onCellClick(index)}
+          onClick={() => onCellClick(row, column)}
           clickable={!disabled && cell === CellType.EMPTY}
           position={[
-            vector.x + (index % 8) - BOARD_SIZE / 2 + CELL_SIZE / 2,
+            vector.x + column - 1 - BOARD_SIZE / 2 + CELL_SIZE / 2,
             vector.y,
-            vector.z + Math.floor(index / 8) - BOARD_SIZE / 2 + CELL_SIZE / 2,
+            vector.z + row - 1 - BOARD_SIZE / 2 + CELL_SIZE / 2,
           ]}
           cellHeight={BOARD_HEIGHT}
           cellSize={CELL_SIZE}

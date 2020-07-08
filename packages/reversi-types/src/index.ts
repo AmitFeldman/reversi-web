@@ -101,7 +101,8 @@ export interface JoinRoomArgs extends BaseArgs {
 
 export interface PlayerMoveArgs extends BaseArgs {
   roomId: string;
-  moveId: number;
+  row: number;
+  column: number;
 }
 
 export enum ServerEvents {

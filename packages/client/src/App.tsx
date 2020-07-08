@@ -34,7 +34,7 @@ function App() {
         <CellLayer
           disabled={!inGame}
           cells={board}
-          onCellClick={(index) => playerMove(index)}
+          onCellClick={(r, c) => playerMove(r, c)}
         />
         <DiscLayer cells={board} />
       </Scene>

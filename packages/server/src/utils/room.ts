@@ -48,27 +48,27 @@ const joinRoom = async (data: JoinRoomArgs) => {
   }
 };
 
-const playerMove = async (data: PlayerMoveArgs) => {
-  const game = await GameModel.findById(data.roomId);
+const playerMove = async ({roomId, row, column, user}: PlayerMoveArgs) => {
+  const game = await GameModel.findById(roomId);
   const whitePlayerId = game?.whitePlayer?.userId?.toString();
   const blackPlayerId = game?.blackPlayer?.userId?.toString();
-  const move = data.moveId + 21;
+  const index = Number(`${row}${column}`);
 
   if (
     !game?.whitePlayer?.isCPU &&
-    (data?.user?.id === whitePlayerId || data?.user?._id === whitePlayerId) &&
+    (user?.id === whitePlayerId || user?._id === whitePlayerId) &&
     game &&
     game.turn === Cell.WHITE
   ) {
     // newBoard[data.moveId] = Cell.WHITE;
-    game.board = makeMove(move, Cell.WHITE, game.board);
+    game.board = makeMove(index, Cell.WHITE, game.board);
     game.turn = Cell.BLACK;
   } else if (
-    (data?.user?.id === blackPlayerId || data?.user?._id === blackPlayerId) &&
+    (user?.id === blackPlayerId || user?._id === blackPlayerId) &&
     game &&
     game.turn === Cell.BLACK
   ) {
-    game.board = makeMove(move, Cell.BLACK, game.board);
+    game.board = makeMove(index, Cell.BLACK, game.board);
     game.turn = Cell.WHITE;
   }
 
@@ -79,13 +79,14 @@ const playerMove = async (data: PlayerMoveArgs) => {
   // }
 };
 
-const aiMove = async (data: PlayerMoveArgs) => {
-  const game = await GameModel.findById(data.roomId);
+const aiMove = async ({roomId, row, column}: PlayerMoveArgs) => {
+  const game = await GameModel.findById(roomId);
   const newBoard = game ? [...game.board] : [];
+  const index = Number(`${row}${column}`);
 
   setTimeout(async () => {
     if (game) {
-      newBoard[data.moveId - 8] = Cell.BLACK;
+      newBoard[index] = Cell.BLACK;
       game.board = newBoard;
       game.turn = Cell.WHITE;
     }
