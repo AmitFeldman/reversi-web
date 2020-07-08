@@ -58,7 +58,11 @@ const joinRoom = async (data: JoinRoomArgs) => {
   }
 };
 
-const playerMove = async ({roomId, row, column, user}: PlayerMoveArgs) => {
+const playerMove = async ({
+  roomId,
+  move: {row, column},
+  user,
+}: PlayerMoveArgs) => {
   const game = await GameModel.findById(roomId);
   const whitePlayerId = game?.whitePlayer?.userId?.toString();
   const blackPlayerId = game?.blackPlayer?.userId?.toString();
