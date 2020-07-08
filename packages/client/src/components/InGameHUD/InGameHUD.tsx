@@ -4,30 +4,20 @@ import {TiArrowBack} from 'react-icons/ti';
 import {IoMdReverseCamera} from 'react-icons/io';
 import {FiArrowDownCircle} from 'react-icons/fi';
 import ScoreCard from '../ScoreCard/ScoreCard';
-import {Cell, PlayerColor} from 'reversi-types';
+import {Cell} from 'reversi-types';
 import {useCamera} from '../../context/CameraContext';
 import {useOptions} from '../../context/OptionsContext';
+import {useGameManager} from '../../context/GameManagerContext';
 
-interface InGameHUDProps {
-  turn: PlayerColor | undefined;
-  scoreWhite: number;
-  scoreBlack: number;
-  onLeaveGame: () => void;
-}
-
-const InGameHud: React.FC<InGameHUDProps> = ({
-  onLeaveGame,
-  turn,
-  scoreBlack,
-  scoreWhite,
-}) => {
+const InGameHud: React.FC = () => {
   const {resetCamera} = useCamera();
   const {setTopDown} = useOptions();
+  const {leaveGame, turn, getScore} = useGameManager();
 
   return (
     <div>
       <div className="absolute top-0 left-0">
-        <IconButton onClick={onLeaveGame} tooltipText="Leave Game">
+        <IconButton onClick={leaveGame} tooltipText="Leave Game">
           <TiArrowBack />
         </IconButton>
 
@@ -46,14 +36,14 @@ const InGameHud: React.FC<InGameHUDProps> = ({
         className="absolute top-0 left-25"
         playerType={Cell.WHITE}
         border={turn === Cell.WHITE}
-        score={scoreWhite}
+        score={getScore(Cell.WHITE)}
       />
 
       <ScoreCard
         className="absolute top-0 right-25"
         playerType={Cell.BLACK}
         border={turn === Cell.BLACK}
-        score={scoreBlack}
+        score={getScore(Cell.BLACK)}
       />
     </div>
   );
