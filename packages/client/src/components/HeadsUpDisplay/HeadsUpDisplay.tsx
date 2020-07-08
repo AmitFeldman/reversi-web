@@ -30,9 +30,9 @@ const HeadsUpDisplay: React.FC = () => {
         </p>
       </div>
 
-      {inGame && <InGameHud />}
-
-      {!inGame && (
+      {inGame ? (
+        <InGameHud />
+      ) : (
         <>
           <div className="absolute right-0 top-0 pt-8">
             <UserControls />
