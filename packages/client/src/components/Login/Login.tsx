@@ -2,6 +2,7 @@ import * as React from 'react';
 import {useAuth} from '../../context/AuthContext';
 import LabeledInput from '../LabeledInput/LabeledInput';
 import Button from '../Button/Button';
+import ErrorMsg from '../ErrorMsg/ErrorMsg';
 
 interface LoginProps {
   onLogin?: () => void;
@@ -15,14 +16,19 @@ const Login: React.FC<LoginProps> = ({onLogin = () => {}}) => {
   const [error, setError] = React.useState<string>('');
 
   const loginUser = () => {
-    login({username, password})
-      .then(() => {
-        onLogin();
-      })
-      .catch((err) => {
-        console.log('ERROR: Login Failed, err');
-        setError(err.msg);
-      });
+    if (!username) {
+      setError('Username is required');
+    } else if (!password) {
+      setError('Password is required');
+    } else {
+      login({username, password})
+        .then(() => {
+          onLogin();
+        })
+        .catch((err) => {
+          setError(err.msg);
+        });
+    }
   };
 
   return (
@@ -45,9 +51,11 @@ const Login: React.FC<LoginProps> = ({onLogin = () => {}}) => {
         }}
       />
 
-      <p className="text-red-500 text-xs italic">Please choose a password.</p>
+      <ErrorMsg error={error} />
 
-      <Button onClick={loginUser}>Submit</Button>
+      <Button className="mt-4" onClick={loginUser}>
+        Submit
+      </Button>
     </>
   );
 };

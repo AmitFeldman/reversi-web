@@ -2,6 +2,7 @@ import * as React from 'react';
 import {useAuth} from '../../context/AuthContext';
 import LabeledInput from '../LabeledInput/LabeledInput';
 import Button from '../Button/Button';
+import ErrorMsg from '../ErrorMsg/ErrorMsg';
 
 interface RegisterProps {
   onRegister?: () => void;
@@ -9,19 +10,27 @@ interface RegisterProps {
 
 const Register: React.FC<RegisterProps> = ({onRegister = () => {}}) => {
   const {register} = useAuth();
-
   const [username, setUsername] = React.useState<string>('');
   const [email, setEmail] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
+  const [error, setError] = React.useState<string>('');
 
   const registerUser = () => {
-    register({username, email, password})
-      .then(() => {
-        onRegister();
-      })
-      .catch((err) => {
-        console.log('ERROR: Register Failed', err);
-      });
+    if (!username) {
+      setError('Username is required');
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setError('Email not valid');
+    } else if (!password) {
+      setError('Password is required');
+    } else {
+      register({username, email, password})
+        .then(() => {
+          onRegister();
+        })
+        .catch((err) => {
+          setError(err.msg);
+        });
+    }
   };
 
   return (
@@ -51,7 +60,11 @@ const Register: React.FC<RegisterProps> = ({onRegister = () => {}}) => {
         }}
       />
 
-      <Button onClick={registerUser}>Submit</Button>
+      <ErrorMsg error={error} />
+
+      <Button className="mt-4" onClick={registerUser}>
+        Submit
+      </Button>
     </>
   );
 };

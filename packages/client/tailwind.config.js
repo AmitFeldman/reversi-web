@@ -10,6 +10,9 @@ module.exports = {
       width: {
         fitcontent: 'fit-content',
       },
+      height: {
+        '18px': '18px',
+      },
     },
   },
   variants: {},
