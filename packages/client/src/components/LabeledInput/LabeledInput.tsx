@@ -2,10 +2,9 @@ import * as React from 'react';
 
 type InputValue = string | string[] | number;
 
-interface LabeledInputProps {
+interface LabeledInputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  value: InputValue;
-  type?: string;
   onValueChange: (e: React.FormEvent<HTMLInputElement>) => void;
 }
 
