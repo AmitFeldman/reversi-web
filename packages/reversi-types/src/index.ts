@@ -114,3 +114,9 @@ export enum ServerEvents {
   CreatedRoom = 'CREATED_ROOM',
   GameUpdated = 'GAME_UPDATE',
 }
+
+export enum Errors {
+  USER_NOT_FOUND = 1,
+  USERNAME_EXIST = 2,
+  EMAIL_EXIST = 3,
+}

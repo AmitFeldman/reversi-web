@@ -6,7 +6,14 @@ module.exports = {
       auto: 'auto',
       '25': '25vw',
     },
-    extend: {},
+    extend: {
+      width: {
+        fitcontent: 'fit-content',
+      },
+      height: {
+        '18px': '18px',
+      },
+    },
   },
   variants: {},
   plugins: [],
