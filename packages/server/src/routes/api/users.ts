@@ -1,6 +1,10 @@
 import {Router} from 'express';
 import User from '../../models/User';
 import {Errors} from 'reversi-types';
+import {
+  getSocketByUserId,
+  isUserConnected,
+} from '../../services/socket-manager';
 
 const router = Router();
 
@@ -59,6 +63,15 @@ router.post('/login', (req, res) => {
       return res
         .status(404)
         .send({error: {code: Errors.USER_NOT_FOUND, msg: 'User not found'}});
+    }
+
+    if (isUserConnected(user.id)) {
+      return res.status(404).send({
+        error: {
+          code: Errors.ALREADY_CONNECTED,
+          msg: 'User already connected',
+        },
+      });
     }
 
     res.json(user);

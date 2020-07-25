@@ -7,7 +7,10 @@ import {isLoggedIn} from '../middlewares/socket-auth';
 // Map of all authenticated (logged in) user ids to their sockets
 const usersToSockets = new Map<string, Socket>();
 
-const getSocketByUserId = (id: string) => usersToSockets.get(id);
+const getSocketByUserId = (id: string): Socket | undefined =>
+  usersToSockets.get(id);
+
+const isUserConnected = (id: string): boolean => usersToSockets.has(id);
 
 const removeBySocket = ({id: socketId}: Socket): string | undefined => {
   for (const [userId, {id: currId}] of usersToSockets) {
@@ -26,7 +29,9 @@ const onUserDisconnect = (userId: string) => {
   );
 };
 
-const initSocketManager = (onSocketAuthentication: (socket: Socket) => () => void) => {
+const initSocketManager = (
+  onSocketAuthentication: (socket: Socket) => () => void
+) => {
   onConnect((socket) => {
     // Make sure that auth connect is sent with valid user by passing isLoggedIn middleware
     const cancelOnAuthConnect = on<BaseArgs>(
@@ -75,4 +80,4 @@ const initSocketManager = (onSocketAuthentication: (socket: Socket) => () => voi
   });
 };
 
-export {initSocketManager, getSocketByUserId};
+export {initSocketManager, getSocketByUserId, isUserConnected};
