@@ -3,6 +3,7 @@ import {
   Board,
   Cell,
   CreateRoomArgs,
+  GameType,
   IGame,
   JoinRoomArgs,
   PlayerMoveArgs,
@@ -16,19 +17,31 @@ import {ChangeEventCR, ChangeEventUpdate} from 'mongodb';
 import {getLegalMoves, isLegal, isValid, makeMove} from './game-rules';
 import {ai_play, AiBody, gameTypesToStrategy} from './ai/ai-api';
 
+const cpuDisplayNames: Map<GameType, string> = new Map([
+  ['AI_EASY', 'Easy Bot'],
+  ['AI_MEDIUM', 'Medium Bot'],
+  ['AI_HARD', 'Hard Bot'],
+]);
+
+const cpuGameTypes = Array.from(cpuDisplayNames.keys());
+
 const createRoom = async (data: CreateRoomArgs) => {
+  const isCPU = cpuGameTypes.includes(data.gameType);
+
   try {
     const newGame = new GameModel({
       createdBy: data?.user?.id,
       whitePlayer: {
         userId: data?.user?.id,
         isCPU: false,
+        displayName: data.user?.username,
       },
       blackPlayer: {
-        connectionStatus: data.gameType.includes('AI')
+        displayName: isCPU ? cpuDisplayNames.get(data.gameType) : undefined,
+        connectionStatus: isCPU
           ? PlayerStatus.CONNECTED
           : PlayerStatus.DISCONNECTED,
-        isCPU: data.gameType.includes('AI'),
+        isCPU,
       },
       type: data.gameType,
     });

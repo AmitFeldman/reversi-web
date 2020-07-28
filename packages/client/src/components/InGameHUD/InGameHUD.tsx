@@ -13,7 +13,7 @@ import {useGameManager} from '../../context/GameManagerContext';
 const InGameHud: React.FC = () => {
   const {resetCamera} = useCamera();
   const {setTopDown, setShowValidMoves} = useOptions();
-  const {leaveGame, turn, getScore} = useGameManager();
+  const {leaveGame, turn, getScore, getName} = useGameManager();
 
   return (
     <div>
@@ -44,6 +44,7 @@ const InGameHud: React.FC = () => {
         playerType={Cell.WHITE}
         border={turn === Cell.WHITE}
         score={getScore(Cell.WHITE)}
+        displayName={getName(Cell.WHITE)}
       />
 
       <ScoreCard
@@ -51,6 +52,7 @@ const InGameHud: React.FC = () => {
         playerType={Cell.BLACK}
         border={turn === Cell.BLACK}
         score={getScore(Cell.BLACK)}
+        displayName={getName(Cell.BLACK)}
       />
     </div>
   );

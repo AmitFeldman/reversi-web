@@ -68,6 +68,7 @@ export interface IPlayer extends Document {
   isCPU: boolean;
   difficulty: Difficulty | undefined;
   userId: string | undefined;
+  displayName: string | undefined;
 }
 
 export interface IGame extends BaseDocument {

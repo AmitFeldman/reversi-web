@@ -7,7 +7,14 @@ import {
   playerMove,
 } from '../utils/socket/game-api';
 import {useAuth} from './AuthContext';
-import {Board as IBoard, GameType, Move, PlayerColor} from 'reversi-types';
+import {
+  Board as IBoard,
+  Cell,
+  GameType,
+  IPlayer,
+  Move,
+  PlayerColor,
+} from 'reversi-types';
 import {getInitialBoard} from '../utils/board-helper';
 
 interface GameManagerContextData {
@@ -19,6 +26,7 @@ interface GameManagerContextData {
   startGame: (gameType: GameType) => void;
   leaveGame: () => void;
   getScore: (playerColor: PlayerColor) => number;
+  getName: (playerColor: PlayerColor) => string;
   playerMove: (row: number, column: number) => void;
 }
 
@@ -31,6 +39,7 @@ const GameManagerContext = React.createContext<GameManagerContextData>({
   startGame: () => {},
   leaveGame: () => {},
   getScore: () => 0,
+  getName: () => 'Guest',
   playerMove: () => {},
 });
 
@@ -40,9 +49,12 @@ const GameManagerProvider: React.FC = ({children}) => {
   // Game State
   const [inGame, setInGame] = React.useState<boolean>(false);
   const [gameId, setGameId] = React.useState<string | undefined>();
+
   const [turn, setTurn] = React.useState<PlayerColor | undefined>();
   const [board, setBoard] = React.useState<IBoard>(getInitialBoard());
   const [validMoves, setValidMoves] = React.useState<Move[]>([]);
+  const [blackPlayer, setBlackPlayer] = React.useState<IPlayer | undefined>();
+  const [whitePlayer, setWhitePlayer] = React.useState<IPlayer | undefined>();
 
   React.useEffect(() => {
     const cancelOnRoomCreated = onRoomCreated((newRoomId) => {
@@ -60,10 +72,12 @@ const GameManagerProvider: React.FC = ({children}) => {
   React.useEffect(() => {
     if (inGame) {
       const cancelOnGameUpdated = onGameUpdated(
-        ({_id, board, turn, validMoves}) => {
+        ({_id, board, turn, validMoves, blackPlayer, whitePlayer}) => {
           setBoard(board);
           setTurn(turn);
           setValidMoves(validMoves);
+          setBlackPlayer(blackPlayer);
+          setWhitePlayer(whitePlayer);
         }
       );
 
@@ -75,6 +89,8 @@ const GameManagerProvider: React.FC = ({children}) => {
       setTurn(undefined);
       setBoard(getInitialBoard());
       setValidMoves([]);
+      setBlackPlayer(undefined);
+      setWhitePlayer(undefined);
     }
   }, [inGame]);
 
@@ -106,6 +122,12 @@ const GameManagerProvider: React.FC = ({children}) => {
         },
         leaveGame: () => setInGame(false),
         getScore: (color) => board.filter((c) => c === color).length,
+        getName: (color) => {
+          const player = color === Cell.WHITE ? whitePlayer : blackPlayer;
+          const name = player?.displayName;
+
+          return name ? name : 'Guest';
+        },
         playerMove: (row, column) => {
           gameId &&
             playerMove({

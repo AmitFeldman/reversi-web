@@ -25,6 +25,10 @@ const PlayerSchema = new Schema(
       type: Boolean,
       required: true,
     },
+    displayName: {
+      type: String,
+      default: 'Guest',
+    },
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'users',
