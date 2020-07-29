@@ -82,7 +82,7 @@ function makeFlips(
   }
 }
 
-function makeMove(move: number, playerColor: Cell, board: Board) {
+function makeMove(move: number, playerColor: Cell, board: Board): Board {
   const newBoard = [...board];
 
   if (isValid(move) && isLegal(move, playerColor, newBoard)) {

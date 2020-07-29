@@ -75,10 +75,7 @@ const PlayMenu: React.FC<PlayMenuProps> = ({beginGame}) => {
           title: 'Bot',
           content: (
             <>
-              <GameDescription
-                description="Play a challenging game against an AI controlled bot and
-                  select your preferred difficulty!"
-              />
+              <GameDescription description="Play a challenging game against an AI controlled bot on your preferred difficulty!" />
 
               <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 Difficulty

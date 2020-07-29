@@ -5,7 +5,9 @@ import {
   CreateRoomArgs,
   GameType,
   IGame,
+  IPlayer,
   JoinRoomArgs,
+  PlayerColor,
   PlayerMoveArgs,
   PlayerStatus,
   ServerEvents,
@@ -17,6 +19,8 @@ import {ChangeEventCR, ChangeEventUpdate} from 'mongodb';
 import {getLegalMoves, isLegal, isValid, makeMove} from './game-rules';
 import {ai_play, AiBody, gameTypesToStrategy} from './ai/ai-api';
 
+const AI_TIMEOUT = 1000;
+
 const cpuDisplayNames: Map<GameType, string> = new Map([
   ['AI_EASY', 'Easy Bot'],
   ['AI_MEDIUM', 'Medium Bot'],
@@ -27,6 +31,7 @@ const cpuGameTypes = Array.from(cpuDisplayNames.keys());
 
 const createRoom = async (data: CreateRoomArgs) => {
   const isCPU = cpuGameTypes.includes(data.gameType);
+  const isLocal = data.gameType === 'LOCAL';
 
   try {
     const newGame = new GameModel({
@@ -38,9 +43,8 @@ const createRoom = async (data: CreateRoomArgs) => {
       },
       blackPlayer: {
         displayName: isCPU ? cpuDisplayNames.get(data.gameType) : undefined,
-        connectionStatus: isCPU
-          ? PlayerStatus.CONNECTED
-          : PlayerStatus.DISCONNECTED,
+        connectionStatus:
+          isCPU || isLocal ? PlayerStatus.CONNECTED : PlayerStatus.DISCONNECTED,
         isCPU,
       },
       type: data.gameType,
@@ -71,65 +75,82 @@ const joinRoom = async (data: JoinRoomArgs) => {
   }
 };
 
+const getCurrentPlayer = (game: IGame | null): IPlayer | undefined => {
+  const currentTurn = game?.turn;
+
+  if (currentTurn === Cell.BLACK) {
+    return game?.blackPlayer;
+  }
+
+  if (currentTurn === Cell.WHITE) {
+    return game?.whitePlayer;
+  }
+};
+
+const getNextTurn = (turn: PlayerColor): PlayerColor =>
+  turn === Cell.WHITE ? Cell.BLACK : Cell.WHITE;
+
 const playerMove = async ({
   roomId,
   move: {row, column},
   user,
 }: PlayerMoveArgs) => {
   const game = await GameModel.findById(roomId);
-  const whitePlayerId = game?.whitePlayer?.userId?.toString();
-  const blackPlayerId = game?.blackPlayer?.userId?.toString();
+
+  if (!game) {
+    throw new Error(`Player Move Error: Room with id: ${roomId} not found...`);
+  }
+
   const index = Number(`${row}${column}`);
-  const currentTurn = game?.turn as Cell;
-  const board = game?.board as Board;
+  const currentTurn = game.turn as PlayerColor;
+  const board = game.board;
+  const currentPlayer = getCurrentPlayer(game);
 
-  if (isValid(index) && isLegal(index, currentTurn, board)) {
+  if (
+    !currentPlayer?.isCPU &&
+    isValid(index) &&
+    isLegal(index, currentTurn, board)
+  ) {
     if (
-      !game?.whitePlayer?.isCPU &&
-      (user?.id === whitePlayerId || user?._id === whitePlayerId) &&
-      game &&
-      game.turn === Cell.WHITE
+      game.type === 'LOCAL' ||
+      currentPlayer?.userId?.toString() === user?.id
     ) {
-      game.board = makeMove(index, Cell.WHITE, game.board);
-      game.turn = Cell.BLACK;
-    } else if (
-      (user?.id === blackPlayerId || user?._id === blackPlayerId) &&
-      game &&
-      game.turn === Cell.BLACK
-    ) {
-      game.board = makeMove(index, Cell.BLACK, game.board);
-      game.turn = Cell.WHITE;
-    }
+      const newBoard = makeMove(index, currentTurn, board);
 
-    if (game?.turn && game?.board) {
+      // Update game after turn
+      game.board = newBoard;
+      game.turn = getNextTurn(currentTurn);
       game.validMoves = getLegalMoves(game.turn, game.board);
     }
 
-    await game?.save();
+    // Save game after player turn
+    await game.save();
 
-    if (game?.type.includes('AI')) {
+    if (cpuGameTypes.includes(game.type)) {
+      const currentTurn = game.turn as PlayerColor;
+      const board = game.board;
+
       const strategy = gameTypesToStrategy.get(game.type);
 
-      await aiMove(game, {
-        board: game.board,
-        color: game.turn as Cell,
+      const newBoard = await aiMove(game, {
+        board,
+        color: currentTurn as PlayerColor,
         strategy,
       });
 
-      if (game?.turn && game?.board) {
-        game.validMoves = getLegalMoves(game.turn, game.board);
-      }
+      // Update game after ai move
+      game.board = newBoard;
+      game.turn = getNextTurn(game.turn as PlayerColor);
+      game.validMoves = getLegalMoves(game.turn, game.board);
 
-      await setTimeout(() => game.save(), 1000);
+      await setTimeout(() => game.save(), AI_TIMEOUT);
     }
   }
 };
 
-const aiMove = async (game: IGame, data: AiBody) => {
+const aiMove = async (game: IGame, data: AiBody): Promise<Board> => {
   const aiMoveIndex = await ai_play(data);
-
-  game.board = makeMove(aiMoveIndex, data.color, game.board);
-  game.turn = data.color === Cell.WHITE ? Cell.BLACK : Cell.WHITE;
+  return makeMove(aiMoveIndex, data.color, game.board);
 };
 
 const disconnectFromGame = async (id: string) => {

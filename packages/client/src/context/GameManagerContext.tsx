@@ -26,6 +26,7 @@ interface GameManagerContextData {
   turn: PlayerColor | undefined;
   board: IBoard;
   validMoves: Move[];
+  isLocal: () => boolean;
   startGame: (gameType: GameType) => void;
   leaveGame: () => void;
   getScore: (playerColor: PlayerColor) => number;
@@ -39,6 +40,7 @@ const GameManagerContext = React.createContext<GameManagerContextData>({
   turn: undefined,
   board: getInitialBoard(),
   validMoves: [],
+  isLocal: () => false,
   startGame: () => {},
   leaveGame: () => {},
   getScore: () => 0,
@@ -118,6 +120,7 @@ const GameManagerProvider: React.FC = ({children}) => {
               break;
           }
         },
+        isLocal: () => game?.type === 'LOCAL',
         getScore: (color) =>
           game?.board ? game.board.filter((c) => c === color).length : 0,
         getName: (color) => {

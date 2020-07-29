@@ -12,7 +12,7 @@ import {useGameManager} from './context/GameManagerContext';
 import {Cell} from 'reversi-types';
 
 function App() {
-  const {inGame, board, playerMove, validMoves, turn} = useGameManager();
+  const {inGame, board, playerMove, validMoves, turn, isLocal} = useGameManager();
   const {controls} = useCamera();
   const {topDown, showValidMoves} = useOptions();
 
@@ -35,7 +35,7 @@ function App() {
         <CellLayer
           disabled={!inGame && turn === Cell.WHITE}
           cells={board}
-          showValidMoves={showValidMoves && turn === Cell.WHITE}
+          showValidMoves={showValidMoves && (turn === Cell.WHITE || isLocal())}
           validMoves={validMoves}
           onCellClick={(r, c) => playerMove(r, c)}
         />
