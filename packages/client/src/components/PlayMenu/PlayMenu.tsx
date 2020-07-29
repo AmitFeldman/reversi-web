@@ -5,9 +5,13 @@ import LabeledInput from '../LabeledInput/LabeledInput';
 import {BsChevronDown} from 'react-icons/bs';
 import {GameType} from 'reversi-types';
 
-interface PlayMenuProps {
-  beginGame: (gameType: GameType) => void;
-}
+const GameDescription: React.FC<{description: string}> = ({description}) => {
+  return (
+    <div className="flex border-b mb-2">
+      <p className="font-semibold mb-2 break-words">{description}</p>
+    </div>
+  );
+};
 
 interface DifficultyOption {
   value: GameType;
@@ -20,11 +24,13 @@ const difficultyOptions: DifficultyOption[] = [
   {value: 'AI_HARD', label: 'Hard'},
 ];
 
+interface PlayMenuProps {
+  beginGame: (gameType: GameType) => void;
+}
+
 const PlayMenu: React.FC<PlayMenuProps> = ({beginGame}) => {
   const [difficulty, setDifficulty] = React.useState<GameType>('AI_EASY');
   const [roomId, setRoomId] = React.useState<string>('');
-  const [player1, setPlayer1] = React.useState<string>('');
-  const [player2, setPlayer2] = React.useState<string>('');
 
   return (
     <Tabs
@@ -33,21 +39,7 @@ const PlayMenu: React.FC<PlayMenuProps> = ({beginGame}) => {
           title: 'Local',
           content: (
             <>
-              <LabeledInput
-                label="Player 1"
-                value={player1}
-                onValueChange={(e: React.FormEvent<HTMLInputElement>) => {
-                  setPlayer1(e.currentTarget.value);
-                }}
-              />
-
-              <LabeledInput
-                label="Player 2"
-                value={player2}
-                onValueChange={(e: React.FormEvent<HTMLInputElement>) => {
-                  setPlayer2(e.currentTarget.value);
-                }}
-              />
+              <GameDescription description="Play against a friend on the same computer!" />
 
               <Button onClick={() => beginGame('LOCAL')}>Start Game</Button>
             </>
@@ -57,6 +49,8 @@ const PlayMenu: React.FC<PlayMenuProps> = ({beginGame}) => {
           title: 'Online',
           content: (
             <>
+              <GameDescription description="Play a competitive game using online matchmaking!" />
+
               <LabeledInput
                 label="Room id"
                 value={roomId}
@@ -81,6 +75,11 @@ const PlayMenu: React.FC<PlayMenuProps> = ({beginGame}) => {
           title: 'Bot',
           content: (
             <>
+              <GameDescription
+                description="Play a challenging game against an AI controlled bot and
+                  select your preferred difficulty!"
+              />
+
               <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 Difficulty
               </label>

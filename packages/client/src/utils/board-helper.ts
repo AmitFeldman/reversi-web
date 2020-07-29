@@ -2,10 +2,10 @@ import {Board, Cell} from 'reversi-types';
 
 const BOARD_LENGTH = 100;
 
-const getInitialBoard = (): Board => {
-  const board = new Array<Cell>(BOARD_LENGTH).fill(Cell.OUTER);
+const buildInitialBoard = (): Board => {
+  const emptyBoard = new Array<Cell>(BOARD_LENGTH).fill(Cell.OUTER);
 
-  return board.map((value, index) => {
+  return emptyBoard.map((value, index) => {
     if (index === 45 || index === 54) {
       return Cell.BLACK;
     }
@@ -20,6 +20,12 @@ const getInitialBoard = (): Board => {
 
     return value;
   });
+};
+
+const INITIAL_BOARD = buildInitialBoard();
+
+const getInitialBoard = (): Board => {
+  return [...INITIAL_BOARD];
 };
 
 const getBoardCell = (board: Board, row: number, column: number): Cell => {

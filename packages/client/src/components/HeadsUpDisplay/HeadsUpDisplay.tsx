@@ -47,7 +47,7 @@ const HeadsUpDisplay: React.FC = () => {
       )}
 
       <Modal
-        className="absolute top-0 bg-white shadow-md rounded px-8 pb-8 pt-3 float-left m-5 outline-none"
+        className="absolute top-0 bg-white shadow-md rounded px-8 pb-8 pt-3 float-left m-5 outline-none max-w-sm"
         overlayClassName=""
         isOpen={showModal}
         onRequestClose={() => setShowModal(false)}>

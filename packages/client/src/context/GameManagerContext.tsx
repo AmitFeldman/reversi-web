@@ -11,11 +11,14 @@ import {
   Board as IBoard,
   Cell,
   GameType,
-  IPlayer,
+  IGame,
   Move,
   PlayerColor,
 } from 'reversi-types';
 import {getInitialBoard} from '../utils/board-helper';
+import Modal from 'react-modal';
+import {GrClose} from 'react-icons/gr';
+import Button from '../components/Button/Button';
 
 interface GameManagerContextData {
   inGame: boolean;
@@ -49,12 +52,19 @@ const GameManagerProvider: React.FC = ({children}) => {
   // Game State
   const [inGame, setInGame] = React.useState<boolean>(false);
   const [gameId, setGameId] = React.useState<string | undefined>();
+  const [game, setGame] = React.useState<IGame | undefined>();
 
-  const [turn, setTurn] = React.useState<PlayerColor | undefined>();
-  const [board, setBoard] = React.useState<IBoard>(getInitialBoard());
-  const [validMoves, setValidMoves] = React.useState<Move[]>([]);
-  const [blackPlayer, setBlackPlayer] = React.useState<IPlayer | undefined>();
-  const [whitePlayer, setWhitePlayer] = React.useState<IPlayer | undefined>();
+  const [modalOpen, setModalOpen] = React.useState<boolean>(false);
+
+  const getLocalUserColor = (): PlayerColor | null => {
+    if (inGame && game) {
+      const isWhite = game.whitePlayer?.id === user?.id;
+
+      return isWhite ? Cell.WHITE : Cell.BLACK;
+    }
+
+    return null;
+  };
 
   React.useEffect(() => {
     const cancelOnRoomCreated = onRoomCreated((newRoomId) => {
@@ -71,26 +81,16 @@ const GameManagerProvider: React.FC = ({children}) => {
 
   React.useEffect(() => {
     if (inGame) {
-      const cancelOnGameUpdated = onGameUpdated(
-        ({_id, board, turn, validMoves, blackPlayer, whitePlayer}) => {
-          setBoard(board);
-          setTurn(turn);
-          setValidMoves(validMoves);
-          setBlackPlayer(blackPlayer);
-          setWhitePlayer(whitePlayer);
-        }
-      );
+      const cancelOnGameUpdated = onGameUpdated((game) => {
+        setGame(game);
+      });
 
       return () => {
         cancelOnGameUpdated();
       };
     } else {
       setGameId(undefined);
-      setTurn(undefined);
-      setBoard(getInitialBoard());
-      setValidMoves([]);
-      setBlackPlayer(undefined);
-      setWhitePlayer(undefined);
+      setGame(undefined);
     }
   }, [inGame]);
 
@@ -99,9 +99,9 @@ const GameManagerProvider: React.FC = ({children}) => {
       value={{
         inGame,
         gameId,
-        board,
-        validMoves,
-        turn,
+        board: game?.board ? game.board : getInitialBoard(),
+        validMoves: game?.validMoves ? game.validMoves : [],
+        turn: game?.turn,
         startGame: (gameType) => {
           switch (gameType) {
             case 'PRIVATE_ROOM':
@@ -110,36 +110,60 @@ const GameManagerProvider: React.FC = ({children}) => {
             case 'AI_EASY':
             case 'AI_MEDIUM':
             case 'AI_HARD':
+            case 'LOCAL':
               createRoom({
                 token: user?._id,
                 gameType,
               });
               break;
-
-            case 'LOCAL':
-              break;
           }
         },
-        leaveGame: () => setInGame(false),
-        getScore: (color) => board.filter((c) => c === color).length,
+        getScore: (color) =>
+          game?.board ? game.board.filter((c) => c === color).length : 0,
         getName: (color) => {
-          const player = color === Cell.WHITE ? whitePlayer : blackPlayer;
+          const player =
+            color === Cell.WHITE ? game?.whitePlayer : game?.blackPlayer;
           const name = player?.displayName;
 
           return name ? name : 'Guest';
         },
         playerMove: (row, column) => {
-          gameId &&
-            playerMove({
-              token: user?._id,
-              roomId: gameId,
-              move: {
-                row,
-                column,
-              },
-            });
+          if (game?.type === 'LOCAL' || game?.turn === getLocalUserColor()) {
+            gameId &&
+              playerMove({
+                token: user?._id,
+                roomId: gameId,
+                move: {
+                  row,
+                  column,
+                },
+              });
+          }
+        },
+        leaveGame: () => {
+          if (inGame) {
+            setModalOpen(true);
+          }
         },
       }}>
+      <Modal
+        className="absolute bg-white shadow-md rounded px-8 pb-8 pt-3 m-5 outline-none"
+        isOpen={modalOpen}
+        onRequestClose={() => setModalOpen(false)}>
+        <GrClose
+          className="float-right -mr-5 cursor-pointer"
+          onClick={() => setModalOpen(false)}
+        />
+        <p className="text-lg text-black mb-4">Are you sure?</p>
+        <Button
+          className="m-2"
+          onClick={() => {
+            setInGame(false);
+            setModalOpen(false);
+          }}>
+          Leave Game
+        </Button>
+      </Modal>
       {children}
     </GameManagerContext.Provider>
   );
