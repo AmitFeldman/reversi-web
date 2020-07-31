@@ -127,16 +127,7 @@ const playerMove = async ({
     await game.save();
 
     if (cpuGameTypes.includes(game.type)) {
-      const currentTurn = game.turn as PlayerColor;
-      const board = game.board;
-
-      const strategy = gameTypesToStrategy.get(game.type);
-
-      const newBoard = await aiMove(game, {
-        board,
-        color: currentTurn as PlayerColor,
-        strategy,
-      });
+      const newBoard = await aiMove(game);
 
       // Update game after ai move
       game.board = newBoard;
@@ -148,9 +139,19 @@ const playerMove = async ({
   }
 };
 
-const aiMove = async (game: IGame, data: AiBody): Promise<Board> => {
-  const aiMoveIndex = await ai_play(data);
-  return makeMove(aiMoveIndex, data.color, game.board);
+const aiMove = async (game: IGame): Promise<Board> => {
+  const currentTurn = game.turn as PlayerColor;
+  const board = game.board;
+
+  const strategy = gameTypesToStrategy.get(game.type);
+
+  const aiMoveIndex = await ai_play({
+    board,
+    color: currentTurn as PlayerColor,
+    strategy,
+  });
+
+  return makeMove(aiMoveIndex, currentTurn, game.board);
 };
 
 const disconnectFromGame = async (id: string) => {
