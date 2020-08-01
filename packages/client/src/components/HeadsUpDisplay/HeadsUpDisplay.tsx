@@ -41,7 +41,7 @@ const HeadsUpDisplay: React.FC = () => {
               }}
             />
             <MenuButton text="Custom Game" onClick={() => setShowModal(true)} />
-            <MenuButton text="Leaderboard" onClick={() => {}} />
+            <MenuButton text="Leaderboards" onClick={() => {}} />
           </div>
         </>
       )}
