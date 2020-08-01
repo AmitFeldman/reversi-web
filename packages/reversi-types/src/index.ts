@@ -24,11 +24,10 @@ export enum ClientEvents {
   AUTH_DISCONNECT = 'AUTH_DISCONNECT',
 }
 
-// ToDo: change to player status
 export enum GameStatus {
   NOT_READY = 'NOT_READY',
 
-  WAITING = 'WAITING_FOR_OPPONENT',
+  WAITING = 'WAITING_FOR_PLAYERS',
   PLAYING = 'PLAYING',
 
   WIN = 'WIN',

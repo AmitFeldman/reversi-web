@@ -3,6 +3,7 @@ import {
   Board,
   Cell,
   CreateRoomArgs,
+  GameStatus,
   GameType,
   IGame,
   IPlayer,
@@ -11,6 +12,7 @@ import {
   PlayerMoveArgs,
   PlayerStatus,
   ServerEvents,
+  User,
 } from 'reversi-types';
 import mongoose from 'mongoose';
 import {emitEventToSocket} from './socket-service';
@@ -29,35 +31,68 @@ const cpuDisplayNames: Map<GameType, string> = new Map([
 
 const cpuGameTypes = Array.from(cpuDisplayNames.keys());
 
+const createGame = async ({id, username}: User, gameType: GameType) => {
+  const isCPU = cpuGameTypes.includes(gameType);
+  const isLocal = gameType === 'LOCAL';
+  const isOffline = isCPU || isLocal;
+
+  const newGame = new GameModel({
+    createdBy: id,
+    whitePlayer: {
+      userId: id,
+      isCPU: false,
+      displayName: username,
+    },
+    blackPlayer: {
+      displayName: isCPU ? cpuDisplayNames.get(gameType) : undefined,
+      connectionStatus: isOffline
+        ? PlayerStatus.CONNECTED
+        : PlayerStatus.DISCONNECTED,
+      isCPU,
+    },
+    type: gameType,
+  });
+
+  try {
+    await newGame.save();
+    console.log(`Game Room of type ${gameType} created...`);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const createRoom = async ({user, gameType}: CreateRoomArgs) => {
   if (!user) {
     throw new Error(`Game ERROR: User not found...`);
   }
 
-  const isCPU = cpuGameTypes.includes(gameType);
-  const isLocal = gameType === 'LOCAL';
+  switch (gameType) {
+    case 'AI_EASY':
+    case 'AI_MEDIUM':
+    case 'AI_HARD':
+    case 'LOCAL':
+      await createGame(user, gameType);
+      break;
+    case 'PUBLIC_ROOM':
+      const [game] = await GameModel.find({
+        type: gameType,
+        status: GameStatus.WAITING,
+      });
 
-  try {
-    const newGame = new GameModel({
-      createdBy: user.id,
-      whitePlayer: {
-        userId: user.id,
-        isCPU: false,
-        displayName: user.username,
-      },
-      blackPlayer: {
-        displayName: isCPU ? cpuDisplayNames.get(gameType) : undefined,
-        connectionStatus:
-          isCPU || isLocal ? PlayerStatus.CONNECTED : PlayerStatus.DISCONNECTED,
-        isCPU,
-      },
-      type: gameType,
-    });
+      if (game) {
+        const socket = getSocketByUserId(user.id);
 
-    console.log(`Game Room of type ${gameType} created...`);
-    await newGame.save();
-  } catch (e) {
-    console.log(e);
+        if (socket) {
+          emitEventToSocket(
+            socket,
+            ServerEvents.CreatedRoom,
+            game.id.toString()
+          );
+        }
+      } else {
+        await createGame(user, gameType);
+      }
+      break;
   }
 };
 
@@ -70,34 +105,60 @@ const getPlayerFromGame = (
 ): IPlayer | undefined =>
   color === Cell.WHITE ? game.whitePlayer : game.blackPlayer;
 
-const connectPlayerToGame = async (
-  playerId: string,
+const updatePlayerConnectionInGame = (
+  {id, username}: User,
   game: IGame,
   color: PlayerColor
-) => {
+): IGame => {
   const player = getPlayerFromGame(color, game);
 
   if (player) {
     player.connectionStatus = PlayerStatus.CONNECTED;
-    player.userId = playerId;
-    await game.save();
+    player.userId = id;
+    player.displayName = username;
+  }
+
+  return game;
+};
+
+const connectPlayerToGame = async (user: User, game: IGame) => {
+  const {whitePlayer, blackPlayer, status} = game;
+
+  if (status === GameStatus.WAITING) {
+    const isWhiteAvailable = whitePlayer && !isPlayerConnected(whitePlayer);
+    const isBlackAvailable = blackPlayer && !isPlayerConnected(blackPlayer);
+
+    if (isWhiteAvailable) {
+      const updatedGame = updatePlayerConnectionInGame(user, game, Cell.WHITE);
+
+      if (!isBlackAvailable) {
+        updatedGame.status = GameStatus.PLAYING;
+      }
+      await updatedGame.save();
+    } else if (isBlackAvailable) {
+      const updatedGame = updatePlayerConnectionInGame(user, game, Cell.BLACK);
+
+      if (!isWhiteAvailable) {
+        updatedGame.status = GameStatus.PLAYING;
+      }
+
+      await updatedGame.save();
+    }
   }
 };
 
 const joinRoom = async ({roomId, user}: JoinRoomArgs) => {
+  if (!user) {
+    throw new Error(`Game ERROR: Join room reached without valid user...`);
+  }
+
   const game = await GameModel.findById(roomId);
 
   if (!game) {
     throw new Error(`Game ERROR: Room with id: ${roomId} not found...`);
   }
 
-  const {whitePlayer, blackPlayer} = game;
-
-  if (whitePlayer && !isPlayerConnected(whitePlayer)) {
-    await connectPlayerToGame(user?.id, game, Cell.WHITE);
-  } else if (blackPlayer && !isPlayerConnected(blackPlayer)) {
-    await connectPlayerToGame(user?.id, game, Cell.BLACK);
-  }
+  await connectPlayerToGame(user, game);
 };
 
 const getCurrentTurnPlayer = (game: IGame | null): IPlayer | undefined => {

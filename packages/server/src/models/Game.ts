@@ -49,7 +49,7 @@ export const GameSchema = new Schema({
   blackPlayer: PlayerSchema,
   status: {
     type: String,
-    default: GameStatus.NOT_READY,
+    default: GameStatus.WAITING,
   },
   turn: {
     type: String,

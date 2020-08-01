@@ -49,7 +49,7 @@ const PlayMenu: React.FC<PlayMenuProps> = ({beginGame}) => {
           title: 'Online',
           content: (
             <>
-              <GameDescription description="Play a competitive game using online matchmaking!" />
+              <GameDescription description="Play a competitive game online!" />
 
               <LabeledInput
                 label="Room id"

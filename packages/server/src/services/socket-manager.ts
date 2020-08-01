@@ -53,6 +53,7 @@ const initSocketManager = (
             console.log(`Socket Manager - Socket ${socket.id} Unauthenticated`);
 
             cleanupListeners();
+            usersToSockets.delete(data.user?.id);
             onUserDisconnect(data.user?.id);
           }
         );

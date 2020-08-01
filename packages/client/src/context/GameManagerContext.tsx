@@ -31,6 +31,7 @@ interface GameManagerContextData {
   leaveGame: () => void;
   getScore: (playerColor: PlayerColor) => number;
   getName: (playerColor: PlayerColor) => string;
+  getPlayerColor: () => PlayerColor | null;
   playerMove: (row: number, column: number) => void;
 }
 
@@ -44,6 +45,7 @@ const GameManagerContext = React.createContext<GameManagerContextData>({
   startGame: () => {},
   leaveGame: () => {},
   getScore: () => 0,
+  getPlayerColor: () => null,
   getName: () => 'Guest',
   playerMove: () => {},
 });
@@ -60,7 +62,7 @@ const GameManagerProvider: React.FC = ({children}) => {
 
   const getLocalUserColor = (): PlayerColor | null => {
     if (inGame && game) {
-      const isWhite = game.whitePlayer?.id === user?.id;
+      const isWhite = game.whitePlayer?.userId === user?._id;
 
       return isWhite ? Cell.WHITE : Cell.BLACK;
     }
@@ -105,20 +107,10 @@ const GameManagerProvider: React.FC = ({children}) => {
         validMoves: game?.validMoves ? game.validMoves : [],
         turn: game?.turn,
         startGame: (gameType) => {
-          switch (gameType) {
-            case 'PRIVATE_ROOM':
-              break;
-
-            case 'AI_EASY':
-            case 'AI_MEDIUM':
-            case 'AI_HARD':
-            case 'LOCAL':
-              createRoom({
-                token: user?._id,
-                gameType,
-              });
-              break;
-          }
+          createRoom({
+            token: user?._id,
+            gameType,
+          });
         },
         isLocal: () => game?.type === 'LOCAL',
         getScore: (color) =>
@@ -130,6 +122,7 @@ const GameManagerProvider: React.FC = ({children}) => {
 
           return name ? name : 'Guest';
         },
+        getPlayerColor: getLocalUserColor,
         playerMove: (row, column) => {
           if (game?.type === 'LOCAL' || game?.turn === getLocalUserColor()) {
             gameId &&
