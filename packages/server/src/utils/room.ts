@@ -29,28 +29,32 @@ const cpuDisplayNames: Map<GameType, string> = new Map([
 
 const cpuGameTypes = Array.from(cpuDisplayNames.keys());
 
-const createRoom = async (data: CreateRoomArgs) => {
-  const isCPU = cpuGameTypes.includes(data.gameType);
-  const isLocal = data.gameType === 'LOCAL';
+const createRoom = async ({user, gameType}: CreateRoomArgs) => {
+  if (!user) {
+    throw new Error(`Game ERROR: User not found...`);
+  }
+
+  const isCPU = cpuGameTypes.includes(gameType);
+  const isLocal = gameType === 'LOCAL';
 
   try {
     const newGame = new GameModel({
-      createdBy: data?.user?.id,
+      createdBy: user.id,
       whitePlayer: {
-        userId: data?.user?.id,
+        userId: user.id,
         isCPU: false,
-        displayName: data.user?.username,
+        displayName: user.username,
       },
       blackPlayer: {
-        displayName: isCPU ? cpuDisplayNames.get(data.gameType) : undefined,
+        displayName: isCPU ? cpuDisplayNames.get(gameType) : undefined,
         connectionStatus:
           isCPU || isLocal ? PlayerStatus.CONNECTED : PlayerStatus.DISCONNECTED,
         isCPU,
       },
-      type: data.gameType,
+      type: gameType,
     });
 
-    console.log(`Game Room of type ${data.gameType} created...`);
+    console.log(`Game Room of type ${gameType} created...`);
     await newGame.save();
   } catch (e) {
     console.log(e);
@@ -175,36 +179,36 @@ const getBoardAfterAIMove = async (game: IGame): Promise<Board> => {
   return getBoardAfterMove(aiMoveIndex, currentTurn, game.board);
 };
 
-const disconnectFromGame = async (id: string) => {
+const disconnectPlayerFromGames = async (
+  id: mongoose.Types.ObjectId,
+  color: PlayerColor
+) => {
+  const playerPath = color === Cell.WHITE ? 'whitePlayer' : 'blackPlayer';
+
+  const games = await GameModel.find({
+    $and: [
+      {[`${playerPath}.userId`]: id},
+      {[`${playerPath}.connectionStatus`]: PlayerStatus.CONNECTED},
+    ],
+  });
+
+  games.forEach((game) => {
+    if (game) {
+      const player = getPlayerFromGame(color, game);
+
+      if (player) {
+        player.connectionStatus = PlayerStatus.DISCONNECTED;
+        game.save();
+      }
+    }
+  });
+};
+
+const disconnectUserFromGames = async (id: string) => {
   const userId = mongoose.Types.ObjectId(id);
-  const whitePlayerGames = await GameModel.find({
-    $and: [
-      {'whitePlayer.userId': userId},
-      {'whitePlayer.connectionStatus': PlayerStatus.CONNECTED},
-    ],
-  });
-  const blackPlayerGames = await GameModel.find({
-    $and: [
-      {'blackPlayer.userId': userId},
-      {'blackPlayer.connectionStatus': PlayerStatus.CONNECTED},
-    ],
-  });
 
-  whitePlayerGames.forEach((game) => {
-    if (game?.whitePlayer?.connectionStatus === PlayerStatus.CONNECTED) {
-      game.whitePlayer.connectionStatus = PlayerStatus.DISCONNECTED;
-
-      game.save();
-    }
-  });
-
-  blackPlayerGames.forEach((game) => {
-    if (game?.blackPlayer?.connectionStatus === PlayerStatus.CONNECTED) {
-      game.blackPlayer.connectionStatus = PlayerStatus.DISCONNECTED;
-
-      game.save();
-    }
-  });
+  disconnectPlayerFromGames(userId, Cell.WHITE);
+  disconnectPlayerFromGames(userId, Cell.BLACK);
 };
 
 const onNewGame = (change: ChangeEventCR<IGame>) => {
@@ -222,19 +226,17 @@ const onNewGame = (change: ChangeEventCR<IGame>) => {
   }
 };
 
-const emitEventToPlayerInGame = (
-  game: IGame,
-  color: PlayerColor,
-  event: ServerEvents,
-  ...args: any[]
-) => {
+const emitUpdateToPlayerInGame = (game: IGame, color: PlayerColor) => {
   const player = getPlayerFromGame(color, game);
 
   if (player && isPlayerConnected(player) && player.userId) {
     const playerSocket = getSocketByUserId(player.userId.toString());
 
     if (playerSocket) {
-      emitEventToSocket(playerSocket, event, ...args);
+      console.log(
+        `Game Update emitted to socket: ${playerSocket.id} in game id: ${game._id}...`
+      );
+      emitEventToSocket(playerSocket, ServerEvents.GameUpdated, game);
     }
   }
 };
@@ -246,15 +248,15 @@ const onGameUpdate = (change: ChangeEventUpdate<IGame>) => {
     throw new Error(`Game ERROR: Update Event document not valid...`);
   }
 
-  emitEventToPlayerInGame(game, Cell.WHITE, ServerEvents.GameUpdated, game);
-  emitEventToPlayerInGame(game, Cell.BLACK, ServerEvents.GameUpdated, game);
+  emitUpdateToPlayerInGame(game, Cell.WHITE);
+  emitUpdateToPlayerInGame(game, Cell.BLACK);
 };
 
 export {
   createRoom,
   joinRoom,
   playerMove,
-  disconnectFromGame,
+  disconnectUserFromGames,
   onNewGame,
   onGameUpdate,
 };
