@@ -25,8 +25,6 @@ export enum ClientEvents {
 }
 
 export enum GameStatus {
-  NOT_READY = 'NOT_READY',
-
   WAITING = 'WAITING_FOR_PLAYERS',
   PLAYING = 'PLAYING',
 

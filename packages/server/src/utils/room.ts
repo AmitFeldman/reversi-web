@@ -259,6 +259,11 @@ const disconnectPlayerFromGames = async (
 
       if (player) {
         player.connectionStatus = PlayerStatus.DISCONNECTED;
+
+        if (game.status === GameStatus.PLAYING) {
+          game.status = GameStatus.WAITING;
+        }
+
         game.save();
       }
     }
