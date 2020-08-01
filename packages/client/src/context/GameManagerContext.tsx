@@ -5,6 +5,7 @@ import {
   onGameUpdated,
   onRoomCreated,
   playerMove,
+  leaveRoom,
 } from '../utils/socket/game-api';
 import {useAuth} from './AuthContext';
 import {
@@ -154,6 +155,7 @@ const GameManagerProvider: React.FC = ({children}) => {
         <Button
           className="m-2"
           onClick={() => {
+            gameId && leaveRoom({token: user?._id, roomId: gameId});
             setInGame(false);
             setModalOpen(false);
           }}>

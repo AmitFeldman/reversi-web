@@ -1,8 +1,11 @@
 import {
   ClientEvents,
-  CreateRoomArgs, IGame,
+  CreateRoomArgs,
+  IGame,
   JoinRoomArgs,
-  PlayerMoveArgs, ServerEvents,
+  LeaveRoomArgs,
+  PlayerMoveArgs,
+  ServerEvents,
 } from 'reversi-types';
 import {emitEvent, EventCallback, onEvent} from './socket-client';
 
@@ -11,6 +14,9 @@ const createRoom = (args: CreateRoomArgs) =>
 
 const joinedRoom = (args: JoinRoomArgs) =>
   emitEvent<JoinRoomArgs>(ClientEvents.JOINED, args);
+
+const leaveRoom = (args: LeaveRoomArgs) =>
+  emitEvent<LeaveRoomArgs>(ClientEvents.LEAVE_ROOM, args);
 
 const playerMove = (args: PlayerMoveArgs) =>
   emitEvent<PlayerMoveArgs>(ClientEvents.PLAYER_MOVE, args);
@@ -21,4 +27,4 @@ const onRoomCreated = (callback: EventCallback<string>) =>
 const onGameUpdated = (callback: EventCallback<IGame>) =>
   onEvent<IGame>(ServerEvents.GameUpdated, callback);
 
-export {createRoom, joinedRoom, playerMove, onRoomCreated, onGameUpdated};
+export {createRoom, joinedRoom, playerMove, onRoomCreated, onGameUpdated, leaveRoom};

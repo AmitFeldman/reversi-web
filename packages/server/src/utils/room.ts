@@ -8,6 +8,7 @@ import {
   IGame,
   IPlayer,
   JoinRoomArgs,
+  LeaveRoomArgs,
   PlayerColor,
   PlayerMoveArgs,
   PlayerStatus,
@@ -99,18 +100,30 @@ const createRoom = async ({user, gameType}: CreateRoomArgs) => {
 const isPlayerConnected = ({isCPU, connectionStatus}: IPlayer): boolean =>
   !isCPU && connectionStatus === PlayerStatus.CONNECTED;
 
-const getPlayerFromGame = (
+const getPlayerFromGameByColor = (
   color: PlayerColor,
-  game: IGame
-): IPlayer | undefined =>
-  color === Cell.WHITE ? game.whitePlayer : game.blackPlayer;
+  {whitePlayer, blackPlayer}: IGame
+): IPlayer | undefined => (color === Cell.WHITE ? whitePlayer : blackPlayer);
+
+const getPlayerFromGameById = (
+  id: string,
+  {whitePlayer, blackPlayer}: IGame
+): IPlayer | undefined => {
+  if (whitePlayer?.userId?.toString() === id.toString()) {
+    return whitePlayer;
+  }
+
+  if (blackPlayer?.userId?.toString() === id.toString()) {
+    return blackPlayer;
+  }
+};
 
 const updatePlayerConnectionInGame = (
   {id, username}: User,
   game: IGame,
   color: PlayerColor
 ): IGame => {
-  const player = getPlayerFromGame(color, game);
+  const player = getPlayerFromGameByColor(color, game);
 
   if (player) {
     player.connectionStatus = PlayerStatus.CONNECTED;
@@ -187,6 +200,10 @@ const playerMove = async ({
     throw new Error(`Game ERROR: Room with id: ${roomId} not found...`);
   }
 
+  if (game.status !== GameStatus.PLAYING) {
+    return;
+  }
+
   const index = Number(`${row}${column}`);
   const currentTurn = game.turn as PlayerColor;
   const board = game.board;
@@ -255,7 +272,7 @@ const disconnectPlayerFromGames = async (
 
   games.forEach((game) => {
     if (game) {
-      const player = getPlayerFromGame(color, game);
+      const player = getPlayerFromGameByColor(color, game);
 
       if (player) {
         player.connectionStatus = PlayerStatus.DISCONNECTED;
@@ -277,6 +294,30 @@ const disconnectUserFromGames = async (id: string) => {
   disconnectPlayerFromGames(userId, Cell.BLACK);
 };
 
+const leaveRoom = async ({roomId, user}: LeaveRoomArgs) => {
+  if (!user) {
+    throw new Error(`Game ERROR: User not found...`);
+  }
+
+  const game = await GameModel.findById(roomId);
+
+  if (!game) {
+    throw new Error(`Game ERROR: Room with id: ${roomId} not found...`);
+  }
+
+  const player = getPlayerFromGameById(user._id, game);
+
+  if (player) {
+    player.connectionStatus = PlayerStatus.DISCONNECTED;
+
+    if (game.status === GameStatus.PLAYING) {
+      game.status = GameStatus.WAITING;
+    }
+
+    game.save();
+  }
+};
+
 const onNewGame = (change: ChangeEventCR<IGame>) => {
   const game = change?.fullDocument;
 
@@ -293,7 +334,7 @@ const onNewGame = (change: ChangeEventCR<IGame>) => {
 };
 
 const emitUpdateToPlayerInGame = (game: IGame, color: PlayerColor) => {
-  const player = getPlayerFromGame(color, game);
+  const player = getPlayerFromGameByColor(color, game);
 
   if (player && isPlayerConnected(player) && player.userId) {
     const playerSocket = getSocketByUserId(player.userId.toString());
@@ -325,4 +366,5 @@ export {
   disconnectUserFromGames,
   onNewGame,
   onGameUpdate,
+  leaveRoom,
 };

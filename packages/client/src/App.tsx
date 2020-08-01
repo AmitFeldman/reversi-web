@@ -9,7 +9,6 @@ import DiscLayer from './components/DiscsLayer/DiscLayer';
 import {useCamera} from './context/CameraContext';
 import {useOptions} from './context/OptionsContext';
 import {useGameManager} from './context/GameManagerContext';
-import {Cell} from 'reversi-types';
 
 function App() {
   const {inGame, board, playerMove, validMoves, turn, isLocal, getPlayerColor} = useGameManager();

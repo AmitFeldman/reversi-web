@@ -108,6 +108,10 @@ export interface PlayerMoveArgs extends BaseArgs {
   move: Move;
 }
 
+export interface LeaveRoomArgs extends BaseArgs {
+  roomId: string;
+}
+
 export enum ServerEvents {
   CreatedRoom = 'CREATED_ROOM',
   GameUpdated = 'GAME_UPDATE',
