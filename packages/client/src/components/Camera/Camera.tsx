@@ -17,7 +17,7 @@ interface CameraControlsProps {
 
 const MIN_DISTANCE = 10;
 const MAX_DISTANCE = 20;
-const AUTO_ROTATE_SPEED = 6;
+const AUTO_ROTATE_SPEED = 2;
 
 const CameraControls: React.FC<CameraControlsProps> = ({
   controls,
