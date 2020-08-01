@@ -62,7 +62,7 @@ const createGame = async ({id, username}: User, gameType: GameType) => {
   }
 };
 
-const createRoom = async ({user, gameType}: CreateRoomArgs) => {
+const createRoom = async ({user, gameType, joinRoomId}: CreateRoomArgs) => {
   if (!user) {
     throw new Error(`Game ERROR: User not found...`);
   }
@@ -73,6 +73,26 @@ const createRoom = async ({user, gameType}: CreateRoomArgs) => {
     case 'AI_HARD':
     case 'LOCAL':
       await createGame(user, gameType);
+      break;
+    case 'PRIVATE_ROOM':
+      if (joinRoomId) {
+        const game = await GameModel.findById(joinRoomId);
+
+        if (game) {
+          const socket = getSocketByUserId(user.id);
+
+          if (socket) {
+            emitEventToSocket(
+              socket,
+              ServerEvents.CreatedRoom,
+              game.id.toString()
+            );
+          }
+        }
+      } else {
+        await createGame(user, gameType);
+      }
+
       break;
     case 'PUBLIC_ROOM':
       const [game] = await GameModel.find({

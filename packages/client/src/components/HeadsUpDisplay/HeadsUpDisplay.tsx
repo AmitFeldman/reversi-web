@@ -6,7 +6,6 @@ import Modal from 'react-modal';
 import PlayMenu from '../PlayMenu/PlayMenu';
 import MenuButton from '../MenuButton/MenuButton';
 import {GrClose} from 'react-icons/gr';
-import {GameType} from 'reversi-types';
 import {useGameManager} from '../../context/GameManagerContext';
 
 const DEFAULT_USERNAME = 'Guest';
@@ -15,11 +14,6 @@ const HeadsUpDisplay: React.FC = () => {
   const {user, isUserLoggedIn} = useAuth();
   const {inGame, startGame} = useGameManager();
   const [showModal, setShowModal] = React.useState<boolean>(false);
-
-  const beginGame = (gameType: GameType) => {
-    startGame(gameType);
-    setShowModal(false);
-  };
 
   return (
     <>
@@ -62,7 +56,7 @@ const HeadsUpDisplay: React.FC = () => {
           onClick={() => setShowModal(false)}
         />
         <p className="text-6xl text-black mb-4">Reversi</p>
-        <PlayMenu beginGame={beginGame} />
+        <PlayMenu closeMenu={() => setShowModal(false)} />
       </Modal>
     </>
   );

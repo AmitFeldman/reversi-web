@@ -97,6 +97,7 @@ export interface BaseArgs {
 
 export interface CreateRoomArgs extends BaseArgs {
   gameType: GameType;
+  joinRoomId?: string;
 }
 
 export interface JoinRoomArgs extends BaseArgs {

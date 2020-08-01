@@ -29,6 +29,7 @@ interface GameManagerContextData {
   validMoves: Move[];
   isLocal: () => boolean;
   startGame: (gameType: GameType) => void;
+  joinGame: (roomId: string) => void;
   leaveGame: () => void;
   getScore: (playerColor: PlayerColor) => number;
   getName: (playerColor: PlayerColor) => string;
@@ -44,6 +45,7 @@ const GameManagerContext = React.createContext<GameManagerContextData>({
   validMoves: [],
   isLocal: () => false,
   startGame: () => {},
+  joinGame: () => {},
   leaveGame: () => {},
   getScore: () => 0,
   getPlayerColor: () => null,
@@ -113,6 +115,12 @@ const GameManagerProvider: React.FC = ({children}) => {
             gameType,
           });
         },
+        joinGame: (roomId) =>
+          createRoom({
+            token: user?._id,
+            gameType: 'PRIVATE_ROOM',
+            joinRoomId: roomId,
+          }),
         isLocal: () => game?.type === 'LOCAL',
         getScore: (color) =>
           game?.board ? game.board.filter((c) => c === color).length : 0,
