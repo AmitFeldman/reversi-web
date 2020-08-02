@@ -105,7 +105,7 @@ const getLegalMoves = (player: PlayerColor, board: Board): Move[] => {
 
 const getPlayerScore = (playerColor: Cell, board: Board): number => {
     return board.reduce((totalScore: number, currentValue: Cell): number => {
-      return totalScore + +(currentValue === Cell.WHITE);
+      return totalScore + +(currentValue === playerColor);
     }, 0);
 };
 
