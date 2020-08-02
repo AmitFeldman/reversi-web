@@ -25,6 +25,10 @@ const PlayerSchema = new Schema(
       type: Boolean,
       required: true,
     },
+    displayName: {
+      type: String,
+      default: 'Guest',
+    },
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'users',
@@ -45,7 +49,7 @@ export const GameSchema = new Schema({
   blackPlayer: PlayerSchema,
   status: {
     type: String,
-    default: GameStatus.NOT_READY,
+    default: GameStatus.WAITING,
   },
   turn: {
     type: String,

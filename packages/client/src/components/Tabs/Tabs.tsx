@@ -18,7 +18,7 @@ const Tabs: React.FC<TabsProps> = ({tabs}) => {
 
   return (
     <>
-      <ul className="flex border-b mb-4">
+      <ul className="flex border-b mb-2">
         {tabs.map(({title}, index) => (
           <li key={index} className="-mb-px mr-4 ml-4 cursor-pointer">
             <p

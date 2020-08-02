@@ -1,6 +1,6 @@
 import {onConnect, onDisconnect, on} from '../utils/socket-service';
 import {Socket} from 'socket.io';
-import {disconnectFromGame} from '../utils/room';
+import {disconnectUserFromGames} from '../utils/room';
 import {BaseArgs, ClientEvents} from 'reversi-types';
 import {isLoggedIn} from '../middlewares/socket-auth';
 
@@ -24,7 +24,7 @@ const removeBySocket = ({id: socketId}: Socket): string | undefined => {
 
 // When a player disconnects for any reason
 const onUserDisconnect = (userId: string) => {
-  disconnectFromGame(userId).catch((e) =>
+  disconnectUserFromGames(userId).catch((e) =>
     console.log(`Socket Manager - Error disconnecting user`, e)
   );
 };
@@ -53,6 +53,7 @@ const initSocketManager = (
             console.log(`Socket Manager - Socket ${socket.id} Unauthenticated`);
 
             cleanupListeners();
+            usersToSockets.delete(data.user?.id);
             onUserDisconnect(data.user?.id);
           }
         );

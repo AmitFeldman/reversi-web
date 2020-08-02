@@ -6,7 +6,6 @@ import Modal from 'react-modal';
 import PlayMenu from '../PlayMenu/PlayMenu';
 import MenuButton from '../MenuButton/MenuButton';
 import {GrClose} from 'react-icons/gr';
-import {GameType} from 'reversi-types';
 import {useGameManager} from '../../context/GameManagerContext';
 
 const DEFAULT_USERNAME = 'Guest';
@@ -15,11 +14,6 @@ const HeadsUpDisplay: React.FC = () => {
   const {user, isUserLoggedIn} = useAuth();
   const {inGame, startGame} = useGameManager();
   const [showModal, setShowModal] = React.useState<boolean>(false);
-
-  const beginGame = (gameType: GameType) => {
-    startGame(gameType);
-    setShowModal(false);
-  };
 
   return (
     <>
@@ -40,14 +34,20 @@ const HeadsUpDisplay: React.FC = () => {
 
           <div className="absolute top-0 left-0 text-white p-8 pl-12">
             <p className="text-6xl mb-2">Reversi</p>
-            <MenuButton text="Play" onClick={() => setShowModal(true)} />
-            <MenuButton text="Leaderboard" />
+            <MenuButton
+              text="Play"
+              onClick={() => {
+                startGame('PUBLIC_ROOM');
+              }}
+            />
+            <MenuButton text="Custom Game" onClick={() => setShowModal(true)} />
+            <MenuButton text="Leaderboards" onClick={() => {}} />
           </div>
         </>
       )}
 
       <Modal
-        className="absolute top-0 bg-white shadow-md rounded px-8 pb-8 pt-3 float-left m-5 outline-none"
+        className="absolute top-0 bg-white shadow-md rounded px-8 pb-8 pt-3 float-left m-5 outline-none max-w-sm"
         overlayClassName=""
         isOpen={showModal}
         onRequestClose={() => setShowModal(false)}>
@@ -56,7 +56,7 @@ const HeadsUpDisplay: React.FC = () => {
           onClick={() => setShowModal(false)}
         />
         <p className="text-6xl text-black mb-4">Reversi</p>
-        <PlayMenu beginGame={beginGame} />
+        <PlayMenu closeMenu={() => setShowModal(false)} />
       </Modal>
     </>
   );

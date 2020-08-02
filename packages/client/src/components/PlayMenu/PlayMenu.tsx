@@ -4,10 +4,15 @@ import Tabs from '../Tabs/Tabs';
 import LabeledInput from '../LabeledInput/LabeledInput';
 import {BsChevronDown} from 'react-icons/bs';
 import {GameType} from 'reversi-types';
+import {useGameManager} from '../../context/GameManagerContext';
 
-interface PlayMenuProps {
-  beginGame: (gameType: GameType) => void;
-}
+const GameDescription: React.FC<{description: string}> = ({description}) => {
+  return (
+    <div className="flex border-b mb-2">
+      <p className="font-semibold mb-2 break-words">{description}</p>
+    </div>
+  );
+};
 
 interface DifficultyOption {
   value: GameType;
@@ -20,11 +25,14 @@ const difficultyOptions: DifficultyOption[] = [
   {value: 'AI_HARD', label: 'Hard'},
 ];
 
-const PlayMenu: React.FC<PlayMenuProps> = ({beginGame}) => {
+interface PlayMenuProps {
+  closeMenu: () => void;
+}
+
+const PlayMenu: React.FC<PlayMenuProps> = ({closeMenu}) => {
   const [difficulty, setDifficulty] = React.useState<GameType>('AI_EASY');
   const [roomId, setRoomId] = React.useState<string>('');
-  const [player1, setPlayer1] = React.useState<string>('');
-  const [player2, setPlayer2] = React.useState<string>('');
+  const {startGame, joinGame} = useGameManager();
 
   return (
     <Tabs
@@ -33,30 +41,24 @@ const PlayMenu: React.FC<PlayMenuProps> = ({beginGame}) => {
           title: 'Local',
           content: (
             <>
-              <LabeledInput
-                label="Player 1"
-                value={player1}
-                onValueChange={(e: React.FormEvent<HTMLInputElement>) => {
-                  setPlayer1(e.currentTarget.value);
-                }}
-              />
+              <GameDescription description="Play against a friend on the same computer!" />
 
-              <LabeledInput
-                label="Player 2"
-                value={player2}
-                onValueChange={(e: React.FormEvent<HTMLInputElement>) => {
-                  setPlayer2(e.currentTarget.value);
-                }}
-              />
-
-              <Button onClick={() => beginGame('LOCAL')}>Start Game</Button>
+              <Button
+                onClick={() => {
+                  startGame('LOCAL');
+                  closeMenu();
+                }}>
+                Start Game
+              </Button>
             </>
           ),
         },
         {
-          title: 'Online',
+          title: 'Private',
           content: (
             <>
+              <GameDescription description="Create or join a private game between you and a friend!" />
+
               <LabeledInput
                 label="Room id"
                 value={roomId}
@@ -67,10 +69,17 @@ const PlayMenu: React.FC<PlayMenuProps> = ({beginGame}) => {
               <div className="flex justify-center">
                 <Button
                   className="mr-6"
-                  onClick={() => beginGame('PRIVATE_ROOM')}>
+                  onClick={() => {
+                    startGame('PRIVATE_ROOM');
+                    closeMenu();
+                  }}>
                   Create Room
                 </Button>
-                <Button onClick={() => beginGame('PRIVATE_ROOM')}>
+                <Button
+                  onClick={() => {
+                    joinGame(roomId);
+                    closeMenu();
+                  }}>
                   Join Room
                 </Button>
               </div>
@@ -81,6 +90,8 @@ const PlayMenu: React.FC<PlayMenuProps> = ({beginGame}) => {
           title: 'Bot',
           content: (
             <>
+              <GameDescription description="Play a challenging game against an AI controlled bot on your preferred difficulty!" />
+
               <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 Difficulty
               </label>
@@ -103,7 +114,13 @@ const PlayMenu: React.FC<PlayMenuProps> = ({beginGame}) => {
                 </div>
               </div>
 
-              <Button onClick={() => beginGame(difficulty)}>Start Game</Button>
+              <Button
+                onClick={() => {
+                  startGame(difficulty);
+                  closeMenu();
+                }}>
+                Start Game
+              </Button>
             </>
           ),
         },

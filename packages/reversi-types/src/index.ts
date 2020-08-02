@@ -24,15 +24,11 @@ export enum ClientEvents {
   AUTH_DISCONNECT = 'AUTH_DISCONNECT',
 }
 
-// ToDo: change to player status
 export enum GameStatus {
-  NOT_READY = 'NOT_READY',
-
-  WAITING = 'WAITING_FOR_OPPONENT',
+  WAITING = 'WAITING_FOR_PLAYERS',
   PLAYING = 'PLAYING',
-
-  WIN = 'WIN',
-  LOSS = 'LOSS',
+  WIN_WHITE = 'WIN_WHITE',
+  WIN_BLACK = 'WIN_BLACK',
   TIE = 'TIE',
 }
 
@@ -68,6 +64,7 @@ export interface IPlayer extends Document {
   isCPU: boolean;
   difficulty: Difficulty | undefined;
   userId: string | undefined;
+  displayName: string | undefined;
 }
 
 export interface IGame extends BaseDocument {
@@ -99,6 +96,7 @@ export interface BaseArgs {
 
 export interface CreateRoomArgs extends BaseArgs {
   gameType: GameType;
+  joinRoomId?: string;
 }
 
 export interface JoinRoomArgs extends BaseArgs {
@@ -110,6 +108,10 @@ export interface PlayerMoveArgs extends BaseArgs {
   move: Move;
 }
 
+export interface LeaveRoomArgs extends BaseArgs {
+  roomId: string;
+}
+
 export enum ServerEvents {
   CreatedRoom = 'CREATED_ROOM',
   GameUpdated = 'GAME_UPDATE',
@@ -119,5 +121,5 @@ export enum Errors {
   USER_NOT_FOUND = 1,
   USERNAME_EXIST = 2,
   EMAIL_EXIST = 3,
-  ALREADY_CONNECTED = 4
+  ALREADY_CONNECTED = 4,
 }

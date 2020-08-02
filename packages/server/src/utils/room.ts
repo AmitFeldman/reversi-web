@@ -3,60 +3,211 @@ import {
   Board,
   Cell,
   CreateRoomArgs,
+  GameStatus,
+  GameType,
   IGame,
+  IPlayer,
   JoinRoomArgs,
+  LeaveRoomArgs,
+  PlayerColor,
   PlayerMoveArgs,
   PlayerStatus,
   ServerEvents,
+  User,
 } from 'reversi-types';
 import mongoose from 'mongoose';
 import {emitEventToSocket} from './socket-service';
 import {getSocketByUserId} from '../services/socket-manager';
 import {ChangeEventCR, ChangeEventUpdate} from 'mongodb';
-import {getLegalMoves, isLegal, isValid, makeMove} from './game-rules';
-import {ai_play, AiBody, gameTypesToStrategy} from './ai/ai-api';
+import {getBoardAfterMove, getLegalMoves, isLegal, isValid} from './game-rules';
+import {ai_play, gameTypesToStrategy} from './ai/ai-api';
 
-const createRoom = async (data: CreateRoomArgs) => {
+const AI_TIMEOUT = 1000;
+
+const cpuDisplayNames: Map<GameType, string> = new Map([
+  ['AI_EASY', 'Easy Bot'],
+  ['AI_MEDIUM', 'Medium Bot'],
+  ['AI_HARD', 'Hard Bot'],
+]);
+
+const cpuGameTypes = Array.from(cpuDisplayNames.keys());
+
+const createGame = async ({id, username}: User, gameType: GameType) => {
+  const isCPU = cpuGameTypes.includes(gameType);
+  const isLocal = gameType === 'LOCAL';
+  const isOffline = isCPU || isLocal;
+
+  const newGame = new GameModel({
+    createdBy: id,
+    whitePlayer: {
+      userId: id,
+      isCPU: false,
+      displayName: username,
+    },
+    blackPlayer: {
+      displayName: isCPU ? cpuDisplayNames.get(gameType) : undefined,
+      connectionStatus: isOffline
+        ? PlayerStatus.CONNECTED
+        : PlayerStatus.DISCONNECTED,
+      isCPU,
+    },
+    type: gameType,
+  });
+
   try {
-    const newGame = new GameModel({
-      createdBy: data?.user?.id,
-      whitePlayer: {
-        userId: data?.user?.id,
-        isCPU: false,
-      },
-      blackPlayer: {
-        connectionStatus: data.gameType.includes('AI')
-          ? PlayerStatus.CONNECTED
-          : PlayerStatus.DISCONNECTED,
-        isCPU: data.gameType.includes('AI'),
-      },
-      type: data.gameType,
-    });
-
     await newGame.save();
+    console.log(`Game Room of type ${gameType} created...`);
   } catch (e) {
     console.log(e);
   }
 };
 
-const joinRoom = async (data: JoinRoomArgs) => {
-  const game = await GameModel.findById(data.roomId);
+const createRoom = async ({user, gameType, joinRoomId}: CreateRoomArgs) => {
+  if (!user) {
+    throw new Error(`Game ERROR: User not found...`);
+  }
 
-  if (
-    !game?.whitePlayer?.isCPU &&
-    game?.whitePlayer?.connectionStatus === PlayerStatus.DISCONNECTED
-  ) {
-    game.whitePlayer.connectionStatus = PlayerStatus.CONNECTED;
-    await game.save();
-  } else if (
-    !game?.blackPlayer?.isCPU &&
-    game?.blackPlayer?.connectionStatus === PlayerStatus.DISCONNECTED
-  ) {
-    game.blackPlayer.connectionStatus = PlayerStatus.CONNECTED;
-    game.blackPlayer.userId = data?.user?._id;
-    await game.save();
+  switch (gameType) {
+    case 'AI_EASY':
+    case 'AI_MEDIUM':
+    case 'AI_HARD':
+    case 'LOCAL':
+      await createGame(user, gameType);
+      break;
+    case 'PRIVATE_ROOM':
+      if (joinRoomId) {
+        const game = await GameModel.findById(joinRoomId);
+
+        if (game) {
+          const socket = getSocketByUserId(user.id);
+
+          if (socket) {
+            emitEventToSocket(
+              socket,
+              ServerEvents.CreatedRoom,
+              game.id.toString()
+            );
+          }
+        }
+      } else {
+        await createGame(user, gameType);
+      }
+
+      break;
+    case 'PUBLIC_ROOM':
+      const [game] = await GameModel.find({
+        type: gameType,
+        status: GameStatus.WAITING,
+      });
+
+      if (game) {
+        const socket = getSocketByUserId(user.id);
+
+        if (socket) {
+          emitEventToSocket(
+            socket,
+            ServerEvents.CreatedRoom,
+            game.id.toString()
+          );
+        }
+      } else {
+        await createGame(user, gameType);
+      }
+      break;
   }
 };
+
+const isPlayerConnected = ({isCPU, connectionStatus}: IPlayer): boolean =>
+  !isCPU && connectionStatus === PlayerStatus.CONNECTED;
+
+const getPlayerFromGameByColor = (
+  color: PlayerColor,
+  {whitePlayer, blackPlayer}: IGame
+): IPlayer | undefined => (color === Cell.WHITE ? whitePlayer : blackPlayer);
+
+const getPlayerFromGameById = (
+  id: string,
+  {whitePlayer, blackPlayer}: IGame
+): IPlayer | undefined => {
+  if (whitePlayer?.userId?.toString() === id.toString()) {
+    return whitePlayer;
+  }
+
+  if (blackPlayer?.userId?.toString() === id.toString()) {
+    return blackPlayer;
+  }
+};
+
+const updatePlayerConnectionInGame = (
+  {id, username}: User,
+  game: IGame,
+  color: PlayerColor
+): IGame => {
+  const player = getPlayerFromGameByColor(color, game);
+
+  if (player) {
+    player.connectionStatus = PlayerStatus.CONNECTED;
+    player.userId = id;
+    player.displayName = username;
+  }
+
+  return game;
+};
+
+const connectPlayerToGame = async (user: User, game: IGame) => {
+  const {whitePlayer, blackPlayer, status} = game;
+
+  if (status === GameStatus.WAITING) {
+    const isWhiteAvailable = whitePlayer && !whitePlayer.isCPU && !isPlayerConnected(whitePlayer);
+    const isBlackAvailable = blackPlayer && !blackPlayer.isCPU && !isPlayerConnected(blackPlayer);
+
+    if (isWhiteAvailable) {
+      const updatedGame = updatePlayerConnectionInGame(user, game, Cell.WHITE);
+
+      if (!isBlackAvailable) {
+        updatedGame.status = GameStatus.PLAYING;
+      }
+      await updatedGame.save();
+    } else if (isBlackAvailable) {
+      const updatedGame = updatePlayerConnectionInGame(user, game, Cell.BLACK);
+
+      if (!isWhiteAvailable) {
+        updatedGame.status = GameStatus.PLAYING;
+      }
+
+      await updatedGame.save();
+    }
+  }
+};
+
+const joinRoom = async ({roomId, user}: JoinRoomArgs) => {
+  if (!user) {
+    throw new Error(`Game ERROR: Join room reached without valid user...`);
+  }
+
+  const game = await GameModel.findById(roomId);
+
+  if (!game) {
+    throw new Error(`Game ERROR: Room with id: ${roomId} not found...`);
+  }
+
+  await connectPlayerToGame(user, game);
+};
+
+const getCurrentTurnPlayer = (game: IGame | null): IPlayer | undefined => {
+  const currentTurn = game?.turn;
+
+  if (currentTurn === Cell.BLACK) {
+    return game?.blackPlayer;
+  }
+
+  if (currentTurn === Cell.WHITE) {
+    return game?.whitePlayer;
+  }
+};
+
+const getNextTurn = (turn: PlayerColor): PlayerColor =>
+  turn === Cell.WHITE ? Cell.BLACK : Cell.WHITE;
 
 const playerMove = async ({
   roomId,
@@ -64,144 +215,176 @@ const playerMove = async ({
   user,
 }: PlayerMoveArgs) => {
   const game = await GameModel.findById(roomId);
-  const whitePlayerId = game?.whitePlayer?.userId?.toString();
-  const blackPlayerId = game?.blackPlayer?.userId?.toString();
+
+  if (!game) {
+    throw new Error(`Game ERROR: Room with id: ${roomId} not found...`);
+  }
+
+  if (game.status !== GameStatus.PLAYING) {
+    return;
+  }
+
   const index = Number(`${row}${column}`);
-  const currentTurn = game?.turn as Cell;
-  const board = game?.board as Board;
+  const currentTurn = game.turn as PlayerColor;
+  const board = game.board;
+  const currentPlayer = getCurrentTurnPlayer(game);
 
-  if (isValid(index) && isLegal(index, currentTurn, board)) {
+  if (
+    !currentPlayer?.isCPU &&
+    isValid(index) &&
+    isLegal(index, currentTurn, board)
+  ) {
     if (
-      !game?.whitePlayer?.isCPU &&
-      (user?.id === whitePlayerId || user?._id === whitePlayerId) &&
-      game &&
-      game.turn === Cell.WHITE
+      game.type === 'LOCAL' ||
+      currentPlayer?.userId?.toString() === user?.id
     ) {
-      game.board = makeMove(index, Cell.WHITE, game.board);
-      game.turn = Cell.BLACK;
-    } else if (
-      (user?.id === blackPlayerId || user?._id === blackPlayerId) &&
-      game &&
-      game.turn === Cell.BLACK
-    ) {
-      game.board = makeMove(index, Cell.BLACK, game.board);
-      game.turn = Cell.WHITE;
-    }
+      const newBoard = getBoardAfterMove(index, currentTurn, board);
 
-    if (game?.turn && game?.board) {
+      // Update game after turn
+      game.board = newBoard;
+      game.turn = getNextTurn(currentTurn);
       game.validMoves = getLegalMoves(game.turn, game.board);
     }
 
-    await game?.save();
+    // Save game after player turn
+    await game.save();
 
-    if (game?.type.includes('AI')) {
-      const strategy = gameTypesToStrategy.get(game.type);
+    if (cpuGameTypes.includes(game.type)) {
+      const newBoard = await getBoardAfterAIMove(game);
 
-      await aiMove(game, {
-        board: game.board,
-        color: game.turn as Cell,
-        strategy,
-      });
+      // Update game after ai move
+      game.board = newBoard;
+      game.turn = getNextTurn(game.turn as PlayerColor);
+      game.validMoves = getLegalMoves(game.turn, game.board);
 
-      if (game?.turn && game?.board) {
-        game.validMoves = getLegalMoves(game.turn, game.board);
-      }
-
-      await setTimeout(() => game.save(), 1000);
+      await setTimeout(() => game.save(), AI_TIMEOUT);
     }
   }
 };
 
-const aiMove = async (game: IGame, data: AiBody) => {
-  const aiMoveIndex = await ai_play(data);
+const getBoardAfterAIMove = async (game: IGame): Promise<Board> => {
+  const currentTurn = game.turn as PlayerColor;
+  const board = game.board;
 
-  game.board = makeMove(aiMoveIndex, data.color, game.board);
-  game.turn = data.color === Cell.WHITE ? Cell.BLACK : Cell.WHITE;
+  const strategy = gameTypesToStrategy.get(game.type);
+
+  const aiMoveIndex = await ai_play({
+    board,
+    color: currentTurn as PlayerColor,
+    strategy,
+  });
+
+  return getBoardAfterMove(aiMoveIndex, currentTurn, game.board);
 };
 
-const disconnectFromGame = async (id: string) => {
+const disconnectPlayerFromGames = async (
+  id: mongoose.Types.ObjectId,
+  color: PlayerColor
+) => {
+  const playerPath = color === Cell.WHITE ? 'whitePlayer' : 'blackPlayer';
+
+  const games = await GameModel.find({
+    $and: [
+      {[`${playerPath}.userId`]: id},
+      {[`${playerPath}.connectionStatus`]: PlayerStatus.CONNECTED},
+    ],
+  });
+
+  games.forEach((game) => {
+    if (game) {
+      const player = getPlayerFromGameByColor(color, game);
+
+      if (player) {
+        player.connectionStatus = PlayerStatus.DISCONNECTED;
+
+        if (game.status === GameStatus.PLAYING) {
+          game.status = GameStatus.WAITING;
+        }
+
+        game.save();
+      }
+    }
+  });
+};
+
+const disconnectUserFromGames = async (id: string) => {
   const userId = mongoose.Types.ObjectId(id);
-  const whitePlayerGames = await GameModel.find({
-    $and: [
-      {'whitePlayer.userId': userId},
-      {'whitePlayer.connectionStatus': PlayerStatus.CONNECTED},
-    ],
-  });
-  const blackPlayerGames = await GameModel.find({
-    $and: [
-      {'blackPlayer.userId': userId},
-      {'blackPlayer.connectionStatus': PlayerStatus.CONNECTED},
-    ],
-  });
 
-  whitePlayerGames.forEach((game) => {
-    if (game?.whitePlayer?.connectionStatus === PlayerStatus.CONNECTED) {
-      game.whitePlayer.connectionStatus = PlayerStatus.DISCONNECTED;
+  disconnectPlayerFromGames(userId, Cell.WHITE);
+  disconnectPlayerFromGames(userId, Cell.BLACK);
+};
 
-      game.save();
+const leaveRoom = async ({roomId, user}: LeaveRoomArgs) => {
+  if (!user) {
+    throw new Error(`Game ERROR: User not found...`);
+  }
+
+  const game = await GameModel.findById(roomId);
+
+  if (!game) {
+    throw new Error(`Game ERROR: Room with id: ${roomId} not found...`);
+  }
+
+  const player = getPlayerFromGameById(user._id, game);
+
+  if (player) {
+    player.connectionStatus = PlayerStatus.DISCONNECTED;
+
+    if (game.status === GameStatus.PLAYING) {
+      game.status = GameStatus.WAITING;
     }
-  });
 
-  blackPlayerGames.forEach((game) => {
-    if (game?.blackPlayer?.connectionStatus === PlayerStatus.CONNECTED) {
-      game.blackPlayer.connectionStatus = PlayerStatus.DISCONNECTED;
-
-      game.save();
-    }
-  });
+    game.save();
+  }
 };
 
 const onNewGame = (change: ChangeEventCR<IGame>) => {
   const game = change?.fullDocument;
-  const socket = game?.createdBy
-    ? getSocketByUserId(game.createdBy)
-    : undefined;
+
+  if (!game) {
+    throw new Error(`Game ERROR: Create Event document not valid...`);
+  }
+
+  const {createdBy, _id} = game;
+  const socket = createdBy ? getSocketByUserId(createdBy) : undefined;
 
   if (socket) {
-    console.log('Emitted created game');
-    emitEventToSocket(socket, ServerEvents.CreatedRoom, game?._id.toString());
+    emitEventToSocket(socket, ServerEvents.CreatedRoom, _id.toString());
+  }
+};
+
+const emitUpdateToPlayerInGame = (game: IGame, color: PlayerColor) => {
+  const player = getPlayerFromGameByColor(color, game);
+
+  if (player && isPlayerConnected(player) && player.userId) {
+    const playerSocket = getSocketByUserId(player.userId.toString());
+
+    if (playerSocket) {
+      console.log(
+        `Game Update emitted to socket: ${playerSocket.id} in game id: ${game._id}...`
+      );
+      emitEventToSocket(playerSocket, ServerEvents.GameUpdated, game);
+    }
   }
 };
 
 const onGameUpdate = (change: ChangeEventUpdate<IGame>) => {
   const game = change?.fullDocument;
-  const whitePlayer = game?.whitePlayer;
-  const blackPlayer = game?.blackPlayer;
 
-  if (
-    whitePlayer &&
-    !whitePlayer.isCPU &&
-    whitePlayer.userId &&
-    whitePlayer.connectionStatus === 'CONNECTED'
-  ) {
-    const socket = getSocketByUserId(whitePlayer.userId.toString());
-
-    if (socket) {
-      console.log('emit game update to white player');
-      emitEventToSocket(socket, ServerEvents.GameUpdated, game);
-    }
+  if (!game) {
+    throw new Error(`Game ERROR: Update Event document not valid...`);
   }
 
-  if (
-    blackPlayer &&
-    !blackPlayer.isCPU &&
-    blackPlayer.userId &&
-    blackPlayer.connectionStatus === 'CONNECTED'
-  ) {
-    const socket = getSocketByUserId(blackPlayer.userId.toString());
-
-    if (socket) {
-      console.log('emit game update to black player');
-      emitEventToSocket(socket, ServerEvents.GameUpdated, game);
-    }
-  }
+  emitUpdateToPlayerInGame(game, Cell.WHITE);
+  emitUpdateToPlayerInGame(game, Cell.BLACK);
 };
 
 export {
   createRoom,
   joinRoom,
   playerMove,
-  disconnectFromGame,
+  disconnectUserFromGames,
   onNewGame,
   onGameUpdate,
+  leaveRoom,
 };

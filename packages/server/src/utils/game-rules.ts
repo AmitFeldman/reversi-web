@@ -57,7 +57,7 @@ function isValid(move: number) {
   return Number.isInteger(move) && move >= 11 && move <= 88;
 }
 
-function makeFlips(
+function flipTilesOnBoard(
   move: number,
   playerColor: Cell,
   board: Board,
@@ -82,14 +82,14 @@ function makeFlips(
   }
 }
 
-function makeMove(move: number, playerColor: Cell, board: Board) {
+function getBoardAfterMove(move: number, playerColor: Cell, board: Board): Board {
   const newBoard = [...board];
 
   if (isValid(move) && isLegal(move, playerColor, newBoard)) {
     newBoard[move] = playerColor;
 
     directionsToNumberArray().forEach((direction) => {
-      makeFlips(move, playerColor, newBoard, direction as DIRECTIONS);
+      flipTilesOnBoard(move, playerColor, newBoard, direction as DIRECTIONS);
     });
   }
 
@@ -103,4 +103,4 @@ const getLegalMoves = (player: PlayerColor, board: Board): Move[] => {
     .map((v) => ({row: Math.floor(v / 10), column: v % 10}));
 };
 
-export {makeMove, isValid, isLegal, getLegalMoves};
+export {getBoardAfterMove, isValid, isLegal, getLegalMoves};

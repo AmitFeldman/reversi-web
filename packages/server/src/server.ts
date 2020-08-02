@@ -13,9 +13,10 @@ import {
   ClientEvents,
   CreateRoomArgs,
   JoinRoomArgs,
+  LeaveRoomArgs,
   PlayerMoveArgs,
 } from 'reversi-types';
-import {createRoom, joinRoom, playerMove} from './utils/room';
+import {createRoom, joinRoom, playerMove, leaveRoom} from './utils/room';
 
 console.log('starting reversi-web server...');
 
@@ -79,10 +80,16 @@ initSocketManager((socket) => {
     ClientEvents.PLAYER_MOVE,
     playerMove
   );
+  const cancelOnPlayerLeaveRoom = on<LeaveRoomArgs>(
+    socket,
+    ClientEvents.LEAVE_ROOM,
+    leaveRoom
+  );
 
   return () => {
     cancelOnCreateRoom();
     cancelOnJoinRoom();
     cancelOnPlayerMove();
+    cancelOnPlayerLeaveRoom();
   };
 });
