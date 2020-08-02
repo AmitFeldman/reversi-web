@@ -256,6 +256,7 @@ const playerMove = async ({
       if (game.turn) {
         game.validMoves = getLegalMoves(game.turn, game.board);
       } else {
+        game.validMoves = [];
         game.status = getGameResult(game.board);
       }
     }
@@ -264,16 +265,22 @@ const playerMove = async ({
     await game.save();
 
     if (cpuGameTypes.includes(game.type)) {
-      const newBoard = await getBoardAfterAIMove(game);
+      const currentTurn = game.turn;
 
-      // Update game after ai move
-      game.board = newBoard;
-      game.turn = getNextTurn(game.turn as PlayerColor, game.board);
+      while(game.turn === currentTurn) {
+        const newBoard = await getBoardAfterAIMove(game);
 
-      if (game.turn) {
-        game.validMoves = getLegalMoves(game.turn, game.board);
-      } else {
-        game.status = getGameResult(game.board);
+        // Update game after ai move
+        game.board = newBoard;
+        game.turn = getNextTurn(game.turn as PlayerColor, game.board);
+
+        if (game.turn) {
+          game.validMoves = getLegalMoves(game.turn, game.board);
+        } else {
+          game.validMoves = [];
+          game.status = getGameResult(game.board);
+        }
+
       }
 
       await setTimeout(() => game.save(), AI_TIMEOUT);
