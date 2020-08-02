@@ -27,9 +27,8 @@ export enum ClientEvents {
 export enum GameStatus {
   WAITING = 'WAITING_FOR_PLAYERS',
   PLAYING = 'PLAYING',
-
-  WIN = 'WIN',
-  LOSS = 'LOSS',
+  WIN_WHITE = 'WIN_WHITE',
+  WIN_BLACK = 'WIN_BLACK',
   TIE = 'TIE',
 }
 

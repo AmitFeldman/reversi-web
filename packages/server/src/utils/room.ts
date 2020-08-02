@@ -158,8 +158,8 @@ const connectPlayerToGame = async (user: User, game: IGame) => {
   const {whitePlayer, blackPlayer, status} = game;
 
   if (status === GameStatus.WAITING) {
-    const isWhiteAvailable = whitePlayer && !isPlayerConnected(whitePlayer);
-    const isBlackAvailable = blackPlayer && !isPlayerConnected(blackPlayer);
+    const isWhiteAvailable = whitePlayer && !whitePlayer.isCPU && !isPlayerConnected(whitePlayer);
+    const isBlackAvailable = blackPlayer && !blackPlayer.isCPU && !isPlayerConnected(blackPlayer);
 
     if (isWhiteAvailable) {
       const updatedGame = updatePlayerConnectionInGame(user, game, Cell.WHITE);
