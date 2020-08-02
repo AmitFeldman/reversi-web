@@ -19,7 +19,7 @@ import mongoose from 'mongoose';
 import {emitEventToSocket} from './socket-service';
 import {getSocketByUserId} from '../services/socket-manager';
 import {ChangeEventCR, ChangeEventUpdate} from 'mongodb';
-import {getBoardAfterMove, getLegalMoves, isLegal, isValid} from './game-rules';
+import {getBoardAfterMove, getGameResult, getLegalMoves, isLegal, isValid} from './game-rules';
 import {ai_play, gameTypesToStrategy} from './ai/ai-api';
 
 const AI_TIMEOUT = 1000;
@@ -206,8 +206,17 @@ const getCurrentTurnPlayer = (game: IGame | null): IPlayer | undefined => {
   }
 };
 
-const getNextTurn = (turn: PlayerColor): PlayerColor =>
-  turn === Cell.WHITE ? Cell.BLACK : Cell.WHITE;
+const getNextTurn = (turn: PlayerColor, board: Board): PlayerColor | undefined => {
+  const nextTurn = turn === Cell.WHITE ? Cell.BLACK : Cell.WHITE;
+
+  if (getLegalMoves(nextTurn, board).length > 0) {
+    return nextTurn;
+  } else if (getLegalMoves(turn, board).length > 0) {
+    return turn;
+  }
+
+  return undefined;
+};
 
 const playerMove = async ({
   roomId,
@@ -242,8 +251,13 @@ const playerMove = async ({
 
       // Update game after turn
       game.board = newBoard;
-      game.turn = getNextTurn(currentTurn);
-      game.validMoves = getLegalMoves(game.turn, game.board);
+      game.turn = getNextTurn(currentTurn, game.board);
+
+      if (game.turn) {
+        game.validMoves = getLegalMoves(game.turn, game.board);
+      } else {
+        game.status = getGameResult(game.board);
+      }
     }
 
     // Save game after player turn
@@ -254,8 +268,13 @@ const playerMove = async ({
 
       // Update game after ai move
       game.board = newBoard;
-      game.turn = getNextTurn(game.turn as PlayerColor);
-      game.validMoves = getLegalMoves(game.turn, game.board);
+      game.turn = getNextTurn(game.turn as PlayerColor, game.board);
+
+      if (game.turn) {
+        game.validMoves = getLegalMoves(game.turn, game.board);
+      } else {
+        game.status = getGameResult(game.board);
+      }
 
       await setTimeout(() => game.save(), AI_TIMEOUT);
     }
