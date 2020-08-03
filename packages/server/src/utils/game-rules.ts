@@ -27,8 +27,7 @@ function findBracket(
   move: number,
   playerColor: Cell,
   board: Board,
-  direction: DIRECTIONS
-) {
+  direction: DIRECTIONS) {
   let bracket: number = move + direction;
 
   if (board[bracket] == playerColor) {
@@ -61,8 +60,7 @@ function flipTilesOnBoard(
   move: number,
   playerColor: Cell,
   board: Board,
-  direction: DIRECTIONS
-) {
+  direction: DIRECTIONS) {
   const bracket: number | undefined = findBracket(
     move,
     playerColor,
