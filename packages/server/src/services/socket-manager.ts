@@ -49,8 +49,7 @@ const initSocketManager = (
           socket,
           ClientEvents.AUTH_DISCONNECT,
           isLoggedIn,
-          (data) => {
-            console.log(`Socket Manager - Socket ${socket.id} Unauthenticated`);
+          (data) => { console.log(`Socket Manager - Socket ${socket.id} Unauthenticated`);
 
             cleanupListeners();
             usersToSockets.delete(data.user?.id);
