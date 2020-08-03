@@ -18,6 +18,7 @@ export const CENTER_POSITION: PositionArray = [
   GRID_CENTER_Y,
   GRID_CENTER_Z,
 ];
+
 export const BOARD_POSITION: PositionArray = [
   GRID_CENTER_X,
   GRID_CENTER_Y - GRID_BUFFER - BOARD_HEIGHT / 2,
