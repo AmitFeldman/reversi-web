@@ -167,7 +167,9 @@ const connectPlayerToGame = async (user: User, game: IGame) => {
       if (!isBlackAvailable) {
         updatedGame.status = GameStatus.PLAYING;
       }
+      
       await updatedGame.save();
+      
     } else if (isBlackAvailable) {
       const updatedGame = updatePlayerConnectionInGame(user, game, Cell.BLACK);
 
@@ -234,10 +236,7 @@ const playerMove = async ({
     isValid(index) &&
     isLegal(index, currentTurn, board)
   ) {
-    if (
-      game.type === 'LOCAL' ||
-      currentPlayer?.userId?.toString() === user?.id
-    ) {
+    if (game.type === 'LOCAL' || currentPlayer?.userId?.toString() === user?.id) {
       const newBoard = getBoardAfterMove(index, currentTurn, board);
 
       // Update game after turn
@@ -360,9 +359,7 @@ const emitUpdateToPlayerInGame = (game: IGame, color: PlayerColor) => {
     const playerSocket = getSocketByUserId(player.userId.toString());
 
     if (playerSocket) {
-      console.log(
-        `Game Update emitted to socket: ${playerSocket.id} in game id: ${game._id}...`
-      );
+      console.log(`Game Update emitted to socket: ${playerSocket.id} in game id: ${game._id}...`);
       emitEventToSocket(playerSocket, ServerEvents.GameUpdated, game);
     }
   }
