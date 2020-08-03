@@ -9,24 +9,17 @@ const dbEventEmitter = new EventEmitter();
 const NEW_GAME_EVENT = 'NEW_GAME_EVENT';
 const GAME_UPDATE_EVENT = 'GAME_UPDATE_EVENT';
 
-const pipeline = [
-  {$match: {operationType: {$in: ['insert', 'update']}}},
-  {$project: {fullDocument: 1, operationType: 1}},
-];
+const pipeline = [{$match: {operationType: {$in: ['insert', 'update']}}}, {$project: {fullDocument: 1, operationType: 1}}];
 
 const initChangesListener = () => {
   GameModel.watch(pipeline, {fullDocument: 'updateLookup'}).on(
     'change',
-    (data) => {
-      const type = data.operationType;
+    (data) => { const type = data.operationType;
 
       if (type === 'insert') {
         dbEventEmitter.emit(NEW_GAME_EVENT, data as ChangeEventCR<IGame>);
       } else if (type === 'update') {
-        dbEventEmitter.emit(
-          GAME_UPDATE_EVENT,
-          data as ChangeEventUpdate<IGame>
-        );
+        dbEventEmitter.emit(GAME_UPDATE_EVENT, data as ChangeEventUpdate<IGame>);
       }
     }
   );
