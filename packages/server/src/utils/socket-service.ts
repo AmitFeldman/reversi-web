@@ -19,8 +19,7 @@ const initSocketIO = (app: Express) => {
   socketServer.listen(socketPort);
   console.log(`socket listening on port ${socketPort}...`);
 
-  onConnect((socket) => {
-    console.log(`Socket connected: ${socket.id}`);
+  onConnect((socket) => { console.log(`Socket connected: ${socket.id}`);
 
     const cancelOnDisconnect = onDisconnect(socket, (reason) => {
       cancelOnDisconnect();
@@ -94,7 +93,6 @@ const on = <Data extends BaseArgs>(
   };
 
   socket.on(event, listener);
-
   return () => socket.off(event, listener);
 };
 
