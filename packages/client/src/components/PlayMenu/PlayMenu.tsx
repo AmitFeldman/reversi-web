@@ -23,6 +23,7 @@ const difficultyOptions: DifficultyOption[] = [
   {value: 'AI_EASY', label: 'Easy'},
   {value: 'AI_MEDIUM', label: 'Medium'},
   {value: 'AI_HARD', label: 'Hard'},
+  {value: 'AI_EXPERT', label: 'Expert'}
 ];
 
 interface PlayMenuProps {

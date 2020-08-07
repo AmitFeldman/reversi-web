@@ -19,7 +19,7 @@ import mongoose from 'mongoose';
 import {emitEventToSocket} from './socket-service';
 import {getSocketByUserId} from '../services/socket-manager';
 import {ChangeEventCR, ChangeEventUpdate} from 'mongodb';
-import {getBoardAfterMove, getLegalMoves, isLegal, isValid} from './game-rules';
+import {getBoardAfterMove, getGameResult, getLegalMoves, isLegal, isValid} from './game-rules';
 import {ai_play, gameTypesToStrategy} from './ai/ai-api';
 
 const AI_TIMEOUT = 1000;
@@ -28,6 +28,7 @@ const cpuDisplayNames: Map<GameType, string> = new Map([
   ['AI_EASY', 'Easy Bot'],
   ['AI_MEDIUM', 'Medium Bot'],
   ['AI_HARD', 'Hard Bot'],
+  ['AI_EXPERT', 'Expert Bot']
 ]);
 
 const cpuGameTypes = Array.from(cpuDisplayNames.keys());
@@ -71,6 +72,7 @@ const createRoom = async ({user, gameType, joinRoomId}: CreateRoomArgs) => {
     case 'AI_EASY':
     case 'AI_MEDIUM':
     case 'AI_HARD':
+    case 'AI_EXPERT':
     case 'LOCAL':
       await createGame(user, gameType);
       break;
@@ -208,8 +210,17 @@ const getCurrentTurnPlayer = (game: IGame | null): IPlayer | undefined => {
   }
 };
 
-const getNextTurn = (turn: PlayerColor): PlayerColor =>
-  turn === Cell.WHITE ? Cell.BLACK : Cell.WHITE;
+const getNextTurn = (turn: PlayerColor, board: Board): PlayerColor | undefined => {
+  const nextTurn = turn === Cell.WHITE ? Cell.BLACK : Cell.WHITE;
+
+  if (getLegalMoves(nextTurn, board).length > 0) {
+    return nextTurn;
+  } else if (getLegalMoves(turn, board).length > 0) {
+    return turn;
+  }
+
+  return undefined;
+};
 
 const playerMove = async ({
   roomId,
@@ -241,20 +252,37 @@ const playerMove = async ({
 
       // Update game after turn
       game.board = newBoard;
-      game.turn = getNextTurn(currentTurn);
-      game.validMoves = getLegalMoves(game.turn, game.board);
+      game.turn = getNextTurn(currentTurn, game.board);
+
+      if (game.turn) {
+        game.validMoves = getLegalMoves(game.turn, game.board);
+      } else {
+        game.validMoves = [];
+        game.status = getGameResult(game.board);
+      }
     }
 
     // Save game after player turn
     await game.save();
 
     if (cpuGameTypes.includes(game.type)) {
-      const newBoard = await getBoardAfterAIMove(game);
+      const currentTurn = game.turn;
 
-      // Update game after ai move
-      game.board = newBoard;
-      game.turn = getNextTurn(game.turn as PlayerColor);
-      game.validMoves = getLegalMoves(game.turn, game.board);
+      while(game.turn === currentTurn) {
+        const newBoard = await getBoardAfterAIMove(game);
+
+        // Update game after ai move
+        game.board = newBoard;
+        game.turn = getNextTurn(game.turn as PlayerColor, game.board);
+
+        if (game.turn) {
+          game.validMoves = getLegalMoves(game.turn, game.board);
+        } else {
+          game.validMoves = [];
+          game.status = getGameResult(game.board);
+        }
+
+      }
 
       await setTimeout(() => game.save(), AI_TIMEOUT);
     }

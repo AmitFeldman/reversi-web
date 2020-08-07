@@ -38,6 +38,7 @@ export type GameType =
   | 'AI_EASY'
   | 'AI_MEDIUM'
   | 'AI_HARD'
+  | 'AI_EXPERT'
   | 'LOCAL';
 
 export enum Cell {
@@ -57,7 +58,7 @@ export interface Move {
 export type PlayerColor = Cell.WHITE | Cell.BLACK;
 
 // SERVER
-type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
+type Difficulty = 'EASY' | 'MEDIUM' | 'HARD' | 'EXPERT';
 
 export interface IPlayer extends Document {
   connectionStatus: string;

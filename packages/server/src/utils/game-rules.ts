@@ -1,4 +1,4 @@
-import {Board, Cell, Move, PlayerColor} from 'reversi-types';
+import {Board, Cell, GameStatus, Move, PlayerColor} from 'reversi-types';
 
 enum DIRECTIONS {
   UP = -10,
@@ -101,4 +101,23 @@ const getLegalMoves = (player: PlayerColor, board: Board): Move[] => {
     .map((v) => ({row: Math.floor(v / 10), column: v % 10}));
 };
 
-export {getBoardAfterMove, isValid, isLegal, getLegalMoves};
+const getPlayerScore = (playerColor: Cell, board: Board): number => {
+    return board.reduce((totalScore: number, currentValue: Cell): number => {
+      return totalScore + +(currentValue === playerColor);
+    }, 0);
+};
+
+const getGameResult = (board: Board): GameStatus => {
+  const whiteScore = getPlayerScore(Cell.WHITE, board);
+  const blackScore = getPlayerScore(Cell.BLACK, board);
+
+  if (whiteScore > blackScore) {
+    return GameStatus.WIN_WHITE;
+  } else if (whiteScore < blackScore) {
+    return GameStatus.WIN_BLACK;
+  }
+
+  return GameStatus.TIE;
+};
+
+export {getBoardAfterMove, isValid, isLegal, getLegalMoves, getGameResult};
