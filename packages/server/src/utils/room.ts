@@ -28,6 +28,7 @@ const cpuDisplayNames: Map<GameType, string> = new Map([
   ['AI_EASY', 'Easy Bot'],
   ['AI_MEDIUM', 'Medium Bot'],
   ['AI_HARD', 'Hard Bot'],
+  ['AI_EXPERT', 'Expert Bot']
 ]);
 
 const cpuGameTypes = Array.from(cpuDisplayNames.keys());
@@ -71,6 +72,7 @@ const createRoom = async ({user, gameType, joinRoomId}: CreateRoomArgs) => {
     case 'AI_EASY':
     case 'AI_MEDIUM':
     case 'AI_HARD':
+    case 'AI_EXPERT':
     case 'LOCAL':
       await createGame(user, gameType);
       break;
