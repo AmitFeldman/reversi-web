@@ -62,14 +62,14 @@ router.post('/login', (req, res) => {
         .send({error: {code: Errors.USER_NOT_FOUND, msg: 'User not found'}});
     }
 
-    if (isUserConnected(user.id)) {
-      return res.status(404).send({
-        error: {
-          code: Errors.ALREADY_CONNECTED,
-          msg: 'User already connected',
-        },
-      });
-    }
+    // if (isUserConnected(user.id)) {
+    //   return res.status(404).send({
+    //     error: {
+    //       code: Errors.ALREADY_CONNECTED,
+    //       msg: 'User already connected',
+    //     },
+    //   });
+    // }
 
     res.json(user);
   });

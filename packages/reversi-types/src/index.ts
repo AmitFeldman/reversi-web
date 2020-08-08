@@ -81,7 +81,7 @@ export type PlayerColor = Cell.WHITE | Cell.BLACK;
 type Difficulty = 'EASY' | 'MEDIUM' | 'HARD' | 'EXPERT';
 
 export interface IPlayer extends Document {
-  connectionStatus: string;
+  connectionStatus: PlayerStatus;
   isCPU: boolean;
   difficulty: Difficulty | undefined;
   userId: string | undefined;
@@ -89,8 +89,8 @@ export interface IPlayer extends Document {
 }
 
 export interface IGame extends BaseDocument {
-  name?: string;
   type: GameType;
+  roomCode?: string;
   whitePlayer: IPlayer | undefined;
   blackPlayer: IPlayer | undefined;
   status: GameStatus;
@@ -117,7 +117,7 @@ export interface BaseArgs {
 
 export interface CreateRoomArgs extends BaseArgs {
   gameType: GameType;
-  joinRoomId?: string;
+  roomCode?: string;
 }
 
 export interface JoinRoomArgs extends BaseArgs {

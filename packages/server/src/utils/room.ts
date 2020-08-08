@@ -29,6 +29,7 @@ import {
   isValid,
 } from './game-rules';
 import {ai_play, gameTypesToStrategy} from './ai/ai-api';
+import {getRandomWord} from './random-word-gen';
 
 const AI_TIMEOUT = 1000;
 
@@ -47,6 +48,7 @@ const createGame = async ({id, username}: User, gameType: GameType) => {
   const isOffline = isCPU || isLocal;
 
   const newGame = new GameModel({
+    roomCode: gameType === 'PRIVATE_ROOM' ? getRandomWord() : undefined,
     createdBy: id,
     whitePlayer: {
       userId: id,
@@ -71,7 +73,7 @@ const createGame = async ({id, username}: User, gameType: GameType) => {
   }
 };
 
-const createRoom = async ({user, gameType, joinRoomId}: CreateRoomArgs) => {
+const createRoom = async ({user, gameType, roomCode}: CreateRoomArgs) => {
   if (!user) {
     throw new Error(`Game ERROR: User not found...`);
   }
@@ -85,8 +87,10 @@ const createRoom = async ({user, gameType, joinRoomId}: CreateRoomArgs) => {
       await createGame(user, gameType);
       break;
     case 'PRIVATE_ROOM':
-      if (joinRoomId) {
-        const game = await GameModel.findById(joinRoomId);
+      if (roomCode !== undefined) {
+        const game = (
+          await GameModel.find({roomCode, status: GameStatus.WAITING})
+        )[0];
 
         if (game) {
           const socket = getSocketByUserId(user.id);

@@ -55,6 +55,7 @@ const Register: React.FC<RegisterProps> = ({onRegister = () => {}}) => {
       <LabeledInput
         label="Password"
         value={password}
+        type="password"
         onValueChange={(e: React.FormEvent<HTMLInputElement>) => {
           setPassword(e.currentTarget.value);
         }}

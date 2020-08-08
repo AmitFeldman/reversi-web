@@ -32,7 +32,7 @@ interface PlayMenuProps {
 
 const PlayMenu: React.FC<PlayMenuProps> = ({closeMenu}) => {
   const [difficulty, setDifficulty] = React.useState<GameType>('AI_EASY');
-  const [roomId, setRoomId] = React.useState<string>('');
+  const [roomCode, setRoomCode] = React.useState<string>('');
   const {startGame, joinGame} = useGameManager();
 
   return (
@@ -58,13 +58,13 @@ const PlayMenu: React.FC<PlayMenuProps> = ({closeMenu}) => {
           title: 'Private',
           content: (
             <>
-              <GameDescription description="Create or join a private game between you and a friend!" />
+              <GameDescription description="Create a private game or join your friends with their room code!" />
 
               <LabeledInput
-                label="Room id"
-                value={roomId}
+                label="Room Code"
+                value={roomCode}
                 onValueChange={(e: React.FormEvent<HTMLInputElement>) => {
-                  setRoomId(e.currentTarget.value);
+                  setRoomCode(e.currentTarget.value);
                 }}
               />
               <div className="flex justify-center">
@@ -78,7 +78,7 @@ const PlayMenu: React.FC<PlayMenuProps> = ({closeMenu}) => {
                 </Button>
                 <Button
                   onClick={() => {
-                    joinGame(roomId);
+                    joinGame(roomCode);
                     closeMenu();
                   }}>
                   Join Room

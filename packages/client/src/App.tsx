@@ -11,7 +11,14 @@ import {useOptions} from './context/OptionsContext';
 import {useGameManager} from './context/GameManagerContext';
 
 function App() {
-  const {inGame, board, playerMove, validMoves, turn, isLocal, getPlayerColor} = useGameManager();
+  const {
+    inGame,
+    board,
+    playerMove,
+    validMoves,
+    isLocal,
+    isUserTurn,
+  } = useGameManager();
   const {controls} = useCamera();
   const {topDown, showValidMoves} = useOptions();
 
@@ -32,9 +39,9 @@ function App() {
         <Board />
 
         <CellLayer
-          disabled={!inGame && turn === getPlayerColor()}
+          disabled={!inGame && isUserTurn()}
           cells={board}
-          showValidMoves={showValidMoves && (turn === getPlayerColor() || isLocal())}
+          showValidMoves={showValidMoves && (isUserTurn() || isLocal())}
           validMoves={validMoves}
           onCellClick={(r, c) => playerMove(r, c)}
         />
