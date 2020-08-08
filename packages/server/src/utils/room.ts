@@ -87,7 +87,7 @@ const createRoom = async ({user, gameType, roomCode}: CreateRoomArgs) => {
       await createGame(user, gameType);
       break;
     case 'PRIVATE_ROOM':
-      if (roomCode && roomCode.length === 7) {
+      if (roomCode !== undefined) {
         const game = (
           await GameModel.find({roomCode, status: GameStatus.WAITING})
         )[0];
