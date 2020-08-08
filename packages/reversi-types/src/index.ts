@@ -9,10 +9,24 @@ export enum PlayerStatus {
   DISCONNECTED = 'DISCONNECTED',
 }
 
+export interface UserComputedStats extends Pick<User, 'username'>{
+  wins: number;
+  losses: number;
+  ties: number;
+  winLossRatio: string;
+}
+
+export interface UserStats {
+  wins: string[];
+  losses: string[];
+  ties: string[];
+}
+
 export interface User extends BaseDocument {
   username: string;
   password: string;
   email: string;
+  stats: UserStats;
   isAdmin: boolean;
 }
 export enum ClientEvents {
@@ -31,6 +45,11 @@ export enum GameStatus {
   WIN_BLACK = 'WIN_BLACK',
   TIE = 'TIE',
 }
+
+export type EndGameStatus =
+  | GameStatus.TIE
+  | GameStatus.WIN_WHITE
+  | GameStatus.WIN_BLACK;
 
 export type GameType =
   | 'PUBLIC_ROOM'
