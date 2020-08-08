@@ -37,7 +37,7 @@ const GameLoader: React.FC<GameLoaderProps> = () => {
     // @ts-ignore
     <div className="absolute z-10 w-full p-5" style={style}>
       <Loader visible={isVisible} type="ThreeDots" height={50} width={50} />
-      {isVisible && <p>{getLoadingText()}</p>}
+      {isVisible && <p className="text-white text-sm">{getLoadingText()}</p>}
     </div>
   );
 };

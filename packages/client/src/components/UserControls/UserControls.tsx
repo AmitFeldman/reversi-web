@@ -7,6 +7,7 @@ import {useAuth} from '../../context/AuthContext';
 import Modal from 'react-modal';
 import Login from '../Login/Login';
 import Register from '../Register/Register';
+import HUDModal from '../HUDModal/HUDModal';
 
 type ModalContent = 'login' | 'register' | 'none';
 
@@ -45,22 +46,16 @@ const UserControls: React.FC = () => {
         </>
       )}
 
-      <Modal
-        style={{overlay: {zIndex: 1000}}}
-        className="bg-white shadow-md rounded px-8 pt-3 pb-8 mb-4 float-right m-5 outline-none"
-        overlayClassName=""
+      <HUDModal
+        className="float-right"
         isOpen={modalContent !== 'none'}
         onRequestClose={closeModal}>
-        <GrClose
-          className="float-right -mr-5 cursor-pointer"
-          onClick={closeModal}
-        />
         {modalContent === 'login' ? (
           <Login onLogin={closeModal} />
         ) : (
           <Register onRegister={closeModal} />
         )}
-      </Modal>
+      </HUDModal>
     </>
   );
 };

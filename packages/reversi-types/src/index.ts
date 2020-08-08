@@ -81,7 +81,7 @@ export type PlayerColor = Cell.WHITE | Cell.BLACK;
 type Difficulty = 'EASY' | 'MEDIUM' | 'HARD' | 'EXPERT';
 
 export interface IPlayer extends Document {
-  connectionStatus: string;
+  connectionStatus: PlayerStatus;
   isCPU: boolean;
   difficulty: Difficulty | undefined;
   userId: string | undefined;

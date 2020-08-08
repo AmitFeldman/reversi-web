@@ -11,18 +11,21 @@ import {useAuth} from './AuthContext';
 import {
   Board as IBoard,
   Cell,
+  EndGameStatus,
   GameStatus,
   GameType,
   IGame,
   IPlayer,
   Move,
   PlayerColor,
+  PlayerStatus,
 } from 'reversi-types';
 import {getInitialBoard} from '../utils/board-helper';
-import Modal from 'react-modal';
-import {GrClose} from 'react-icons/gr';
 import Button from '../components/Button/Button';
 import GameLoader from '../components/GameLoader/GameLoader';
+import HUDModal from '../components/HUDModal/HUDModal';
+
+const style = {textAlign: '-webkit-center'};
 
 interface GameManagerContextData {
   inGame: boolean;
@@ -41,6 +44,24 @@ interface GameManagerContextData {
   isUserTurn: () => boolean;
   playerMove: (row: number, column: number) => void;
 }
+
+const getGameOverText = (
+  status: EndGameStatus,
+  localUserColor: PlayerColor
+): string => {
+  if (status === GameStatus.TIE) {
+    return 'Tie Game!';
+  }
+
+  if (
+    (status === GameStatus.WIN_WHITE && localUserColor === Cell.WHITE) ||
+    (status === GameStatus.WIN_BLACK && localUserColor === Cell.BLACK)
+  ) {
+    return 'Congratulations, You Won!';
+  }
+
+  return 'Better luck next time, You Lost...';
+};
 
 const GameManagerContext = React.createContext<GameManagerContextData>({
   inGame: false,
@@ -66,6 +87,7 @@ const GameManagerProvider: React.FC = ({children}) => {
   // Game State
   const [inGame, setInGame] = React.useState<boolean>(false);
   const [gameId, setGameId] = React.useState<string | undefined>();
+  const [isGameOver, setIsGameOver] = React.useState<boolean>(false);
   const [game, setGame] = React.useState<IGame | undefined>();
 
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
@@ -98,6 +120,14 @@ const GameManagerProvider: React.FC = ({children}) => {
   React.useEffect(() => {
     if (inGame) {
       const cancelOnGameUpdated = onGameUpdated((game) => {
+        if (
+          [GameStatus.TIE, GameStatus.WIN_WHITE, GameStatus.WIN_BLACK].includes(
+            game.status
+          )
+        ) {
+          setIsGameOver(true);
+        }
+
         setGame(game);
       });
 
@@ -107,6 +137,7 @@ const GameManagerProvider: React.FC = ({children}) => {
     } else {
       setGameId(undefined);
       setGame(undefined);
+      setIsGameOver(false);
     }
   }, [inGame]);
 
@@ -139,7 +170,9 @@ const GameManagerProvider: React.FC = ({children}) => {
             color === Cell.WHITE ? game?.whitePlayer : game?.blackPlayer;
           const name = player?.displayName;
 
-          return name ? name : '';
+          return name && player?.connectionStatus === PlayerStatus.CONNECTED
+            ? name
+            : '. . .';
         },
         isUserTurn,
         getEnemy: () =>
@@ -165,16 +198,19 @@ const GameManagerProvider: React.FC = ({children}) => {
           }
         },
       }}>
-      <Modal
-        style={{overlay: {zIndex: 1000}}}
-        className="absolute bg-white shadow-md rounded px-8 pb-8 pt-3 m-5 outline-none"
-        isOpen={modalOpen}
+      <HUDModal
+        style={{content: {margin: '15% 40%', width: '20%'}}}
+        isOpen={modalOpen || isGameOver}
+        closeButton={!isGameOver}
         onRequestClose={() => setModalOpen(false)}>
-        <GrClose
-          className="float-right -mr-5 cursor-pointer"
-          onClick={() => setModalOpen(false)}
-        />
-        <p className="text-lg text-black mb-4">Are you sure?</p>
+        <p className="text-lg text-black mb-4 break-words">
+          {isGameOver
+            ? getGameOverText(
+                game?.status as EndGameStatus,
+                getLocalUserColor() as PlayerColor
+              )
+            : 'Are you sure?'}
+        </p>
         <Button
           className="m-2"
           onClick={() => {
@@ -184,9 +220,9 @@ const GameManagerProvider: React.FC = ({children}) => {
           }}>
           Leave Game
         </Button>
-      </Modal>
+      </HUDModal>
 
-      <GameLoader />
+      {!isGameOver && <GameLoader />}
       {children}
     </GameManagerContext.Provider>
   );

@@ -7,6 +7,7 @@ import PlayMenu from '../PlayMenu/PlayMenu';
 import MenuButton from '../MenuButton/MenuButton';
 import {GrClose} from 'react-icons/gr';
 import {useGameManager} from '../../context/GameManagerContext';
+import HUDModal from '../HUDModal/HUDModal';
 
 const DEFAULT_USERNAME = 'Guest';
 
@@ -53,19 +54,13 @@ const HeadsUpDisplay: React.FC = () => {
         </>
       )}
 
-      <Modal
-        style={{overlay: {zIndex: 1000}}}
-        className="absolute top-0 bg-white shadow-md rounded px-8 pb-8 pt-3 float-left m-5 outline-none max-w-sm"
-        overlayClassName=""
-        isOpen={showModal}
-        onRequestClose={() => setShowModal(false)}>
-        <GrClose
-          className="float-right -mr-5 cursor-pointer"
-          onClick={() => setShowModal(false)}
-        />
+      <HUDModal
+        className="top-0 float-left max-w-sm"
+        onRequestClose={() => setShowModal(false)}
+        isOpen={showModal}>
         <p className="text-6xl text-black mb-4 cursor-default">Reversi</p>
         <PlayMenu closeMenu={() => setShowModal(false)} />
-      </Modal>
+      </HUDModal>
     </>
   );
 };
