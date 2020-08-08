@@ -13,7 +13,8 @@ import {useGameManager} from '../../context/GameManagerContext';
 const InGameHud: React.FC = () => {
   const {resetCamera} = useCamera();
   const {setTopDown, setShowValidMoves} = useOptions();
-  const {leaveGame, turn, getScore, getName} = useGameManager();
+  const {leaveGame, turn, getScore, getName, getRoomCode} = useGameManager();
+  const roomCode = getRoomCode();
 
   return (
     <div>
@@ -37,6 +38,12 @@ const InGameHud: React.FC = () => {
           tooltipText="Toggle Highlight Valid Moves">
           <FaHighlighter />
         </IconButton>
+      </div>
+
+      <div className="absolute bottom-0 left-0 z-20 p-1">
+        {roomCode && (
+          <p className="text-white text-2xl">Room Code: {roomCode}</p>
+        )}
       </div>
 
       <ScoreCard

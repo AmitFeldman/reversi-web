@@ -38,12 +38,13 @@ const PlayerSchema = new Schema(
 );
 
 export const GameSchema = new Schema({
-  name: {
-    type: String,
-  },
   type: {
     type: String,
     required: true,
+  },
+  roomCode: {
+    type: String,
+    default: undefined,
   },
   whitePlayer: PlayerSchema,
   blackPlayer: PlayerSchema,

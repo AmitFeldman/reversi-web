@@ -36,7 +36,8 @@ interface GameManagerContextData {
   isLocal: () => boolean;
   getStatus: () => GameStatus | undefined;
   startGame: (gameType: GameType) => void;
-  joinGame: (roomId: string) => void;
+  joinGame: (roomCode: string) => void;
+  getRoomCode: () => string | undefined;
   leaveGame: () => void;
   getScore: (playerColor: PlayerColor) => number;
   getName: (playerColor: PlayerColor) => string;
@@ -72,6 +73,7 @@ const GameManagerContext = React.createContext<GameManagerContextData>({
   isLocal: () => false,
   getStatus: () => undefined,
   startGame: () => {},
+  getRoomCode: () => undefined,
   joinGame: () => {},
   leaveGame: () => {},
   getScore: () => 0,
@@ -156,11 +158,11 @@ const GameManagerProvider: React.FC = ({children}) => {
             gameType,
           });
         },
-        joinGame: (roomId) =>
+        joinGame: (roomCode) =>
           createRoom({
             token: user?._id,
             gameType: 'PRIVATE_ROOM',
-            joinRoomId: roomId,
+            roomCode,
           }),
         isLocal: () => game?.type === 'LOCAL',
         getScore: (color) =>
@@ -174,6 +176,8 @@ const GameManagerProvider: React.FC = ({children}) => {
             ? name
             : '. . .';
         },
+        getRoomCode: () =>
+          game?.type === 'PRIVATE_ROOM' ? game?.roomCode : undefined,
         isUserTurn,
         getEnemy: () =>
           getLocalUserColor() === Cell.WHITE
