@@ -20,7 +20,7 @@ const UserControls: React.FC = () => {
   return (
     <>
       {loggedIn ? (
-        <IconButton onClick={logout} place="left">
+        <IconButton onClick={logout} tooltipText="Logout" place="left">
           <AiOutlineLogout />
         </IconButton>
       ) : (
