@@ -62,7 +62,7 @@ const HeadsUpDisplay: React.FC = () => {
           className="float-right -mr-5 cursor-pointer"
           onClick={() => setShowModal(false)}
         />
-        <p className="text-6xl text-black mb-4">Reversi</p>
+        <p className="text-6xl text-black mb-4 cursor-default">Reversi</p>
         <PlayMenu closeMenu={() => setShowModal(false)} />
       </Modal>
     </>
