@@ -25,8 +25,6 @@ import Button from '../components/Button/Button';
 import GameLoader from '../components/GameLoader/GameLoader';
 import HUDModal from '../components/HUDModal/HUDModal';
 
-const style = {textAlign: '-webkit-center'};
-
 interface GameManagerContextData {
   inGame: boolean;
   gameId: string | undefined;

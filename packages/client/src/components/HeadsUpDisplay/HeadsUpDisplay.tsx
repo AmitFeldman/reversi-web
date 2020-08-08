@@ -2,10 +2,8 @@ import * as React from 'react';
 import UserControls from '../UserControls/UserControls';
 import {useAuth} from '../../context/AuthContext';
 import InGameHud from '../InGameHUD/InGameHUD';
-import Modal from 'react-modal';
 import PlayMenu from '../PlayMenu/PlayMenu';
 import MenuButton from '../MenuButton/MenuButton';
-import {GrClose} from 'react-icons/gr';
 import {useGameManager} from '../../context/GameManagerContext';
 import HUDModal from '../HUDModal/HUDModal';
 
