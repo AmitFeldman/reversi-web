@@ -9,7 +9,8 @@ export enum PlayerStatus {
   DISCONNECTED = 'DISCONNECTED',
 }
 
-export interface UserComputedStats{
+export interface UserComputedStats {
+  userId: string;
   username: string;
   wins: number;
   losses: number;

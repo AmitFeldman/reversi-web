@@ -92,7 +92,7 @@ router.get('/leaderboards/:type', async (req: any, res) => {
     .populate('stats.ties');
 
   const results: UserComputedStats[] = users
-    .map(({stats, username}) => {
+    .map(({_id, stats, username}) => {
       const wins = filterByGameType(
         (stats.wins as unknown) as IGame[],
         gameType
@@ -107,6 +107,7 @@ router.get('/leaderboards/:type', async (req: any, res) => {
       ).length;
 
       return {
+        userId: _id,
         username,
         wins,
         losses,
