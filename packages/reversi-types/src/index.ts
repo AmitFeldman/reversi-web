@@ -9,7 +9,8 @@ export enum PlayerStatus {
   DISCONNECTED = 'DISCONNECTED',
 }
 
-export interface UserComputedStats extends Pick<User, 'username'>{
+export interface UserComputedStats{
+  username: string;
   wins: number;
   losses: number;
   ties: number;

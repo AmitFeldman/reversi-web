@@ -1,5 +1,5 @@
 import client from './api-client';
-import {User} from 'reversi-types';
+import {GameType, User, UserComputedStats} from 'reversi-types';
 
 export enum UserErrorCode {
   USER_NOT_FOUND = 1,
@@ -28,4 +28,12 @@ const getMe = async (): Promise<User> => {
   return await client<{}, User>('users/me');
 };
 
-export {register, login, getMe};
+const getLeaderboards = async (
+  gameType: GameType
+): Promise<UserComputedStats[]> => {
+  return await client<{}, UserComputedStats[]>(
+    `users/leaderboards/${gameType}`
+  );
+};
+
+export {register, login, getMe, getLeaderboards};
