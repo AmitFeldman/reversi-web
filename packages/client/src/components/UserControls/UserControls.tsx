@@ -46,6 +46,7 @@ const UserControls: React.FC = () => {
       )}
 
       <Modal
+        style={{overlay: {zIndex: 1000}}}
         className="bg-white shadow-md rounded px-8 pt-3 pb-8 mb-4 float-right m-5 outline-none"
         overlayClassName=""
         isOpen={modalContent !== 'none'}

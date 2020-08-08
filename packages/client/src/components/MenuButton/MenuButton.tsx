@@ -18,6 +18,7 @@ const MenuButton: React.FC<MenuButtonProps> = ({
     <>
       <p
         data-tip={disabledTooltipText}
+        data-tip-disable={enabled}
         data-place="right"
         className={`w-fitcontent text-3xl ${
           enabled ? 'cursor-pointer hover:text-black' : 'cursor-default'

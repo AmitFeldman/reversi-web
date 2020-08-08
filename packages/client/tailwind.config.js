@@ -5,6 +5,7 @@ module.exports = {
       '0': 0,
       auto: 'auto',
       '25': '25vw',
+      '45': '45vw',
     },
     extend: {
       width: {

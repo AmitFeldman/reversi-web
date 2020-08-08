@@ -2,17 +2,19 @@ import * as React from 'react';
 import {
   createRoom,
   joinedRoom,
+  leaveRoom,
   onGameUpdated,
   onRoomCreated,
   playerMove,
-  leaveRoom,
 } from '../utils/socket/game-api';
 import {useAuth} from './AuthContext';
 import {
   Board as IBoard,
   Cell,
+  GameStatus,
   GameType,
   IGame,
+  IPlayer,
   Move,
   PlayerColor,
 } from 'reversi-types';
@@ -20,6 +22,7 @@ import {getInitialBoard} from '../utils/board-helper';
 import Modal from 'react-modal';
 import {GrClose} from 'react-icons/gr';
 import Button from '../components/Button/Button';
+import GameLoader from '../components/GameLoader/GameLoader';
 
 interface GameManagerContextData {
   inGame: boolean;
@@ -28,12 +31,14 @@ interface GameManagerContextData {
   board: IBoard;
   validMoves: Move[];
   isLocal: () => boolean;
+  getStatus: () => GameStatus | undefined;
   startGame: (gameType: GameType) => void;
   joinGame: (roomId: string) => void;
   leaveGame: () => void;
   getScore: (playerColor: PlayerColor) => number;
   getName: (playerColor: PlayerColor) => string;
-  getPlayerColor: () => PlayerColor | null;
+  getEnemy: () => IPlayer | undefined;
+  isUserTurn: () => boolean;
   playerMove: (row: number, column: number) => void;
 }
 
@@ -44,12 +49,14 @@ const GameManagerContext = React.createContext<GameManagerContextData>({
   board: getInitialBoard(),
   validMoves: [],
   isLocal: () => false,
+  getStatus: () => undefined,
   startGame: () => {},
   joinGame: () => {},
   leaveGame: () => {},
   getScore: () => 0,
-  getPlayerColor: () => null,
+  isUserTurn: () => false,
   getName: () => 'Guest',
+  getEnemy: () => undefined,
   playerMove: () => {},
 });
 
@@ -72,6 +79,8 @@ const GameManagerProvider: React.FC = ({children}) => {
 
     return null;
   };
+
+  const isUserTurn = () => getLocalUserColor() === game?.turn;
 
   React.useEffect(() => {
     const cancelOnRoomCreated = onRoomCreated((newRoomId) => {
@@ -109,6 +118,7 @@ const GameManagerProvider: React.FC = ({children}) => {
         board: game?.board ? game.board : getInitialBoard(),
         validMoves: game?.validMoves ? game.validMoves : [],
         turn: game?.turn,
+        getStatus: () => (inGame && game ? game.status : undefined),
         startGame: (gameType) => {
           createRoom({
             token: user?._id,
@@ -129,9 +139,13 @@ const GameManagerProvider: React.FC = ({children}) => {
             color === Cell.WHITE ? game?.whitePlayer : game?.blackPlayer;
           const name = player?.displayName;
 
-          return name ? name : 'Guest';
+          return name ? name : '';
         },
-        getPlayerColor: getLocalUserColor,
+        isUserTurn,
+        getEnemy: () =>
+          getLocalUserColor() === Cell.WHITE
+            ? game?.blackPlayer
+            : game?.whitePlayer,
         playerMove: (row, column) => {
           if (game?.type === 'LOCAL' || game?.turn === getLocalUserColor()) {
             gameId &&
@@ -152,6 +166,7 @@ const GameManagerProvider: React.FC = ({children}) => {
         },
       }}>
       <Modal
+        style={{overlay: {zIndex: 1000}}}
         className="absolute bg-white shadow-md rounded px-8 pb-8 pt-3 m-5 outline-none"
         isOpen={modalOpen}
         onRequestClose={() => setModalOpen(false)}>
@@ -170,6 +185,8 @@ const GameManagerProvider: React.FC = ({children}) => {
           Leave Game
         </Button>
       </Modal>
+
+      <GameLoader />
       {children}
     </GameManagerContext.Provider>
   );

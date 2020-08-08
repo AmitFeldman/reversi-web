@@ -17,7 +17,7 @@ const InGameHud: React.FC = () => {
 
   return (
     <div>
-      <div className="absolute top-0 left-0">
+      <div className="absolute top-0 left-0 z-20">
         <IconButton onClick={leaveGame} tooltipText="Leave Game">
           <TiArrowBack />
         </IconButton>
