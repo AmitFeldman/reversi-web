@@ -238,7 +238,7 @@ const getNextTurn = (
   return undefined;
 };
 
-const incrementUserStats = async (
+const incrementUserStats = (
   id: any,
   gameId: string,
   color: PlayerColor,
@@ -265,7 +265,7 @@ const incrementUserStats = async (
   });
 };
 
-const updateUserStats = async (game: IGame) => {
+const updateUserStats = (game: IGame) => {
   const whitePlayer = getPlayerFromGameByColor(Cell.WHITE, game);
   const blackPlayer = getPlayerFromGameByColor(Cell.BLACK, game);
   const {_id: gameId, status, type} = game;
@@ -342,7 +342,8 @@ const playerMove = async ({
     // Save game after player turn
     await game.save();
 
-    if (cpuGameTypes.includes(game.type)) {
+    // If game.turn is undefined than the game is over
+    if (game.turn && cpuGameTypes.includes(game.type)) {
       const currentTurn = game.turn;
 
       while (game.turn === currentTurn) {
@@ -358,6 +359,7 @@ const playerMove = async ({
           game.validMoves = [];
           game.status = getGameResult(game.board);
           updateUserStats(game);
+          break;
         }
       }
 
