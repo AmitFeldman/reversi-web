@@ -71,19 +71,19 @@ initSocketManager((socket) => {
     ClientEvents.CREATE_ROOM,
     createRoom
   );
-  
+
   const cancelOnJoinRoom = on<JoinRoomArgs>(
     socket,
     ClientEvents.JOINED,
     joinRoom
   );
-  
+
   const cancelOnPlayerMove = on<PlayerMoveArgs>(
     socket,
     ClientEvents.PLAYER_MOVE,
     playerMove
   );
-  
+
   const cancelOnPlayerLeaveRoom = on<LeaveRoomArgs>(
     socket,
     ClientEvents.LEAVE_ROOM,

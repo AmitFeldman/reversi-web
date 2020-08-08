@@ -1,8 +1,10 @@
 import GameModel from '../models/Game';
+import UserModel from '../models/User';
 import {
   Board,
   Cell,
   CreateRoomArgs,
+  EndGameStatus,
   GameStatus,
   GameType,
   IGame,
@@ -19,7 +21,13 @@ import mongoose from 'mongoose';
 import {emitEventToSocket} from './socket-service';
 import {getSocketByUserId} from '../services/socket-manager';
 import {ChangeEventCR, ChangeEventUpdate} from 'mongodb';
-import {getBoardAfterMove, getGameResult, getLegalMoves, isLegal, isValid} from './game-rules';
+import {
+  getBoardAfterMove,
+  getGameResult,
+  getLegalMoves,
+  isLegal,
+  isValid,
+} from './game-rules';
 import {ai_play, gameTypesToStrategy} from './ai/ai-api';
 
 const AI_TIMEOUT = 1000;
@@ -28,7 +36,7 @@ const cpuDisplayNames: Map<GameType, string> = new Map([
   ['AI_EASY', 'Easy Bot'],
   ['AI_MEDIUM', 'Medium Bot'],
   ['AI_HARD', 'Hard Bot'],
-  ['AI_EXPERT', 'Expert Bot']
+  ['AI_EXPERT', 'Expert Bot'],
 ]);
 
 const cpuGameTypes = Array.from(cpuDisplayNames.keys());
@@ -160,8 +168,10 @@ const connectPlayerToGame = async (user: User, game: IGame) => {
   const {whitePlayer, blackPlayer, status} = game;
 
   if (status === GameStatus.WAITING) {
-    const isWhiteAvailable = whitePlayer && !whitePlayer.isCPU && !isPlayerConnected(whitePlayer);
-    const isBlackAvailable = blackPlayer && !blackPlayer.isCPU && !isPlayerConnected(blackPlayer);
+    const isWhiteAvailable =
+      whitePlayer && !whitePlayer.isCPU && !isPlayerConnected(whitePlayer);
+    const isBlackAvailable =
+      blackPlayer && !blackPlayer.isCPU && !isPlayerConnected(blackPlayer);
 
     if (isWhiteAvailable) {
       const updatedGame = updatePlayerConnectionInGame(user, game, Cell.WHITE);
@@ -169,9 +179,8 @@ const connectPlayerToGame = async (user: User, game: IGame) => {
       if (!isBlackAvailable) {
         updatedGame.status = GameStatus.PLAYING;
       }
-      
+
       await updatedGame.save();
-      
     } else if (isBlackAvailable) {
       const updatedGame = updatePlayerConnectionInGame(user, game, Cell.BLACK);
 
@@ -210,7 +219,10 @@ const getCurrentTurnPlayer = (game: IGame | null): IPlayer | undefined => {
   }
 };
 
-const getNextTurn = (turn: PlayerColor, board: Board): PlayerColor | undefined => {
+const getNextTurn = (
+  turn: PlayerColor,
+  board: Board
+): PlayerColor | undefined => {
   const nextTurn = turn === Cell.WHITE ? Cell.BLACK : Cell.WHITE;
 
   if (getLegalMoves(nextTurn, board).length > 0) {
@@ -220,6 +232,63 @@ const getNextTurn = (turn: PlayerColor, board: Board): PlayerColor | undefined =
   }
 
   return undefined;
+};
+
+const incrementUserStats = async (
+  id: any,
+  gameId: string,
+  color: PlayerColor,
+  status: EndGameStatus
+) => {
+  UserModel.findById(id).then((user) => {
+    if (user) {
+      if (status === GameStatus.TIE) {
+        user.stats.ties.push(gameId);
+      } else {
+        const isWin =
+          (color === Cell.WHITE && status === GameStatus.WIN_WHITE) ||
+          (color === Cell.BLACK && status === GameStatus.WIN_BLACK);
+
+        if (isWin) {
+          user.stats.wins.push(gameId);
+        } else {
+          user.stats.losses.push(gameId);
+        }
+      }
+
+      return user.save();
+    }
+  });
+};
+
+const updateUserStats = async (game: IGame) => {
+  const whitePlayer = getPlayerFromGameByColor(Cell.WHITE, game);
+  const blackPlayer = getPlayerFromGameByColor(Cell.BLACK, game);
+  const {_id: gameId, status, type} = game;
+
+  if (type !== 'LOCAL') {
+    if (
+      ![GameStatus.WIN_BLACK, GameStatus.WIN_WHITE, GameStatus.TIE].includes(
+        status
+      )
+    ) {
+      throw new Error(
+        `Game ERROR: trying to update users without valid game end state...`
+      );
+    }
+
+    if (!whitePlayer || !blackPlayer) {
+      throw new Error(`Game ERROR: players not valid...`);
+    }
+
+    const {userId: whiteId, isCPU: isWhiteCPU} = whitePlayer;
+    const {userId: blackId, isCPU: isBlackCPU} = blackPlayer;
+
+    !isWhiteCPU &&
+      incrementUserStats(whiteId, gameId, Cell.WHITE, status as EndGameStatus);
+    !isBlackCPU &&
+      incrementUserStats(blackId, gameId, Cell.BLACK, status as EndGameStatus);
+  }
 };
 
 const playerMove = async ({
@@ -247,7 +316,10 @@ const playerMove = async ({
     isValid(index) &&
     isLegal(index, currentTurn, board)
   ) {
-    if (game.type === 'LOCAL' || currentPlayer?.userId?.toString() === user?.id) {
+    if (
+      game.type === 'LOCAL' ||
+      currentPlayer?.userId?.toString() === user?.id
+    ) {
       const newBoard = getBoardAfterMove(index, currentTurn, board);
 
       // Update game after turn
@@ -259,6 +331,7 @@ const playerMove = async ({
       } else {
         game.validMoves = [];
         game.status = getGameResult(game.board);
+        updateUserStats(game);
       }
     }
 
@@ -268,7 +341,7 @@ const playerMove = async ({
     if (cpuGameTypes.includes(game.type)) {
       const currentTurn = game.turn;
 
-      while(game.turn === currentTurn) {
+      while (game.turn === currentTurn) {
         const newBoard = await getBoardAfterAIMove(game);
 
         // Update game after ai move
@@ -280,8 +353,8 @@ const playerMove = async ({
         } else {
           game.validMoves = [];
           game.status = getGameResult(game.board);
+          updateUserStats(game);
         }
-
       }
 
       await setTimeout(() => game.save(), AI_TIMEOUT);
@@ -387,7 +460,9 @@ const emitUpdateToPlayerInGame = (game: IGame, color: PlayerColor) => {
     const playerSocket = getSocketByUserId(player.userId.toString());
 
     if (playerSocket) {
-      console.log(`Game Update emitted to socket: ${playerSocket.id} in game id: ${game._id}...`);
+      console.log(
+        `Game Update emitted to socket: ${playerSocket.id} in game id: ${game._id}...`
+      );
       emitEventToSocket(playerSocket, ServerEvents.GameUpdated, game);
     }
   }

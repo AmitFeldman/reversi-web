@@ -1,4 +1,11 @@
-import {Board, Cell, GameStatus, Move, PlayerColor} from 'reversi-types';
+import {
+  Board,
+  Cell,
+  EndGameStatus,
+  GameStatus,
+  Move,
+  PlayerColor,
+} from 'reversi-types';
 
 enum DIRECTIONS {
   UP = -10,
@@ -27,7 +34,8 @@ function findBracket(
   move: number,
   playerColor: Cell,
   board: Board,
-  direction: DIRECTIONS) {
+  direction: DIRECTIONS
+) {
   let bracket: number = move + direction;
 
   if (board[bracket] == playerColor) {
@@ -60,7 +68,8 @@ function flipTilesOnBoard(
   move: number,
   playerColor: Cell,
   board: Board,
-  direction: DIRECTIONS) {
+  direction: DIRECTIONS
+) {
   const bracket: number | undefined = findBracket(
     move,
     playerColor,
@@ -80,7 +89,11 @@ function flipTilesOnBoard(
   }
 }
 
-function getBoardAfterMove(move: number, playerColor: Cell, board: Board): Board {
+function getBoardAfterMove(
+  move: number,
+  playerColor: Cell,
+  board: Board
+): Board {
   const newBoard = [...board];
 
   if (isValid(move) && isLegal(move, playerColor, newBoard)) {
@@ -102,12 +115,12 @@ const getLegalMoves = (player: PlayerColor, board: Board): Move[] => {
 };
 
 const getPlayerScore = (playerColor: Cell, board: Board): number => {
-    return board.reduce((totalScore: number, currentValue: Cell): number => {
-      return totalScore + +(currentValue === playerColor);
-    }, 0);
+  return board.reduce((totalScore: number, currentValue: Cell): number => {
+    return totalScore + +(currentValue === playerColor);
+  }, 0);
 };
 
-const getGameResult = (board: Board): GameStatus => {
+const getGameResult = (board: Board): EndGameStatus => {
   const whiteScore = getPlayerScore(Cell.WHITE, board);
   const blackScore = getPlayerScore(Cell.BLACK, board);
 

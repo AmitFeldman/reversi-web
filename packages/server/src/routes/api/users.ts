@@ -1,10 +1,7 @@
 import {Router} from 'express';
 import User from '../../models/User';
-import {Errors} from 'reversi-types';
-import {
-  getSocketByUserId,
-  isUserConnected,
-} from '../../services/socket-manager';
+import {Errors, GameType, IGame, UserComputedStats} from 'reversi-types';
+import {isUserConnected} from '../../services/socket-manager';
 
 const router = Router();
 
@@ -76,6 +73,51 @@ router.post('/login', (req, res) => {
 
     res.json(user);
   });
+});
+
+const filterByGameType = (games: IGame[], gameType: GameType) =>
+  games.filter(({type}) => type === gameType);
+
+// GET api/users/leaderboards
+router.get('/leaderboards/:type', async (req: any, res) => {
+  const gameType: GameType = req.params.type;
+
+  if (!gameType) {
+    throw new Error('Leaderboards ERROR: No valid game type...');
+  }
+
+  const users = await User.find({}, {username: 1, stats: 1})
+    .populate('stats.wins')
+    .populate('stats.losses')
+    .populate('stats.ties');
+
+  const results: UserComputedStats[] = users
+    .map(({stats, username}) => {
+      const wins = filterByGameType(
+        (stats.wins as unknown) as IGame[],
+        gameType
+      ).length;
+      const losses = filterByGameType(
+        (stats.losses as unknown) as IGame[],
+        gameType
+      ).length;
+      const ties = filterByGameType(
+        (stats.ties as unknown) as IGame[],
+        gameType
+      ).length;
+
+      return {
+        username,
+        wins,
+        losses,
+        ties,
+        winLossRatio: (losses === 0 ? wins : wins / losses).toFixed(2),
+      };
+    })
+    .filter(({wins, losses, ties}) => wins !== 0 || losses !== 0 || ties !== 0)
+    .sort(({winLossRatio: a}, {winLossRatio: b}) => Number(b) - Number(a));
+
+  res.json(results);
 });
 
 export default router;

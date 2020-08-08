@@ -21,6 +21,20 @@ const UserSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  stats: {
+    wins: {
+      type: [{type: Schema.Types.ObjectId, ref: 'rooms'}],
+      default: [],
+    },
+    losses: {
+      type: [{type: Schema.Types.ObjectId, ref: 'rooms'}],
+      default: [],
+    },
+    ties: {
+      type: [{type: Schema.Types.ObjectId, ref: 'rooms'}],
+      default: [],
+    },
+  },
   date: {
     type: Date,
     default: Date.now,
