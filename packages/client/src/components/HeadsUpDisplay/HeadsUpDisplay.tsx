@@ -33,14 +33,21 @@ const HeadsUpDisplay: React.FC = () => {
           </div>
 
           <div className="absolute top-0 left-0 text-white p-8 pl-12">
-            <p className="text-6xl mb-2">Reversi</p>
+            <p className="text-6xl mb-2 cursor-default">Reversi</p>
             <MenuButton
-              text="Play"
+              text="Quick Play"
+              enabled={isUserLoggedIn()}
+              disabledTooltipText="Login to Quick Play!"
               onClick={() => {
                 startGame('PUBLIC_ROOM');
               }}
             />
-            <MenuButton text="Custom Game" onClick={() => setShowModal(true)} />
+            <MenuButton
+              enabled={isUserLoggedIn()}
+              disabledTooltipText="Login to play a Custom Game!"
+              text="Custom Game"
+              onClick={() => setShowModal(true)}
+            />
             <MenuButton text="Leaderboards" onClick={() => {}} />
           </div>
         </>
