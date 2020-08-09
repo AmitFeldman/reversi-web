@@ -29,7 +29,7 @@ import {
   isValid,
 } from './game-rules';
 import {ai_play, gameTypesToStrategy} from './ai/ai-api';
-import {getRandomWord} from './random-word-gen';
+import {getSafeRoomCode} from './room-code-gen';
 
 const AI_TIMEOUT = 1000;
 
@@ -46,9 +46,11 @@ const createGame = async ({id, username}: User, gameType: GameType) => {
   const isCPU = cpuGameTypes.includes(gameType);
   const isLocal = gameType === 'LOCAL';
   const isOffline = isCPU || isLocal;
+  const roomCode =
+    gameType === 'PRIVATE_ROOM' ? await getSafeRoomCode() : undefined;
 
   const newGame = new GameModel({
-    roomCode: gameType === 'PRIVATE_ROOM' ? getRandomWord() : undefined,
+    roomCode: roomCode,
     createdBy: id,
     whitePlayer: {
       userId: id,
@@ -270,6 +272,7 @@ const updateUserStats = (game: IGame) => {
   const blackPlayer = getPlayerFromGameByColor(Cell.BLACK, game);
   const {_id: gameId, status, type} = game;
 
+  // Do not update stats for local games because they will be deleted
   if (type !== 'LOCAL') {
     if (
       ![GameStatus.WIN_BLACK, GameStatus.WIN_WHITE, GameStatus.TIE].includes(
@@ -399,16 +402,7 @@ const disconnectPlayerFromGames = async (
   games.forEach((game) => {
     if (game) {
       const player = getPlayerFromGameByColor(color, game);
-
-      if (player) {
-        player.connectionStatus = PlayerStatus.DISCONNECTED;
-
-        if (game.status === GameStatus.PLAYING) {
-          game.status = GameStatus.WAITING;
-        }
-
-        game.save();
-      }
+      player && updateLeaveGame(player, game);
     }
   });
 };
@@ -418,6 +412,42 @@ const disconnectUserFromGames = async (id: string) => {
 
   disconnectPlayerFromGames(userId, Cell.WHITE);
   disconnectPlayerFromGames(userId, Cell.BLACK);
+};
+
+const updateLeaveGame = (player: IPlayer, game: IGame) => {
+  player.connectionStatus = PlayerStatus.DISCONNECTED;
+
+  // If game status is waiting, just delete the game because it never started
+  if (game.status === GameStatus.WAITING) {
+    game.remove();
+  } else {
+    if (game.status === GameStatus.PLAYING) {
+      game.status = GameStatus.WAITING;
+    }
+
+    const {type} = game;
+    switch (type) {
+      case 'AI_EASY':
+      case 'AI_MEDIUM':
+      case 'AI_HARD':
+      case 'AI_EXPERT':
+      case 'PUBLIC_ROOM':
+        // Automatic loss for leaving user
+        const isWhiteLoss = player.userId === game.whitePlayer?.userId;
+        game.status = isWhiteLoss ? GameStatus.WIN_BLACK : GameStatus.WIN_WHITE;
+        updateUserStats(game);
+        game.save();
+        break;
+      case 'PRIVATE_ROOM':
+        // No delete or change
+        game.save();
+        break;
+      case 'LOCAL':
+        // Delete game
+        game.remove();
+        break;
+    }
+  }
 };
 
 const leaveRoom = async ({roomId, user}: LeaveRoomArgs) => {
@@ -432,16 +462,7 @@ const leaveRoom = async ({roomId, user}: LeaveRoomArgs) => {
   }
 
   const player = getPlayerFromGameById(user._id, game);
-
-  if (player) {
-    player.connectionStatus = PlayerStatus.DISCONNECTED;
-
-    if (game.status === GameStatus.PLAYING) {
-      game.status = GameStatus.WAITING;
-    }
-
-    game.save();
-  }
+  player && updateLeaveGame(player, game);
 };
 
 const onNewGame = (change: ChangeEventCR<IGame>) => {

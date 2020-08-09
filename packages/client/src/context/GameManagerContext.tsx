@@ -62,6 +62,26 @@ const getGameOverText = (
   return 'Better luck next time, You Lost...';
 };
 
+const getLeaveGameText = (
+  type: GameType | undefined,
+  status: GameStatus | undefined
+): string => {
+  if (status !== GameStatus.PLAYING) {
+    return 'Are you sure?';
+  }
+
+  switch (type) {
+    case 'AI_EASY':
+    case 'AI_MEDIUM':
+    case 'AI_HARD':
+    case 'AI_EXPERT':
+    case 'PUBLIC_ROOM':
+      return 'Leaving the game will count as a loss, are you sure?';
+    default:
+      return 'Are you sure?';
+  }
+};
+
 const GameManagerContext = React.createContext<GameManagerContextData>({
   inGame: false,
   gameId: undefined,
@@ -211,7 +231,7 @@ const GameManagerProvider: React.FC = ({children}) => {
                 game?.status as EndGameStatus,
                 getLocalUserColor() as PlayerColor
               )
-            : 'Are you sure?'}
+            : getLeaveGameText(game?.type, game?.status)}
         </p>
         <Button
           className="m-2"
