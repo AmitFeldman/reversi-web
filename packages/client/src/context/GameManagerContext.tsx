@@ -11,7 +11,6 @@ import {useAuth} from './AuthContext';
 import {
   Board as IBoard,
   Cell,
-  EndGameStatus,
   GameStatus,
   GameType,
   IGame,
@@ -44,10 +43,15 @@ interface GameManagerContextData {
   playerMove: (row: number, column: number) => void;
 }
 
-const getGameOverText = (
-  status: EndGameStatus,
-  localUserColor: PlayerColor
-): string => {
+const getGameOverText = (game: IGame, localUserColor: PlayerColor): string => {
+  const {status, type} = game;
+
+  if (type === 'LOCAL') {
+    const whiteWin = status === GameStatus.WIN_WHITE;
+
+    return `${whiteWin ? 'White' : 'Black'} won! Good game!`;
+  }
+
   if (status === GameStatus.TIE) {
     return 'Tie Game!';
   }
@@ -67,19 +71,22 @@ const getLeaveGameText = (
   status: GameStatus | undefined
 ): string => {
   if (status !== GameStatus.PLAYING) {
-    return 'Are you sure?';
+    return 'The game hasn\'t started yet, are you sure?';
   }
 
-  switch (type) {
-    case 'AI_EASY':
-    case 'AI_MEDIUM':
-    case 'AI_HARD':
-    case 'AI_EXPERT':
-    case 'PUBLIC_ROOM':
-      return 'Leaving the game will count as a loss, are you sure?';
-    default:
-      return 'Are you sure?';
+  const loseTypes: GameType[] = [
+    'AI_EASY',
+    'AI_MEDIUM',
+    'AI_HARD',
+    'AI_EXPERT',
+    'PUBLIC_ROOM',
+  ];
+
+  if (type && loseTypes.includes(type)) {
+    return 'Leaving the game will count as a loss, are you sure?';
   }
+
+  return 'Are you sure?';
 };
 
 const GameManagerContext = React.createContext<GameManagerContextData>({
@@ -227,10 +234,7 @@ const GameManagerProvider: React.FC = ({children}) => {
         onRequestClose={() => setModalOpen(false)}>
         <p className="text-lg text-black mb-4 break-words">
           {isGameOver
-            ? getGameOverText(
-                game?.status as EndGameStatus,
-                getLocalUserColor() as PlayerColor
-              )
+            ? getGameOverText(game as IGame, getLocalUserColor() as PlayerColor)
             : getLeaveGameText(game?.type, game?.status)}
         </p>
         <Button
