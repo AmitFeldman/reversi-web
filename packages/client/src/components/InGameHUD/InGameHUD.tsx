@@ -2,8 +2,9 @@ import * as React from 'react';
 import IconButton from '../IconButton/IconButton';
 import {TiArrowBack} from 'react-icons/ti';
 import {IoMdReverseCamera} from 'react-icons/io';
-import {FiArrowDownCircle} from 'react-icons/fi';
+import {FiArrowDownCircle, FiArrowUpCircle} from 'react-icons/fi';
 import {FaHighlighter} from 'react-icons/fa';
+import {GiCancel} from 'react-icons/gi';
 import ScoreCard from '../ScoreCard/ScoreCard';
 import {Cell} from 'reversi-types';
 import {useCamera} from '../../context/CameraContext';
@@ -12,7 +13,7 @@ import {useGameManager} from '../../context/GameManagerContext';
 
 const InGameHud: React.FC = () => {
   const {resetCamera} = useCamera();
-  const {setTopDown, setShowValidMoves} = useOptions();
+  const {topDown, setTopDown, showValidMoves, setShowValidMoves} = useOptions();
   const {leaveGame, turn, getScore, getName, getRoomCode} = useGameManager();
   const roomCode = getRoomCode();
 
@@ -30,13 +31,13 @@ const InGameHud: React.FC = () => {
         <IconButton
           onClick={() => setTopDown((td) => !td)}
           tooltipText="Toggle Top Down Camera">
-          <FiArrowDownCircle />
+          {topDown ? <FiArrowUpCircle /> : <FiArrowDownCircle />}
         </IconButton>
 
         <IconButton
           onClick={() => setShowValidMoves((show) => !show)}
           tooltipText="Toggle Highlight Valid Moves">
-          <FaHighlighter />
+          {showValidMoves ? <GiCancel /> : <FaHighlighter />}
         </IconButton>
       </div>
 
