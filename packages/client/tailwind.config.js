@@ -14,6 +14,9 @@ module.exports = {
       height: {
         '18px': '18px',
       },
+      maxHeight: {
+        '60vh': '60vh',
+      },
     },
   },
   variants: {},
