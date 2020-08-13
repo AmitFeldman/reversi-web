@@ -28,7 +28,7 @@ import {
   isLegal,
   isValid,
 } from './game-rules';
-import {ai_play, gameTypesToStrategy} from './ai/ai-api';
+import {aiPlay, gameTypesToStrategy} from './ai/ai-api';
 import {getSafeRoomCode} from './room-code-gen';
 
 const AI_TIMEOUT = 1000;
@@ -364,9 +364,10 @@ const playerMove = async ({
           updateUserStats(game);
           break;
         }
-      }
 
-      await setTimeout(() => game.save(), AI_TIMEOUT);
+        await setTimeout(() => game.save(), AI_TIMEOUT);
+      }
+      // await setTimeout(() => game.save(), AI_TIMEOUT);
     }
   }
 };
@@ -377,7 +378,7 @@ const getBoardAfterAIMove = async (game: IGame): Promise<Board> => {
 
   const strategy = gameTypesToStrategy.get(game.type);
 
-  const aiMoveIndex = await ai_play({
+  const aiMoveIndex = await aiPlay({
     board,
     color: currentTurn as PlayerColor,
     strategy,

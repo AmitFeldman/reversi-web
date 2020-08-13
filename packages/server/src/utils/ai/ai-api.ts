@@ -17,10 +17,10 @@ export interface AiBody {
   board: Board
 }
 
-const ai_play = async (aiData: AiBody): Promise<number> => {
+const aiPlay = async (aiData: AiBody): Promise<number> => {
   return await server<AiBody, number>('ai_play', {
     body: aiData,
   });
 };
 
-export {ai_play, gameTypesToStrategy};
+export {aiPlay, gameTypesToStrategy};
