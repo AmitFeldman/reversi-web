@@ -7,16 +7,15 @@ import MenuButton from '../MenuButton/MenuButton';
 import {useGameManager} from '../../context/GameManagerContext';
 import HUDModal from '../HUDModal/HUDModal';
 import LeaderboardMenu from '../LeaderboardMenu/LeaderboardMenu';
-import {User} from 'reversi-types';
 
 const DEFAULT_USERNAME = 'Guest';
 
-type modalType = 'none' | 'CUSTOM_GAME' | 'LEADERBOARD';
+type MenuType = 'CUSTOM_GAME' | 'LEADERBOARD' | undefined;
 
 const HeadsUpDisplay: React.FC = () => {
   const {user, isUserLoggedIn} = useAuth();
   const {inGame, startGame} = useGameManager();
-  const [modal, setModal] = React.useState<modalType>('none');
+  const [modal, setModal] = React.useState<MenuType>();
 
   return (
     <>
@@ -61,13 +60,13 @@ const HeadsUpDisplay: React.FC = () => {
 
       <HUDModal
         className={`top-0 float-left ${modal === 'CUSTOM_GAME' && 'max-w-sm'}`}
-        onRequestClose={() => setModal('none')}
-        isOpen={modal !== 'none'}>
+        onRequestClose={() => setModal(undefined)}
+        isOpen={Boolean(modal)}>
         <p className="text-6xl text-black mb-4 cursor-default">Reversi</p>
         {modal === 'CUSTOM_GAME' ? (
-          <PlayMenu closeMenu={() => setModal('none')} />
+          <PlayMenu closeMenu={() => setModal(undefined)} />
         ) : modal === 'LEADERBOARD' ? (
-          <LeaderboardMenu user={user as User} />
+          <LeaderboardMenu user={user} />
         ) : (
           <></>
         )}

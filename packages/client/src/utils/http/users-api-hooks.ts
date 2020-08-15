@@ -2,24 +2,33 @@ import * as React from 'react';
 import {GameType, UserComputedStats} from 'reversi-types';
 import {getLeaderboards} from './users-api';
 
-const useLeaderboards = (
-  type: GameType
-): [UserComputedStats[], boolean, () => void] => {
+interface useLeaderboardsResultOptions {
+  loading: boolean;
+  fetch: () => void;
+}
+
+type useLeaderboardsResult = [
+  UserComputedStats[],
+  useLeaderboardsResultOptions
+];
+
+const useLeaderboards = (type: GameType): useLeaderboardsResult => {
   const [data, setData] = React.useState<UserComputedStats[]>([]);
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [loading, setLoading] = React.useState<boolean>(false);
 
   const fetchData = () => {
-    setIsLoading(true);
+    setLoading(true);
     getLeaderboards(type)
       .then((result) => setData(result))
-      .finally(() => setIsLoading(false));
+      .finally(() => setLoading(false));
   };
 
   React.useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type]);
 
-  return [data, isLoading, fetchData];
+  return [data, {loading, fetch: fetchData}];
 };
 
 export {useLeaderboards};
