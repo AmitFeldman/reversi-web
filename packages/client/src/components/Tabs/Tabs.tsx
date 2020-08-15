@@ -7,13 +7,14 @@ interface TabData {
 
 interface TabsProps {
   tabs: TabData[];
+  onChange?: (tabIndex: number) => void;
 }
 
 const selectedTabStyle = 'border-l border-t border-r rounded-t text-purple-600';
 const tabStyle =
   'bg-white inline-block py-2 px-4 font-semibold text-purple-400 hover:text-purple-500';
 
-const Tabs: React.FC<TabsProps> = ({tabs}) => {
+const Tabs: React.FC<TabsProps> = ({tabs, onChange = () => {}}) => {
   const [tabIndex, setTabIndex] = React.useState<number>(0);
 
   return (
@@ -25,7 +26,10 @@ const Tabs: React.FC<TabsProps> = ({tabs}) => {
               className={`bg-white inline-block py-2 px-4 font-semibold ${
                 index === tabIndex ? selectedTabStyle : tabStyle
               }`}
-              onClick={() => setTabIndex(index)}>
+              onClick={() => {
+                setTabIndex(index);
+                onChange(index);
+              }}>
               {title}
             </p>
           </li>

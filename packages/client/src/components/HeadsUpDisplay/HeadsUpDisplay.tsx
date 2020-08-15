@@ -6,13 +6,16 @@ import PlayMenu from '../PlayMenu/PlayMenu';
 import MenuButton from '../MenuButton/MenuButton';
 import {useGameManager} from '../../context/GameManagerContext';
 import HUDModal from '../HUDModal/HUDModal';
+import LeaderboardMenu from '../LeaderboardMenu/LeaderboardMenu';
 
 const DEFAULT_USERNAME = 'Guest';
+
+type MenuType = 'CUSTOM_GAME' | 'LEADERBOARD' | undefined;
 
 const HeadsUpDisplay: React.FC = () => {
   const {user, isUserLoggedIn} = useAuth();
   const {inGame, startGame} = useGameManager();
-  const [showModal, setShowModal] = React.useState<boolean>(false);
+  const [modal, setModal] = React.useState<MenuType>();
 
   return (
     <>
@@ -45,19 +48,28 @@ const HeadsUpDisplay: React.FC = () => {
               enabled={isUserLoggedIn()}
               disabledTooltipText="Login to play a Custom Game!"
               text="Custom Game"
-              onClick={() => setShowModal(true)}
+              onClick={() => setModal('CUSTOM_GAME')}
             />
-            <MenuButton text="Leaderboards" onClick={() => {}} />
+            <MenuButton
+              text="Leaderboards"
+              onClick={() => setModal('LEADERBOARD')}
+            />
           </div>
         </>
       )}
 
       <HUDModal
-        className="top-0 float-left max-w-sm"
-        onRequestClose={() => setShowModal(false)}
-        isOpen={showModal}>
+        className={`top-0 float-left ${modal === 'CUSTOM_GAME' && 'max-w-sm'}`}
+        onRequestClose={() => setModal(undefined)}
+        isOpen={Boolean(modal)}>
         <p className="text-6xl text-black mb-4 cursor-default">Reversi</p>
-        <PlayMenu closeMenu={() => setShowModal(false)} />
+        {modal === 'CUSTOM_GAME' ? (
+          <PlayMenu closeMenu={() => setModal(undefined)} />
+        ) : modal === 'LEADERBOARD' ? (
+          <LeaderboardMenu user={user} />
+        ) : (
+          <></>
+        )}
       </HUDModal>
     </>
   );
