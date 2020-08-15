@@ -33,7 +33,7 @@ const LeaderboardMenu: React.FC<LeaderboardMenuProps> = ({user}) => {
         title: tabData.tabTitle,
         content: (
           <div className="grid max-h-60vh overflow-auto">
-            <table className="table-auto m-2">
+            <table className="table-auto m-2 text-center">
               <thead>
                 <tr>
                   <th className="px-4 py-2">Username</th>
