@@ -48,14 +48,14 @@ const LeaderboardMenu: React.FC<LeaderboardMenuProps> = ({user}) => {
                   data.map(
                     (
                       {userId, username, wins, losses, ties, winLossRatio},
-                      rowIndex
+                      index
                     ) => (
                       <tr
-                        key={rowIndex}
+                        key={index}
                         className={
                           userId === connectedUserId
                             ? 'bg-purple-400'
-                            : rowIndex % 2
+                            : index % 2
                             ? 'bg-gray-100'
                             : ''
                         }>
