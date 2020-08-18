@@ -346,10 +346,10 @@ const playerMove = async ({
     await game.save();
 
     // If game.turn is undefined than the game is over
-    if (game.turn && cpuGameTypes.includes(game.type)) {
-      const currentTurn = game.turn;
+    if (game.turn !== currentTurn && cpuGameTypes.includes(game.type)) {
+      const currentAITurn = game.turn;
 
-      while (game.turn === currentTurn) {
+      while (game.turn === currentAITurn) {
         const newBoard = await getBoardAfterAIMove(game);
 
         // Update game after ai move

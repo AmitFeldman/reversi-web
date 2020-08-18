@@ -31,6 +31,7 @@ export interface User extends BaseDocument {
   stats: UserStats;
   isAdmin: boolean;
 }
+
 export enum ClientEvents {
   CREATE_ROOM = 'CREATE_ROOM',
   JOINED = 'JOINED',
