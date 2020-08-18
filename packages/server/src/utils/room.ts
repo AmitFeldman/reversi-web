@@ -423,29 +423,31 @@ const updateLeaveGame = (player: IPlayer, game: IGame) => {
   } else {
     if (game.status === GameStatus.PLAYING) {
       game.status = GameStatus.WAITING;
-    }
 
-    const {type} = game;
-    switch (type) {
-      case 'AI_EASY':
-      case 'AI_MEDIUM':
-      case 'AI_HARD':
-      case 'AI_EXPERT':
-      case 'PUBLIC_ROOM':
-        // Automatic loss for leaving user
-        const isWhiteLoss = player.userId === game.whitePlayer?.userId;
-        game.status = isWhiteLoss ? GameStatus.WIN_BLACK : GameStatus.WIN_WHITE;
-        updateUserStats(game);
-        game.save();
-        break;
-      case 'PRIVATE_ROOM':
-        // No delete or change
-        game.save();
-        break;
-      case 'LOCAL':
-        // Delete game
-        game.remove();
-        break;
+      const {type} = game;
+      switch (type) {
+        case 'AI_EASY':
+        case 'AI_MEDIUM':
+        case 'AI_HARD':
+        case 'AI_EXPERT':
+        case 'PUBLIC_ROOM':
+          // Automatic loss for leaving user
+          const isWhiteLoss = player.userId === game.whitePlayer?.userId;
+          game.status = isWhiteLoss
+            ? GameStatus.WIN_BLACK
+            : GameStatus.WIN_WHITE;
+          updateUserStats(game);
+          game.save();
+          break;
+        case 'PRIVATE_ROOM':
+          // No delete or change
+          game.save();
+          break;
+        case 'LOCAL':
+          // Delete game
+          game.remove();
+          break;
+      }
     }
   }
 };
