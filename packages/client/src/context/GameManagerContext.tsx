@@ -71,7 +71,7 @@ const getLeaveGameText = (
   status: GameStatus | undefined
 ): string => {
   if (status !== GameStatus.PLAYING) {
-    return 'The game hasn\'t started yet, are you sure?';
+    return 'The game will be deleted if you leave now, are you sure?';
   }
 
   const loseTypes: GameType[] = [
